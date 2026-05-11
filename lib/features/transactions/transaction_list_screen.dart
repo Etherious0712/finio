@@ -11,6 +11,10 @@ import '../../shared/widgets/month_nav.dart';
 
 const _kWeekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
+Color _hexToColor(String hex) {
+  return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+}
+
 class TransactionListScreen extends ConsumerWidget {
   const TransactionListScreen({super.key});
 
@@ -131,21 +135,23 @@ class _TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncome = tx.type == 'income';
-    final typeColor = isIncome ? Colors.green : Colors.red;
+    final catColor = category != null
+        ? _hexToColor(category!.color)
+        : (isIncome ? Colors.green : Colors.red);
     final iconName = category?.icon ?? 'more_horiz';
 
     return ListTile(
       onTap: onTap,
       leading: CircleAvatar(
-        backgroundColor: isIncome ? Colors.green.shade50 : Colors.red.shade50,
-        child: Icon(categoryIconData(iconName), size: 20, color: typeColor),
+        backgroundColor: catColor.withValues(alpha: 0.15),
+        child: Icon(categoryIconData(iconName), size: 20, color: catColor),
       ),
       title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(tx.category),
       trailing: Text(
         '${isIncome ? '+' : '-'}${NumberFormat('#,##0.00').format(tx.amount)}',
         style: TextStyle(
-          color: typeColor,
+          color: isIncome ? Colors.green : Colors.red,
           fontWeight: FontWeight.bold,
           fontSize: 15,
         ),

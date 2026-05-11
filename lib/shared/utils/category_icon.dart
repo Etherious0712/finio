@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+Color parseCategoryColor(String hex) {
+  try {
+    final cleaned = hex.replaceFirst('#', '');
+    return Color(int.parse('FF$cleaned', radix: 16));
+  } catch (_) {
+    return Colors.grey;
+  }
+}
+
 IconData categoryIconData(String iconName) {
   const map = <String, IconData>{
     'restaurant': Icons.restaurant,

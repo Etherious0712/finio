@@ -30,6 +30,11 @@ class FinioApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2ECC71)),
         useMaterial3: true,
+        cardTheme: const CardThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+        ),
       ),
       routerConfig: _router,
     );

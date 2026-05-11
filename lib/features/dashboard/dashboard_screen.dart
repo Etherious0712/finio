@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/database/app_database.dart';
+import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
+import '../../shared/utils/category_icon.dart';
 import '../../shared/widgets/month_nav.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -17,13 +19,15 @@ class DashboardScreen extends ConsumerWidget {
     final todayIncome = ref.watch(todayIncomeProvider);
     final todayExpense = ref.watch(todayExpenseProvider);
     final transactionsAsync = ref.watch(monthlyTransactionsProvider);
+    final categoryMap = {
+      for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
+        '${c.type}:${c.name}': c,
+    };
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Finio'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Finio'), centerTitle: true),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const MonthNav(),
           _SummaryCard(
@@ -32,13 +36,26 @@ class DashboardScreen extends ConsumerWidget {
             todayIncome: todayIncome,
             todayExpense: todayExpense,
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Text(
+              '最近交易',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+            ),
+          ),
           Expanded(
             child: transactionsAsync.when(
               data: (txs) => txs.isEmpty
-                  ? const Center(child: Text('暂无记录，点击 + 添加'))
+                  ? const _EmptyState()
                   : ListView.builder(
                       itemCount: txs.length,
-                      itemBuilder: (ctx, i) => _TransactionTile(tx: txs[i]),
+                      itemBuilder: (ctx, i) => _TransactionTile(
+                        tx: txs[i],
+                        category: categoryMap[
+                            '${txs[i].type}:${txs[i].category}'],
+                      ),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('加载失败: $e')),
@@ -48,12 +65,13 @@ class DashboardScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/transactions/add'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.add),
       ),
     );
   }
 }
-
 
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({
@@ -71,54 +89,100 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt = NumberFormat('#,##0.00');
-    return Card(
+    final balance = monthlyIncome - monthlyExpense;
+    final isNegative = balance < 0;
+    final gradientStart =
+        isNegative ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71);
+    final gradientEnd =
+        isNegative ? const Color(0xFFC0392B) : const Color(0xFF1A9952);
+
+    return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [gradientStart, gradientEnd],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: gradientStart.withValues(alpha: 0.35),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('本月', style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
+            const Text(
+              '本月结余',
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              fmt.format(balance),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 34,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: _Stat(
-                      label: '收入',
-                      value: fmt.format(monthlyIncome),
-                      color: Colors.green),
+                  child: _GradientStat(
+                    label: '收入',
+                    value: fmt.format(monthlyIncome),
+                    icon: Icons.arrow_downward_rounded,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: Colors.white.withValues(alpha: 0.25),
                 ),
                 Expanded(
-                  child: _Stat(
-                      label: '支出',
-                      value: fmt.format(monthlyExpense),
-                      color: Colors.red),
-                ),
-                Expanded(
-                  child: _Stat(
-                    label: '结余',
-                    value: fmt.format(monthlyIncome - monthlyExpense),
-                    color: Theme.of(context).colorScheme.primary,
+                  child: _GradientStat(
+                    label: '支出',
+                    value: fmt.format(monthlyExpense),
+                    icon: Icons.arrow_upward_rounded,
                   ),
                 ),
               ],
             ),
-            const Divider(height: 20),
-            Text('今日', style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
+            const Divider(color: Colors.white24, height: 24),
             Row(
               children: [
-                Expanded(
-                  child: _Stat(
-                      label: '收入',
-                      value: fmt.format(todayIncome),
-                      color: Colors.green),
+                const Icon(Icons.today_outlined,
+                    color: Colors.white70, size: 14),
+                const SizedBox(width: 4),
+                const Text(
+                  '今日',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
-                Expanded(
-                  child: _Stat(
-                      label: '支出',
-                      value: fmt.format(todayExpense),
-                      color: Colors.red),
+                const Spacer(),
+                Text(
+                  '+${fmt.format(todayIncome)}',
+                  style: TextStyle(
+                    color: Colors.green.shade300,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  '-${fmt.format(todayExpense)}',
+                  style: TextStyle(
+                    color: Colors.red.shade200,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -129,48 +193,105 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _Stat extends StatelessWidget {
-  const _Stat(
-      {required this.label, required this.value, required this.color});
+class _GradientStat extends StatelessWidget {
+  const _GradientStat({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
   final String label;
   final String value;
-  final Color color;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-        Text(
-          value,
-          style: TextStyle(color: color, fontWeight: FontWeight.bold),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.white70, size: 13),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.account_balance_wallet_outlined,
+            size: 72,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '还没有记录',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '点击 + 开始记账',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({required this.tx});
+  const _TransactionTile({required this.tx, this.category});
+
   final Transaction tx;
+  final Category? category;
 
   @override
   Widget build(BuildContext context) {
     final isIncome = tx.type == 'income';
+    final catColor = category != null
+        ? parseCategoryColor(category!.color)
+        : (isIncome ? Colors.green : Colors.red);
+    final iconName = category?.icon ?? 'more_horiz';
+
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor:
-            isIncome ? Colors.green.shade50 : Colors.red.shade50,
-        child: Icon(
-          isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-          color: isIncome ? Colors.green : Colors.red,
-          size: 18,
-        ),
+        backgroundColor: catColor.withValues(alpha: 0.15),
+        child: Icon(categoryIconData(iconName), size: 20, color: catColor),
       ),
-      title: Text(tx.title),
-      subtitle: Text(
-          '${tx.category} · ${DateFormat('M/d').format(tx.date)}'),
+      title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle:
+          Text('${tx.category} · ${DateFormat('M/d').format(tx.date)}'),
       trailing: Text(
         '${isIncome ? '+' : '-'}${NumberFormat('#,##0.00').format(tx.amount)}',
         style: TextStyle(

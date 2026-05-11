@@ -104,6 +104,12 @@ class _AddTransactionScreenState
         ? ref.watch(expenseCategoriesProvider)
         : ref.watch(incomeCategoriesProvider);
 
+    final isExpense = _type == TransactionType.expense;
+    final typeColor =
+        isExpense ? Colors.red.shade400 : Colors.green.shade600;
+    final typeBgColor =
+        isExpense ? Colors.red.shade50 : Colors.green.shade50;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('新增记录'),
@@ -128,97 +134,210 @@ class _AddTransactionScreenState
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
-            SegmentedButton<TransactionType>(
-              segments: const [
-                ButtonSegment(
-                  value: TransactionType.expense,
-                  label: Text('支出'),
-                  icon: Icon(Icons.arrow_upward),
-                ),
-                ButtonSegment(
-                  value: TransactionType.income,
-                  label: Text('收入'),
-                  icon: Icon(Icons.arrow_downward),
-                ),
-              ],
-              selected: {_type},
-              onSelectionChanged: (s) => setState(() {
-                _type = s.first;
-                _selectedCategory = null;
-              }),
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _amountController,
-              autofocus: true,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-              ],
-              decoration: const InputDecoration(
-                labelText: '金额',
-                prefixIcon: Icon(Icons.attach_money),
-                border: OutlineInputBorder(),
+            // Fixed top: type toggle + large amount display
+            Container(
+              width: double.infinity,
+              color: typeBgColor,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                children: [
+                  SegmentedButton<TransactionType>(
+                    style: SegmentedButton.styleFrom(
+                      selectedBackgroundColor: isExpense
+                          ? Colors.red.shade100
+                          : Colors.green.shade100,
+                      selectedForegroundColor: isExpense
+                          ? Colors.red.shade700
+                          : Colors.green.shade700,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                    ),
+                    segments: const [
+                      ButtonSegment(
+                        value: TransactionType.expense,
+                        label: Text('支出'),
+                        icon: Icon(Icons.remove_circle_outline),
+                      ),
+                      ButtonSegment(
+                        value: TransactionType.income,
+                        label: Text('收入'),
+                        icon: Icon(Icons.add_circle_outline),
+                      ),
+                    ],
+                    selected: {_type},
+                    onSelectionChanged: (s) => setState(() {
+                      _type = s.first;
+                      _selectedCategory = null;
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _amountController,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}')),
+                    ],
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: typeColor,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '0.00',
+                      hintStyle: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: typeColor.withValues(alpha: 0.25),
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      errorStyle: const TextStyle(fontSize: 12),
+                      errorMaxLines: 1,
+                    ),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return '请输入金额';
+                      final amount = double.tryParse(v);
+                      if (amount == null || amount <= 0) return '请输入大于 0 的金额';
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              validator: (v) {
-                if (v == null || v.isEmpty) return '请输入金额';
-                final amount = double.tryParse(v);
-                if (amount == null || amount <= 0) return '请输入大于 0 的金额';
-                return null;
-              },
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _noteController,
-              maxLength: 100,
-              decoration: const InputDecoration(
-                labelText: '备注（选填，可自动识别分类）',
-                prefixIcon: Icon(Icons.notes),
-                border: OutlineInputBorder(),
+            // Scrollable body
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  TextFormField(
+                    controller: _noteController,
+                    maxLength: 100,
+                    decoration: const InputDecoration(
+                      labelText: '备注（选填，可自动识别分类）',
+                      prefixIcon: Icon(Icons.notes),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Card(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    child: ListTile(
+                      leading: const Icon(Icons.calendar_today),
+                      title: Text(
+                          DateFormat('yyyy年M月d日').format(_selectedDate)),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: _pickDate,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('分类',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  categoriesAsync.when(
+                    data: (cats) => GridView.count(
+                      crossAxisCount: 4,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 0.82,
+                      children: cats
+                          .map(
+                            (c) => _CategoryCell(
+                              category: c,
+                              selected: c.name == _selectedCategory,
+                              onTap: () =>
+                                  setState(() => _selectedCategory = c.name),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Text('加载分类失败: $e'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryCell extends StatelessWidget {
+  const _CategoryCell({
+    required this.category,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Category category;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final catColor = parseCategoryColor(category.color);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: selected
+              ? catColor.withValues(alpha: 0.15)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: selected
+              ? Border.all(color: catColor, width: 2)
+              : Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1,
+                ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: selected
+                    ? catColor
+                    : catColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                categoryIconData(category.icon),
+                size: 20,
+                color: selected ? Colors.white : catColor,
               ),
             ),
             const SizedBox(height: 4),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today),
-              title: Text(DateFormat('yyyy年M月d日').format(_selectedDate)),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: _pickDate,
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 12),
-              child: Text(
-                '分类',
-                style: Theme.of(context).textTheme.titleMedium,
+            Text(
+              category.name,
+              style: TextStyle(
+                fontSize: 11,
+                color: selected
+                    ? catColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight:
+                    selected ? FontWeight.w600 : FontWeight.normal,
               ),
-            ),
-            categoriesAsync.when(
-              data: (cats) => Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: cats
-                    .map(
-                      (c) => ChoiceChip(
-                        avatar: Icon(
-                          categoryIconData(c.icon),
-                          size: 18,
-                        ),
-                        label: Text(c.name),
-                        selected: c.name == _selectedCategory,
-                        onSelected: (_) =>
-                            setState(() => _selectedCategory = c.name),
-                      ),
-                    )
-                    .toList(),
-              ),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('加载分类失败: $e'),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
