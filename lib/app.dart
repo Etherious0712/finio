@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
+import 'features/settings/settings_screen.dart';
 import 'features/transactions/add_transaction_screen.dart';
 import 'features/transactions/transaction_list_screen.dart';
 
@@ -14,6 +16,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'transactions/add',
           builder: (context, state) => const AddTransactionScreen(),
+        ),
+        GoRoute(
+          path: 'categories',
+          builder: (context, state) => const CategoryManagementScreen(),
         ),
       ],
     ),
@@ -59,6 +65,7 @@ class _MainShellState extends State<MainShell> {
         children: const [
           DashboardScreen(),
           TransactionListScreen(),
+          SettingsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -74,6 +81,11 @@ class _MainShellState extends State<MainShell> {
             icon: Icon(Icons.receipt_long_outlined),
             selectedIcon: Icon(Icons.receipt_long),
             label: '记录',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: '设置',
           ),
         ],
       ),
