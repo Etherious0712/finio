@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/notifications/budget_notifier.dart';
+import 'features/budget/budget_screen.dart';
 import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/statistics/statistics_screen.dart';
 import 'features/transactions/add_transaction_screen.dart';
 import 'features/transactions/transaction_list_screen.dart';
+import 'shared/providers/database_provider.dart';
+import 'shared/providers/transaction_providers.dart';
 
 final _router = GoRouter(
   routes: [
@@ -21,6 +26,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'categories',
           builder: (context, state) => const CategoryManagementScreen(),
+        ),
+        GoRoute(
+          path: 'budget',
+          builder: (context, state) => const BudgetScreen(),
         ),
       ],
     ),
@@ -48,15 +57,34 @@ class FinioApp extends StatelessWidget {
   }
 }
 
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBudgetOnStartup());
+  }
+
+  Future<void> _checkBudgetOnStartup() async {
+    if (!mounted) return;
+    final db = ref.read(appDatabaseProvider);
+    final month = ref.read(selectedMonthProvider);
+    final budget = await db.budgetDao.getOverallBudget();
+    final totals =
+        await db.transactionDao.getMonthlyTotals(month.year, month.month);
+    await BudgetNotifier.checkAndNotify(
+      expense: totals['expense'] ?? 0.0,
+      budget: budget?.amount,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -11,6 +11,12 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
+            leading: const Icon(Icons.account_balance_wallet_outlined),
+            title: const Text('预算设置'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/budget'),
+          ),
+          ListTile(
             leading: const Icon(Icons.category_outlined),
             title: const Text('分类管理'),
             trailing: const Icon(Icons.chevron_right),
