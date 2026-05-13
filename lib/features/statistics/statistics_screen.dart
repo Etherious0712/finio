@@ -23,7 +23,6 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => setState(() {}));
   }
 
   @override
@@ -113,7 +112,10 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
           data: (months) => _BarSection(months: months),
           loading: () =>
               const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
-          error: (e, _) => Text('加载失败: $e'),
+          error: (e, _) => const SizedBox(
+            height: 200,
+            child: Center(child: Text('加载趋势数据失败')),
+          ),
         ),
       ],
     );
@@ -289,6 +291,13 @@ class _BarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (months.isEmpty) {
+      return const SizedBox(
+        height: 80,
+        child: Center(child: Text('暂无数据', style: TextStyle(color: Colors.grey))),
+      );
+    }
+
     final maxVal = months.fold(0.0, (m, s) {
       final hi = s.income > s.expense ? s.income : s.expense;
       return hi > m ? hi : m;
