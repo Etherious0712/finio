@@ -108,6 +108,9 @@ class BudgetScreen extends ConsumerWidget {
     required String? category,
     required Budget? currentBudget,
   }) async {
+    // Capture db before any async gap so ref is not accessed after dispose.
+    final db = ref.read(appDatabaseProvider);
+
     final controller = TextEditingController(
       text: currentBudget != null
           ? currentBudget.amount.toStringAsFixed(2)
@@ -148,7 +151,6 @@ class BudgetScreen extends ConsumerWidget {
     controller.dispose();
     if (result == null) return;
 
-    final db = ref.read(appDatabaseProvider);
     final amount = double.tryParse(result.trim());
 
     if (amount == null || amount <= 0) {
