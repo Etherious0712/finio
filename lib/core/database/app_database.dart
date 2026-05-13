@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import 'daos/budget_dao.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
 
@@ -29,21 +30,36 @@ class Categories extends Table {
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 }
 
-@DriftDatabase(tables: [Transactions, Categories])
+class Budgets extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get category => text().nullable()(); // null = 整体预算
+  RealColumn get amount => real()();
+  IntColumn get month => integer()(); // 1-12, 0 = monthly repeat
+  IntColumn get year => integer()(); // 0 = monthly repeat
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [Transactions, Categories, Budgets])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
+  late final budgetDao = BudgetDao(this);
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
           await _seedDefaultCategories();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(budgets);
+          }
         },
       );
 
