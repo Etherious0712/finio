@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/database/app_database.dart';
+import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
+import '../../shared/providers/statistics_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
 import '../../shared/widgets/month_nav.dart';
@@ -36,6 +38,7 @@ class DashboardScreen extends ConsumerWidget {
             todayIncome: todayIncome,
             todayExpense: todayExpense,
           ),
+          const _BudgetSection(),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
             child: Text(
@@ -298,6 +301,116 @@ class _TransactionTile extends StatelessWidget {
           color: isIncome ? Colors.green : Colors.red,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+}
+
+class _BudgetSection extends ConsumerWidget {
+  const _BudgetSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overallBudget = ref.watch(overallBudgetProvider).valueOrNull;
+    final categoryBudgets =
+        ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
+    final monthlyExpense = ref.watch(monthlyExpenseProvider);
+    final categoryStats = ref.watch(categoryStatsProvider('expense'));
+
+    if (overallBudget == null && categoryBudgets.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (overallBudget != null)
+            _BudgetProgressRow(
+              label: '月度总预算',
+              spent: monthlyExpense,
+              budget: overallBudget.amount,
+            ),
+          ...categoryBudgets.map((b) {
+            final stat = categoryStats
+                .where((s) => s.category == b.category)
+                .firstOrNull;
+            return _BudgetProgressRow(
+              label: b.category ?? '未知分类',
+              spent: stat?.amount ?? 0.0,
+              budget: b.amount,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _BudgetProgressRow extends StatelessWidget {
+  const _BudgetProgressRow({
+    required this.label,
+    required this.spent,
+    required this.budget,
+  });
+
+  final String label;
+  final double spent;
+  final double budget;
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = budget > 0 ? spent / budget : 0.0;
+    final clamped = ratio.clamp(0.0, 1.0);
+    final fmt = NumberFormat('#,##0.00');
+
+    final Color barColor;
+    final String? warningText;
+    if (ratio >= 1.0) {
+      barColor = Colors.red;
+      warningText = '❌ 已超支';
+    } else if (ratio >= 0.8) {
+      barColor = Colors.orange;
+      warningText = '⚠️ 即将超支';
+    } else {
+      barColor = Colors.green;
+      warningText = null;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(label, style: Theme.of(context).textTheme.bodySmall),
+              const Spacer(),
+              Text(
+                '${fmt.format(spent)} / ${fmt.format(budget)}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+              if (warningText != null) ...[
+                const SizedBox(width: 6),
+                Text(warningText,
+                    style: const TextStyle(fontSize: 11)),
+              ],
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: clamped,
+              backgroundColor: barColor.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation<Color>(barColor),
+              minHeight: 6,
+            ),
+          ),
+        ],
       ),
     );
   }
