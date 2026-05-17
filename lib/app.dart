@@ -52,6 +52,19 @@ class FinioApp extends StatelessWidget {
           ),
         ),
       ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF2E7D52),
+          brightness: Brightness.dark,
+        ),
+        cardTheme: const CardThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+        ),
+      ),
+      themeMode: ThemeMode.system,
       routerConfig: _router,
     );
   }

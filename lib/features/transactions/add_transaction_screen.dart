@@ -105,10 +105,12 @@ class _AddTransactionScreenState
         : ref.watch(incomeCategoriesProvider);
 
     final isExpense = _type == TransactionType.expense;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final typeColor =
-        isExpense ? Colors.red.shade400 : Colors.green.shade600;
-    final typeBgColor =
-        isExpense ? Colors.red.shade50 : Colors.green.shade50;
+        isExpense ? Colors.red.shade400 : Colors.green.shade500;
+    final typeBgColor = isExpense
+        ? (isDark ? const Color(0xFF3D1212) : Colors.red.shade50)
+        : (isDark ? const Color(0xFF0F2E1A) : Colors.green.shade50);
 
     return Scaffold(
       appBar: AppBar(
@@ -146,11 +148,11 @@ class _AddTransactionScreenState
                   SegmentedButton<TransactionType>(
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: isExpense
-                          ? Colors.red.shade100
-                          : Colors.green.shade100,
+                          ? (isDark ? const Color(0xFF5C2020) : Colors.red.shade100)
+                          : (isDark ? const Color(0xFF1A4D2E) : Colors.green.shade100),
                       selectedForegroundColor: isExpense
-                          ? Colors.red.shade700
-                          : Colors.green.shade700,
+                          ? (isDark ? Colors.red.shade200 : Colors.red.shade700)
+                          : (isDark ? Colors.green.shade300 : Colors.green.shade700),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),

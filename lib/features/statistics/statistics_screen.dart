@@ -292,9 +292,14 @@ class _BarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (months.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 80,
-        child: Center(child: Text('暂无数据', style: TextStyle(color: Colors.grey))),
+        child: Center(
+          child: Text(
+            '暂无数据',
+            style: TextStyle(color: Theme.of(context).colorScheme.outline),
+          ),
+        ),
       );
     }
 

@@ -94,10 +94,13 @@ class _SummaryCard extends StatelessWidget {
     final fmt = NumberFormat('#,##0.00');
     final balance = monthlyIncome - monthlyExpense;
     final isNegative = balance < 0;
-    final gradientStart =
-        isNegative ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71);
-    final gradientEnd =
-        isNegative ? const Color(0xFFC0392B) : const Color(0xFF1A9952);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradientStart = isNegative
+        ? (isDark ? const Color(0xFF8B2E22) : const Color(0xFFE74C3C))
+        : (isDark ? const Color(0xFF1A7A44) : const Color(0xFF2ECC71));
+    final gradientEnd = isNegative
+        ? (isDark ? const Color(0xFF6B1E18) : const Color(0xFFC0392B))
+        : (isDark ? const Color(0xFF0F5030) : const Color(0xFF1A9952));
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
