@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/notifications/budget_notifier.dart';
+import 'core/theme/app_theme.dart';
 import 'features/budget/budget_screen.dart';
 import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
+import 'features/settings/appearance_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/statistics/statistics_screen.dart';
 import 'features/transactions/add_transaction_screen.dart';
 import 'features/transactions/transaction_list_screen.dart';
 import 'shared/providers/database_provider.dart';
+import 'shared/providers/theme_provider.dart';
 import 'shared/providers/transaction_providers.dart';
 
 final _router = GoRouter(
@@ -31,40 +34,33 @@ final _router = GoRouter(
           path: 'budget',
           builder: (context, state) => const BudgetScreen(),
         ),
+        GoRoute(
+          path: 'appearance',
+          builder: (context, state) => const AppearanceScreen(),
+        ),
       ],
     ),
   ],
 );
 
-class FinioApp extends StatelessWidget {
+class FinioApp extends ConsumerWidget {
   const FinioApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appThemeMode = ref.watch(themeProvider);
+    final isHighContrast = appThemeMode == AppThemeMode.highContrast;
+
     return MaterialApp.router(
       title: 'Finio',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2ECC71)),
-        useMaterial3: true,
-        cardTheme: const CardThemeData(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-          ),
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2E7D52),
-          brightness: Brightness.dark,
-        ),
-        cardTheme: const CardThemeData(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-          ),
-        ),
-      ),
-      themeMode: ThemeMode.system,
+      theme: isHighContrast ? AppTheme.highContrast : AppTheme.light,
+      darkTheme: isHighContrast ? AppTheme.highContrast : AppTheme.dark,
+      themeMode: switch (appThemeMode) {
+        AppThemeMode.system => ThemeMode.system,
+        AppThemeMode.light => ThemeMode.light,
+        AppThemeMode.dark => ThemeMode.dark,
+        AppThemeMode.highContrast => ThemeMode.light,
+      },
       routerConfig: _router,
     );
   }
