@@ -23,13 +23,4 @@ class AppTheme {
     ),
     cardTheme: _cardTheme,
   );
-
-  static final ThemeData highContrast = ThemeData(
-    useMaterial3: true,
-    colorScheme: const ColorScheme.highContrastLight().copyWith(
-      primary: Colors.black,
-      secondary: Colors.black,
-    ),
-    cardTheme: _cardTheme,
-  );
 }

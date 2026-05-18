@@ -35,11 +35,6 @@ class AppearanceScreen extends ConsumerWidget {
               title: Text('深色'),
               subtitle: Text('Dark'),
             ),
-            RadioListTile<AppThemeMode>(
-              value: AppThemeMode.highContrast,
-              title: Text('高对比度'),
-              subtitle: Text('High Contrast'),
-            ),
           ],
         ),
       ),

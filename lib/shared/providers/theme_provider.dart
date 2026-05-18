@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum AppThemeMode { system, light, dark, highContrast }
+enum AppThemeMode { system, light, dark }
 
 class ThemeNotifier extends StateNotifier<AppThemeMode> {
   ThemeNotifier() : super(AppThemeMode.system) {

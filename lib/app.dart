@@ -49,17 +49,15 @@ class FinioApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appThemeMode = ref.watch(themeProvider);
-    final isHighContrast = appThemeMode == AppThemeMode.highContrast;
 
     return MaterialApp.router(
       title: 'Finio',
-      theme: isHighContrast ? AppTheme.highContrast : AppTheme.light,
-      darkTheme: isHighContrast ? AppTheme.highContrast : AppTheme.dark,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: switch (appThemeMode) {
         AppThemeMode.system => ThemeMode.system,
         AppThemeMode.light => ThemeMode.light,
         AppThemeMode.dark => ThemeMode.dark,
-        AppThemeMode.highContrast => ThemeMode.light,
       },
       routerConfig: _router,
     );
