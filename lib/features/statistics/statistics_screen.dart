@@ -1,11 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../shared/models/stats_models.dart';
+import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
@@ -60,10 +61,6 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
   }
 }
 
-// ---------------------------------------------------------------------------
-// Tab content
-// ---------------------------------------------------------------------------
-
 class _StatsTab extends ConsumerStatefulWidget {
   const _StatsTab({required this.type});
   final String type;
@@ -79,6 +76,7 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
   Widget build(BuildContext context) {
     final stats = ref.watch(categoryStatsProvider(widget.type));
     final last6Async = ref.watch(last6MonthsProvider);
+    final symbol = ref.watch(currencySymbolProvider);
     final total = stats.fold(0.0, (s, c) => s + c.amount);
 
     return ListView(
@@ -92,9 +90,14 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
             total: total,
             touchedIndex: _touchedIndex,
             onTouch: (i) => setState(() => _touchedIndex = i),
+            symbol: symbol,
           ),
           const SizedBox(height: 12),
-          _LegendList(stats: stats, touchedIndex: _touchedIndex),
+          _LegendList(
+            stats: stats,
+            touchedIndex: _touchedIndex,
+            symbol: symbol,
+          ),
         ],
         const SizedBox(height: 28),
         Text('近6个月趋势', style: Theme.of(context).textTheme.titleMedium),
@@ -110,8 +113,8 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
         const SizedBox(height: 8),
         last6Async.when(
           data: (months) => _BarSection(months: months),
-          loading: () =>
-              const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
+          loading: () => const SizedBox(
+              height: 200, child: Center(child: CircularProgressIndicator())),
           error: (e, _) => const SizedBox(
             height: 200,
             child: Center(child: Text('加载趋势数据失败')),
@@ -122,27 +125,23 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Pie chart section
-// ---------------------------------------------------------------------------
-
 class _PieSection extends StatelessWidget {
   const _PieSection({
     required this.stats,
     required this.total,
     required this.touchedIndex,
     required this.onTouch,
+    required this.symbol,
   });
 
   final List<CategoryStat> stats;
   final double total;
   final int touchedIndex;
   final ValueChanged<int> onTouch;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
-    final fmt = NumberFormat('#,##0.00');
-
     return SizedBox(
       height: 220,
       child: Stack(
@@ -195,9 +194,12 @@ class _PieSection extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                fmt.format(touchedIndex >= 0 && touchedIndex < stats.length
-                    ? stats[touchedIndex].amount
-                    : total),
+                formatAmount(
+                  touchedIndex >= 0 && touchedIndex < stats.length
+                      ? stats[touchedIndex].amount
+                      : total,
+                  symbol,
+                ),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -210,20 +212,19 @@ class _PieSection extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Category legend list
-// ---------------------------------------------------------------------------
-
 class _LegendList extends StatelessWidget {
-  const _LegendList({required this.stats, required this.touchedIndex});
+  const _LegendList({
+    required this.stats,
+    required this.touchedIndex,
+    required this.symbol,
+  });
 
   final List<CategoryStat> stats;
   final int touchedIndex;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
-    final fmt = NumberFormat('#,##0.00');
-
     return Column(
       children: List.generate(stats.length, (i) {
         final s = stats[i];
@@ -256,7 +257,7 @@ class _LegendList extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium),
               ),
               Text(
-                fmt.format(s.amount),
+                formatAmount(s.amount, symbol),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -279,10 +280,6 @@ class _LegendList extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Bar chart section (6-month trend)
-// ---------------------------------------------------------------------------
 
 class _BarSection extends StatelessWidget {
   const _BarSection({required this.months});
@@ -365,8 +362,7 @@ class _BarSection extends StatelessWidget {
                 reservedSize: 52,
                 getTitlesWidget: (value, _) {
                   if (value == 0) {
-                    return const Text('0',
-                        style: TextStyle(fontSize: 10));
+                    return const Text('0', style: TextStyle(fontSize: 10));
                   }
                   if (value >= 1000) {
                     return Text(
@@ -389,10 +385,6 @@ class _BarSection extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Shared small widgets
-// ---------------------------------------------------------------------------
 
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.type});

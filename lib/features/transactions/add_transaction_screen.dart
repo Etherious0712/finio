@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../core/ai/rule_classifier.dart';
 import '../../core/database/app_database.dart';
 import '../../shared/providers/category_providers.dart';
+import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_icon.dart';
 
@@ -106,6 +107,7 @@ class _AddTransactionScreenState
 
     final isExpense = _type == TransactionType.expense;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final symbol = ref.watch(currencySymbolProvider);
     final typeColor =
         isExpense ? Colors.red.shade400 : Colors.green.shade500;
     final typeBgColor = isExpense
@@ -192,6 +194,12 @@ class _AddTransactionScreenState
                       color: typeColor,
                     ),
                     decoration: InputDecoration(
+                      prefixText: '$symbol ',
+                      prefixStyle: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: typeColor,
+                      ),
                       hintText: '0.00',
                       hintStyle: TextStyle(
                         fontSize: 48,

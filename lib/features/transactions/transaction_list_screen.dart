@@ -4,9 +4,11 @@ import 'package:intl/intl.dart';
 
 import '../../core/database/app_database.dart';
 import '../../shared/providers/category_providers.dart';
+import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
 
 const _kWeekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -21,6 +23,7 @@ class TransactionListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final transactionsAsync = ref.watch(monthlyTransactionsProvider);
+    final symbol = ref.watch(currencySymbolProvider);
     final categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
         '${c.type}:${c.name}': c,
@@ -61,7 +64,8 @@ class TransactionListScreen extends ConsumerWidget {
                       child: _TransactionTile(
                         tx: tx,
                         category: cat,
-                        onTap: () => _showDetail(context, tx),
+                        symbol: symbol,
+                        onTap: () => _showDetail(context, tx, symbol),
                       ),
                     );
                   },
@@ -90,13 +94,13 @@ class TransactionListScreen extends ConsumerWidget {
     return items;
   }
 
-  void _showDetail(BuildContext context, Transaction tx) {
+  void _showDetail(BuildContext context, Transaction tx, String symbol) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => _DetailSheet(tx: tx),
+      builder: (_) => _DetailSheet(tx: tx, symbol: symbol),
     );
   }
 }
@@ -125,11 +129,13 @@ class _TransactionTile extends StatelessWidget {
   const _TransactionTile({
     required this.tx,
     required this.category,
+    required this.symbol,
     required this.onTap,
   });
 
   final Transaction tx;
   final Category? category;
+  final String symbol;
   final VoidCallback onTap;
 
   @override
@@ -149,7 +155,7 @@ class _TransactionTile extends StatelessWidget {
       title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(tx.category),
       trailing: Text(
-        '${isIncome ? '+' : '-'}${NumberFormat('#,##0.00').format(tx.amount)}',
+        '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
         style: TextStyle(
           color: isIncome ? Colors.green : Colors.red,
           fontWeight: FontWeight.bold,
@@ -161,8 +167,9 @@ class _TransactionTile extends StatelessWidget {
 }
 
 class _DetailSheet extends StatelessWidget {
-  const _DetailSheet({required this.tx});
+  const _DetailSheet({required this.tx, required this.symbol});
   final Transaction tx;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +191,7 @@ class _DetailSheet extends StatelessWidget {
             ),
           ),
           Text(
-            '${isIncome ? '+' : '-'}${NumberFormat('#,##0.00').format(tx.amount)}',
+            '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,

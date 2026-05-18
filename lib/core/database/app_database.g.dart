@@ -127,6 +127,18 @@ class $TransactionsTable extends Transactions
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _currencyCodeMeta = const VerificationMeta(
+    'currencyCode',
+  );
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+    'currency_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('USD'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -140,6 +152,7 @@ class $TransactionsTable extends Transactions
     updatedAt,
     syncId,
     isSynced,
+    currencyCode,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -226,6 +239,15 @@ class $TransactionsTable extends Transactions
         isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
       );
     }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+        _currencyCodeMeta,
+        currencyCode.isAcceptableOrUnknown(
+          data['currency_code']!,
+          _currencyCodeMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -279,6 +301,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.bool,
         data['${effectivePrefix}is_synced'],
       )!,
+      currencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency_code'],
+      )!,
     );
   }
 
@@ -300,6 +326,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final DateTime updatedAt;
   final String? syncId;
   final bool isSynced;
+  final String currencyCode;
   const Transaction({
     required this.id,
     required this.title,
@@ -312,6 +339,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.updatedAt,
     this.syncId,
     required this.isSynced,
+    required this.currencyCode,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -331,6 +359,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       map['sync_id'] = Variable<String>(syncId);
     }
     map['is_synced'] = Variable<bool>(isSynced);
+    map['currency_code'] = Variable<String>(currencyCode);
     return map;
   }
 
@@ -349,6 +378,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ? const Value.absent()
           : Value(syncId),
       isSynced: Value(isSynced),
+      currencyCode: Value(currencyCode),
     );
   }
 
@@ -369,6 +399,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       syncId: serializer.fromJson<String?>(json['syncId']),
       isSynced: serializer.fromJson<bool>(json['isSynced']),
+      currencyCode: serializer.fromJson<String>(json['currencyCode']),
     );
   }
   @override
@@ -386,6 +417,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'syncId': serializer.toJson<String?>(syncId),
       'isSynced': serializer.toJson<bool>(isSynced),
+      'currencyCode': serializer.toJson<String>(currencyCode),
     };
   }
 
@@ -401,6 +433,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     DateTime? updatedAt,
     Value<String?> syncId = const Value.absent(),
     bool? isSynced,
+    String? currencyCode,
   }) => Transaction(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -413,6 +446,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     updatedAt: updatedAt ?? this.updatedAt,
     syncId: syncId.present ? syncId.value : this.syncId,
     isSynced: isSynced ?? this.isSynced,
+    currencyCode: currencyCode ?? this.currencyCode,
   );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -427,6 +461,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       syncId: data.syncId.present ? data.syncId.value : this.syncId,
       isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
     );
   }
 
@@ -443,7 +480,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('syncId: $syncId, ')
-          ..write('isSynced: $isSynced')
+          ..write('isSynced: $isSynced, ')
+          ..write('currencyCode: $currencyCode')
           ..write(')'))
         .toString();
   }
@@ -461,6 +499,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     updatedAt,
     syncId,
     isSynced,
+    currencyCode,
   );
   @override
   bool operator ==(Object other) =>
@@ -476,7 +515,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.syncId == this.syncId &&
-          other.isSynced == this.isSynced);
+          other.isSynced == this.isSynced &&
+          other.currencyCode == this.currencyCode);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -491,6 +531,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<DateTime> updatedAt;
   final Value<String?> syncId;
   final Value<bool> isSynced;
+  final Value<String> currencyCode;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -503,6 +544,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.updatedAt = const Value.absent(),
     this.syncId = const Value.absent(),
     this.isSynced = const Value.absent(),
+    this.currencyCode = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -516,6 +558,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.updatedAt = const Value.absent(),
     this.syncId = const Value.absent(),
     this.isSynced = const Value.absent(),
+    this.currencyCode = const Value.absent(),
   }) : title = Value(title),
        amount = Value(amount),
        type = Value(type),
@@ -533,6 +576,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<DateTime>? updatedAt,
     Expression<String>? syncId,
     Expression<bool>? isSynced,
+    Expression<String>? currencyCode,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -546,6 +590,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (updatedAt != null) 'updated_at': updatedAt,
       if (syncId != null) 'sync_id': syncId,
       if (isSynced != null) 'is_synced': isSynced,
+      if (currencyCode != null) 'currency_code': currencyCode,
     });
   }
 
@@ -561,6 +606,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<DateTime>? updatedAt,
     Value<String?>? syncId,
     Value<bool>? isSynced,
+    Value<String>? currencyCode,
   }) {
     return TransactionsCompanion(
       id: id ?? this.id,
@@ -574,6 +620,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       updatedAt: updatedAt ?? this.updatedAt,
       syncId: syncId ?? this.syncId,
       isSynced: isSynced ?? this.isSynced,
+      currencyCode: currencyCode ?? this.currencyCode,
     );
   }
 
@@ -613,6 +660,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (isSynced.present) {
       map['is_synced'] = Variable<bool>(isSynced.value);
     }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
     return map;
   }
 
@@ -629,7 +679,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('syncId: $syncId, ')
-          ..write('isSynced: $isSynced')
+          ..write('isSynced: $isSynced, ')
+          ..write('currencyCode: $currencyCode')
           ..write(')'))
         .toString();
   }
@@ -1442,6 +1493,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<DateTime> updatedAt,
       Value<String?> syncId,
       Value<bool> isSynced,
+      Value<String> currencyCode,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
@@ -1456,6 +1508,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<DateTime> updatedAt,
       Value<String?> syncId,
       Value<bool> isSynced,
+      Value<String> currencyCode,
     });
 
 class $$TransactionsTableFilterComposer
@@ -1519,6 +1572,11 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<bool> get isSynced => $composableBuilder(
     column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1586,6 +1644,11 @@ class $$TransactionsTableOrderingComposer
     column: $table.isSynced,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -1629,6 +1692,11 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<bool> get isSynced =>
       $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => column,
+  );
 }
 
 class $$TransactionsTableTableManager
@@ -1673,6 +1741,7 @@ class $$TransactionsTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> syncId = const Value.absent(),
                 Value<bool> isSynced = const Value.absent(),
+                Value<String> currencyCode = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
                 title: title,
@@ -1685,6 +1754,7 @@ class $$TransactionsTableTableManager
                 updatedAt: updatedAt,
                 syncId: syncId,
                 isSynced: isSynced,
+                currencyCode: currencyCode,
               ),
           createCompanionCallback:
               ({
@@ -1699,6 +1769,7 @@ class $$TransactionsTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> syncId = const Value.absent(),
                 Value<bool> isSynced = const Value.absent(),
+                Value<String> currencyCode = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 title: title,
@@ -1711,6 +1782,7 @@ class $$TransactionsTableTableManager
                 updatedAt: updatedAt,
                 syncId: syncId,
                 isSynced: isSynced,
+                currencyCode: currencyCode,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

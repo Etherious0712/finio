@@ -18,6 +18,13 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => context.push('/appearance'),
           ),
           ListTile(
+            leading: const Icon(Icons.attach_money),
+            title: const Text('货币设置'),
+            subtitle: const Text('Currency'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/currency'),
+          ),
+          ListTile(
             leading: const Icon(Icons.account_balance_wallet_outlined),
             title: const Text('预算设置'),
             trailing: const Icon(Icons.chevron_right),

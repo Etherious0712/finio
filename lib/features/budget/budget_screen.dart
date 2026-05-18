@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/database/app_database.dart';
 import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
+import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/currency_formatter.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -24,13 +25,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
     final expenseCategories =
         ref.watch(expenseCategoriesProvider).valueOrNull ?? [];
+    final symbol = ref.watch(currencySymbolProvider);
 
     final budgetByCategory = {
       for (final b in categoryBudgets)
         if (b.category != null) b.category!: b,
     };
-
-    final fmt = NumberFormat('#,##0.00');
 
     return Scaffold(
       appBar: AppBar(title: const Text('预算设置'), centerTitle: true),
@@ -43,7 +43,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               title: const Text('月度总预算'),
               subtitle: Text(
                 overallBudget != null
-                    ? '¥ ${fmt.format(overallBudget.amount)}'
+                    ? formatAmount(overallBudget.amount, symbol)
                     : '未设置',
                 style: TextStyle(
                   color: overallBudget != null
@@ -82,7 +82,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               ),
               title: Text(cat.name),
               subtitle: Text(
-                budget != null ? '¥ ${fmt.format(budget.amount)}' : '未设置',
+                budget != null
+                    ? formatAmount(budget.amount, symbol)
+                    : '未设置',
                 style: TextStyle(
                   color: budget != null
                       ? Theme.of(context).colorScheme.primary
@@ -107,19 +109,18 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     required String? category,
     required Budget? currentBudget,
   }) async {
-    // Read db synchronously before opening the dialog — no ref access after
-    // any await.
     final db = ref.read(appDatabaseProvider);
+    final symbol = ref.read(currencySymbolProvider);
 
     final result = await showDialog<String>(
       context: context,
       builder: (_) => _BudgetInputDialog(
         title: category == null ? '月度总预算' : '$category 预算',
         initialAmount: currentBudget?.amount,
+        symbol: symbol,
       ),
     );
 
-    // Guard: widget may have been disposed while the dialog was open.
     if (!mounted || result == null) return;
 
     final amount = double.tryParse(result.trim());
@@ -133,13 +134,16 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 }
 
-/// Pure StatefulWidget dialog — owns the TextEditingController and disposes it
-/// correctly. No ref, no Consumer — all Riverpod work happens in the caller.
 class _BudgetInputDialog extends StatefulWidget {
-  const _BudgetInputDialog({required this.title, this.initialAmount});
+  const _BudgetInputDialog({
+    required this.title,
+    this.initialAmount,
+    required this.symbol,
+  });
 
   final String title;
   final double? initialAmount;
+  final String symbol;
 
   @override
   State<_BudgetInputDialog> createState() => _BudgetInputDialogState();
@@ -173,8 +177,8 @@ class _BudgetInputDialogState extends State<_BudgetInputDialog> {
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
         ],
-        decoration: const InputDecoration(
-          prefixText: '¥ ',
+        decoration: InputDecoration(
+          prefixText: '${widget.symbol} ',
           hintText: '输入金额（清空则删除预算）',
         ),
       ),

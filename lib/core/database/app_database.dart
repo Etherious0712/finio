@@ -19,6 +19,8 @@ class Transactions extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   TextColumn get syncId => text().nullable()();
   BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  TextColumn get currencyCode =>
+      text().withDefault(const Constant('USD'))();
 }
 
 class Categories extends Table {
@@ -44,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -59,6 +61,11 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.createTable(budgets);
+          }
+          if (from < 3) {
+            await customStatement(
+              "ALTER TABLE transactions ADD COLUMN currency_code TEXT NOT NULL DEFAULT 'USD'",
+            );
           }
         },
       );

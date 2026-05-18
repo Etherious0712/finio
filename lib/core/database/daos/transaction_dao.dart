@@ -68,4 +68,16 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteTransaction(int id) =>
       (delete(transactions)..where((t) => t.id.equals(id))).go();
+
+  /// Multiplies every transaction's amount by [rate].
+  /// Returns the number of records updated.
+  Future<int> updateAllAmounts(double rate) async {
+    final all = await select(transactions).get();
+    for (final t in all) {
+      await update(transactions).replace(
+        t.copyWith(amount: t.amount * rate),
+      );
+    }
+    return all.length;
+  }
 }

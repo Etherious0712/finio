@@ -8,6 +8,7 @@ import 'features/budget/budget_screen.dart';
 import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/settings/appearance_screen.dart';
+import 'features/settings/currency_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/statistics/statistics_screen.dart';
 import 'features/transactions/add_transaction_screen.dart';
@@ -37,6 +38,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'appearance',
           builder: (context, state) => const AppearanceScreen(),
+        ),
+        GoRoute(
+          path: 'currency',
+          builder: (context, state) => const CurrencyScreen(),
         ),
       ],
     ),

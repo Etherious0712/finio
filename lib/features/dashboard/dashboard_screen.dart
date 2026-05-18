@@ -6,9 +6,11 @@ import 'package:intl/intl.dart';
 import '../../core/database/app_database.dart';
 import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
+import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -21,6 +23,8 @@ class DashboardScreen extends ConsumerWidget {
     final todayIncome = ref.watch(todayIncomeProvider);
     final todayExpense = ref.watch(todayExpenseProvider);
     final transactionsAsync = ref.watch(monthlyTransactionsProvider);
+    final currencyCode = ref.watch(currencyProvider);
+    final symbol = ref.watch(currencySymbolProvider);
     final categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
         '${c.type}:${c.name}': c,
@@ -37,6 +41,8 @@ class DashboardScreen extends ConsumerWidget {
             monthlyExpense: monthlyExpense,
             todayIncome: todayIncome,
             todayExpense: todayExpense,
+            symbol: symbol,
+            currencyCode: currencyCode,
           ),
           const _BudgetSection(),
           Padding(
@@ -58,6 +64,7 @@ class DashboardScreen extends ConsumerWidget {
                         tx: txs[i],
                         category: categoryMap[
                             '${txs[i].type}:${txs[i].category}'],
+                        symbol: symbol,
                       ),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -82,18 +89,22 @@ class _SummaryCard extends StatelessWidget {
     required this.monthlyExpense,
     required this.todayIncome,
     required this.todayExpense,
+    required this.symbol,
+    required this.currencyCode,
   });
 
   final double monthlyIncome;
   final double monthlyExpense;
   final double todayIncome;
   final double todayExpense;
+  final String symbol;
+  final String currencyCode;
 
   @override
   Widget build(BuildContext context) {
-    final fmt = NumberFormat('#,##0.00');
     final balance = monthlyIncome - monthlyExpense;
     final isNegative = balance < 0;
+    final fmt = NumberFormat('#,##0.00');
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gradientStart = isNegative
         ? (isDark ? const Color(0xFF8B2E22) : const Color(0xFFE74C3C))
@@ -124,13 +135,23 @@ class _SummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '本月结余',
-              style: TextStyle(color: Colors.white70, fontSize: 13),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '本月结余',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  fullNameFromCode(currencyCode),
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(
-              fmt.format(balance),
+              formatAmount(balance, symbol),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 34,
@@ -277,10 +298,15 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({required this.tx, this.category});
+  const _TransactionTile({
+    required this.tx,
+    this.category,
+    required this.symbol,
+  });
 
   final Transaction tx;
   final Category? category;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +325,7 @@ class _TransactionTile extends StatelessWidget {
       subtitle:
           Text('${tx.category} · ${DateFormat('M/d').format(tx.date)}'),
       trailing: Text(
-        '${isIncome ? '+' : '-'}${NumberFormat('#,##0.00').format(tx.amount)}',
+        '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
         style: TextStyle(
           color: isIncome ? Colors.green : Colors.red,
           fontWeight: FontWeight.bold,
@@ -319,6 +345,7 @@ class _BudgetSection extends ConsumerWidget {
         ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
     final monthlyExpense = ref.watch(monthlyExpenseProvider);
     final categoryStats = ref.watch(categoryStatsProvider('expense'));
+    final symbol = ref.watch(currencySymbolProvider);
 
     if (overallBudget == null && categoryBudgets.isEmpty) {
       return const SizedBox.shrink();
@@ -334,6 +361,7 @@ class _BudgetSection extends ConsumerWidget {
               label: '月度总预算',
               spent: monthlyExpense,
               budget: overallBudget.amount,
+              symbol: symbol,
             ),
           ...categoryBudgets.map((b) {
             final stat = categoryStats
@@ -343,6 +371,7 @@ class _BudgetSection extends ConsumerWidget {
               label: b.category ?? '未知分类',
               spent: stat?.amount ?? 0.0,
               budget: b.amount,
+              symbol: symbol,
             );
           }),
         ],
@@ -356,17 +385,18 @@ class _BudgetProgressRow extends StatelessWidget {
     required this.label,
     required this.spent,
     required this.budget,
+    required this.symbol,
   });
 
   final String label;
   final double spent;
   final double budget;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
     final ratio = budget > 0 ? spent / budget : 0.0;
     final clamped = ratio.clamp(0.0, 1.0);
-    final fmt = NumberFormat('#,##0.00');
 
     final Color barColor;
     final String? warningText;
@@ -391,15 +421,14 @@ class _BudgetProgressRow extends StatelessWidget {
               Text(label, style: Theme.of(context).textTheme.bodySmall),
               const Spacer(),
               Text(
-                '${fmt.format(spent)} / ${fmt.format(budget)}',
+                '${formatAmount(spent, symbol)} / ${formatAmount(budget, symbol)}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
               ),
               if (warningText != null) ...[
                 const SizedBox(width: 6),
-                Text(warningText,
-                    style: const TextStyle(fontSize: 11)),
+                Text(warningText, style: const TextStyle(fontSize: 11)),
               ],
             ],
           ),
