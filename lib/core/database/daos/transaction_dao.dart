@@ -69,6 +69,19 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   Future<int> deleteTransaction(int id) =>
       (delete(transactions)..where((t) => t.id.equals(id))).go();
 
+  Future<List<Transaction>> searchTransactions(String keyword) {
+    final lower = keyword.toLowerCase();
+    return (select(transactions)
+          ..where(
+            (t) =>
+                t.title.lower().like('%$lower%') |
+                t.category.lower().like('%$lower%') |
+                t.note.lower().like('%$lower%'),
+          )
+          ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+        .get();
+  }
+
   /// Multiplies every transaction's amount by [rate].
   /// Returns the number of records updated.
   Future<int> updateAllAmounts(double rate) async {

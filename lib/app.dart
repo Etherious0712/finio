@@ -12,6 +12,7 @@ import 'features/settings/currency_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/statistics/statistics_screen.dart';
 import 'features/transactions/add_transaction_screen.dart';
+import 'features/transactions/search_screen.dart';
 import 'features/transactions/transaction_list_screen.dart';
 import 'shared/providers/database_provider.dart';
 import 'shared/providers/theme_provider.dart';
@@ -26,6 +27,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'transactions/add',
           builder: (context, state) => const AddTransactionScreen(),
+        ),
+        GoRoute(
+          path: 'search',
+          builder: (context, state) => const SearchScreen(),
         ),
         GoRoute(
           path: 'categories',
