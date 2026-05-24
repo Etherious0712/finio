@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'app_localizations.dart';
+
 import 'core/notifications/budget_notifier.dart';
 import 'core/theme/app_theme.dart';
 import 'features/budget/budget_screen.dart';
@@ -9,12 +11,14 @@ import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/settings/appearance_screen.dart';
 import 'features/settings/currency_screen.dart';
+import 'features/settings/language_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/statistics/statistics_screen.dart';
 import 'features/transactions/add_transaction_screen.dart';
 import 'features/transactions/search_screen.dart';
 import 'features/transactions/transaction_list_screen.dart';
 import 'shared/providers/database_provider.dart';
+import 'shared/providers/locale_provider.dart';
 import 'shared/providers/theme_provider.dart';
 import 'shared/providers/transaction_providers.dart';
 
@@ -48,6 +52,10 @@ final _router = GoRouter(
           path: 'currency',
           builder: (context, state) => const CurrencyScreen(),
         ),
+        GoRoute(
+          path: 'language',
+          builder: (context, state) => const LanguageScreen(),
+        ),
       ],
     ),
   ],
@@ -59,9 +67,13 @@ class FinioApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appThemeMode = ref.watch(themeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'Finio',
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: switch (appThemeMode) {
@@ -118,26 +130,26 @@ class _MainShellState extends ConsumerState<MainShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: '主页',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: AppLocalizations.of(context)!.dashboard,
           ),
           NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: '记录',
+            icon: const Icon(Icons.receipt_long_outlined),
+            selectedIcon: const Icon(Icons.receipt_long),
+            label: AppLocalizations.of(context)!.transactions,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: '统计',
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart),
+            label: AppLocalizations.of(context)!.statistics,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: '设置',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: AppLocalizations.of(context)!.settings,
           ),
         ],
       ),

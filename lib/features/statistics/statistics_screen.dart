@@ -6,8 +6,10 @@ import '../../shared/models/stats_models.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
+import 'package:finio/app_localizations.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({super.key});
@@ -34,13 +36,14 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('统计'),
+        title: Text(l.statistics),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: '支出'), Tab(text: '收入')],
+          tabs: [Tab(text: l.expense), Tab(text: l.income)],
         ),
       ),
       body: Column(
@@ -79,6 +82,7 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
     final symbol = ref.watch(currencySymbolProvider);
     final total = stats.fold(0.0, (s, c) => s + c.amount);
 
+    final l = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
@@ -100,14 +104,14 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
           ),
         ],
         const SizedBox(height: 28),
-        Text('近6个月趋势', style: Theme.of(context).textTheme.titleMedium),
+        Text(l.last6MonthsTrend, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _LegendDot(color: Colors.green.shade400, label: '收入'),
+            _LegendDot(color: Colors.green.shade400, label: l.income),
             const SizedBox(width: 20),
-            _LegendDot(color: Colors.red.shade400, label: '支出'),
+            _LegendDot(color: Colors.red.shade400, label: l.expense),
           ],
         ),
         const SizedBox(height: 8),
@@ -115,9 +119,9 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
           data: (months) => _BarSection(months: months),
           loading: () => const SizedBox(
               height: 200, child: Center(child: CircularProgressIndicator())),
-          error: (e, _) => const SizedBox(
+          error: (e, _) => SizedBox(
             height: 200,
-            child: Center(child: Text('加载趋势数据失败')),
+            child: Center(child: Text(l.loadFailed)),
           ),
         ),
       ],
@@ -186,8 +190,8 @@ class _PieSection extends StatelessWidget {
             children: [
               Text(
                 touchedIndex >= 0 && touchedIndex < stats.length
-                    ? stats[touchedIndex].category
-                    : '总计',
+                    ? localizeCategory(AppLocalizations.of(context)!, stats[touchedIndex].category)
+                    : AppLocalizations.of(context)!.totalLabel,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -253,7 +257,7 @@ class _LegendList extends StatelessWidget {
               Icon(categoryIconData(s.icon), size: 15, color: color),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(s.category,
+                child: Text(localizeCategory(AppLocalizations.of(context)!, s.category),
                     style: Theme.of(context).textTheme.bodyMedium),
               ),
               Text(
@@ -289,11 +293,12 @@ class _BarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (months.isEmpty) {
+      final l = AppLocalizations.of(context)!;
       return SizedBox(
         height: 80,
         child: Center(
           child: Text(
-            '暂无数据',
+            l.noData,
             style: TextStyle(color: Theme.of(context).colorScheme.outline),
           ),
         ),
@@ -392,6 +397,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return SizedBox(
       height: 160,
       child: Center(
@@ -405,7 +411,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '本月暂无${type == 'expense' ? '支出' : '收入'}记录',
+              type == 'expense' ? l.noMonthlyExpenseRecords : l.noMonthlyIncomeRecords,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),

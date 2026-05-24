@@ -1,16 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-String fullNameFromCode(String code) {
-  const map = {
-    'USD': '美元 USD', 'SGD': '新加坡元 SGD', 'MYR': '马来西亚令吉 MYR',
-    'CNY': '人民币 CNY', 'JPY': '日元 JPY', 'EUR': '欧元 EUR',
-    'GBP': '英镑 GBP', 'KRW': '韩元 KRW', 'THB': '泰铢 THB',
-    'INR': '印度卢比 INR', 'TWD': '新台币 TWD', 'HKD': '港币 HKD',
-  };
-  return map[code] ?? code;
-}
-
 String symbolFromCode(String code) {
   const map = {
     'USD': r'$',

@@ -11,6 +11,8 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
+import 'package:finio/app_localizations.dart';
 
 class AddTransactionScreen extends ConsumerStatefulWidget {
   const AddTransactionScreen({super.key});
@@ -52,7 +54,7 @@ class _AddTransactionScreenState
     if (note.isEmpty) return;
     final suggested =
         _classifier.classifyWithLearning(title: note, type: _type);
-    if (suggested != '其他' && suggested != _selectedCategory) {
+    if (!suggested.startsWith('catOther') && suggested != _selectedCategory) {
       setState(() => _selectedCategory = suggested);
     }
   }
@@ -70,8 +72,9 @@ class _AddTransactionScreenState
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
+      final l = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请选择分类')),
+        SnackBar(content: Text(l.pleaseSelectCategory)),
       );
       return;
     }
@@ -101,6 +104,7 @@ class _AddTransactionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final categoriesAsync = _type == TransactionType.expense
         ? ref.watch(expenseCategoriesProvider)
         : ref.watch(incomeCategoriesProvider);
@@ -116,7 +120,7 @@ class _AddTransactionScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('新增记录'),
+        title: Text(l.addTransaction),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -131,7 +135,7 @@ class _AddTransactionScreenState
                   )
                 : TextButton(
                     onPressed: _save,
-                    child: const Text('保存'),
+                    child: Text(l.save),
                   ),
           ),
         ],
@@ -159,16 +163,16 @@ class _AddTransactionScreenState
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
                     ),
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: TransactionType.expense,
-                        label: Text('支出'),
-                        icon: Icon(Icons.remove_circle_outline),
+                        label: Text(l.expense),
+                        icon: const Icon(Icons.remove_circle_outline),
                       ),
                       ButtonSegment(
                         value: TransactionType.income,
-                        label: Text('收入'),
-                        icon: Icon(Icons.add_circle_outline),
+                        label: Text(l.income),
+                        icon: const Icon(Icons.add_circle_outline),
                       ),
                     ],
                     selected: {_type},
@@ -212,9 +216,9 @@ class _AddTransactionScreenState
                       errorMaxLines: 1,
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return '请输入金额';
+                      if (v == null || v.isEmpty) return l.pleaseEnterAmount;
                       final amount = double.tryParse(v);
-                      if (amount == null || amount <= 0) return '请输入大于 0 的金额';
+                      if (amount == null || amount <= 0) return l.pleaseEnterPositiveAmount;
                       return null;
                     },
                   ),
@@ -229,10 +233,10 @@ class _AddTransactionScreenState
                   TextFormField(
                     controller: _noteController,
                     maxLength: 100,
-                    decoration: const InputDecoration(
-                      labelText: '备注（选填，可自动识别分类）',
-                      prefixIcon: Icon(Icons.notes),
-                      border: OutlineInputBorder(
+                    decoration: InputDecoration(
+                      labelText: l.note,
+                      prefixIcon: const Icon(Icons.notes),
+                      border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
                     ),
@@ -251,7 +255,7 @@ class _AddTransactionScreenState
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('分类',
+                  Text(l.category,
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
                   categoriesAsync.when(
@@ -273,7 +277,7 @@ class _AddTransactionScreenState
                     ),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Text('加载分类失败: $e'),
+                    error: (e, _) => Text('${l.loadFailed}: $e'),
                   ),
                 ],
               ),
@@ -336,7 +340,7 @@ class _CategoryCell extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              category.name,
+              localizeCategory(AppLocalizations.of(context)!, category.name),
               style: TextStyle(
                 fontSize: 11,
                 color: selected

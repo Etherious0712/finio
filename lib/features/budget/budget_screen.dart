@@ -8,7 +8,9 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
+import 'package:finio/app_localizations.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -20,6 +22,7 @@ class BudgetScreen extends ConsumerStatefulWidget {
 class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final overallBudget = ref.watch(overallBudgetProvider).valueOrNull;
     final categoryBudgets =
         ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
@@ -33,18 +36,18 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text('预算设置'), centerTitle: true),
+      appBar: AppBar(title: Text(l.budgetSettings), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Card(
             child: ListTile(
               leading: const Icon(Icons.account_balance_wallet_outlined),
-              title: const Text('月度总预算'),
+              title: Text(l.monthlyBudget),
               subtitle: Text(
                 overallBudget != null
                     ? formatAmount(overallBudget.amount, symbol)
-                    : '未设置',
+                    : l.notSet,
                 style: TextStyle(
                   color: overallBudget != null
                       ? Theme.of(context).colorScheme.primary
@@ -65,7 +68,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
-              '分类预算',
+              l.categoryBudget,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -80,11 +83,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 child:
                     Icon(categoryIconData(cat.icon), size: 18, color: color),
               ),
-              title: Text(cat.name),
+              title: Text(localizeCategory(l, cat.name)),
               subtitle: Text(
                 budget != null
                     ? formatAmount(budget.amount, symbol)
-                    : '未设置',
+                    : l.notSet,
                 style: TextStyle(
                   color: budget != null
                       ? Theme.of(context).colorScheme.primary
@@ -109,13 +112,16 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     required String? category,
     required Budget? currentBudget,
   }) async {
+    final l = AppLocalizations.of(context)!;
     final db = ref.read(appDatabaseProvider);
     final symbol = ref.read(currencySymbolProvider);
 
     final result = await showDialog<String>(
       context: context,
       builder: (_) => _BudgetInputDialog(
-        title: category == null ? '月度总预算' : '$category 预算',
+        title: category == null
+            ? l.monthlyBudget
+            : l.categoryBudgetLabel(localizeCategory(l, category)),
         initialAmount: currentBudget?.amount,
         symbol: symbol,
       ),
@@ -168,6 +174,7 @@ class _BudgetInputDialogState extends State<_BudgetInputDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return AlertDialog(
       title: Text(widget.title),
       content: TextField(
@@ -179,17 +186,17 @@ class _BudgetInputDialogState extends State<_BudgetInputDialog> {
         ],
         decoration: InputDecoration(
           prefixText: '${widget.symbol} ',
-          hintText: '输入金额（清空则删除预算）',
+          hintText: l.budgetInputHint,
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(l.cancel),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _controller.text),
-          child: const Text('保存'),
+          child: Text(l.save),
         ),
       ],
     );

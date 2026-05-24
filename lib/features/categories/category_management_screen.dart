@@ -7,6 +7,8 @@ import '../../core/database/app_database.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
+import 'package:finio/app_localizations.dart';
 
 class CategoryManagementScreen extends ConsumerStatefulWidget {
   const CategoryManagementScreen({super.key});
@@ -38,20 +40,21 @@ class _CategoryManagementScreenState
       _tabController.index == 0 ? 'expense' : 'income';
 
   Future<void> _deleteCategory(Category cat) async {
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('删除分类'),
-        content: Text('确定要删除「${cat.name}」吗？'),
+        title: Text(l.deleteCategory),
+        content: Text(l.confirmDeleteCategoryMsg(localizeCategory(l, cat.name))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('取消'),
+            child: Text(l.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
+            child: Text(l.delete),
           ),
         ],
       ),
@@ -74,13 +77,14 @@ class _CategoryManagementScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('分类管理'),
+        title: Text(l.categoryManagement),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: '支出'), Tab(text: '收入')],
+          tabs: [Tab(text: l.expense), Tab(text: l.income)],
         ),
       ),
       body: TabBarView(
@@ -112,12 +116,13 @@ class _CategoryList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final async = ref.watch(categoriesByTypeProvider(type));
 
     return async.when(
       data: (cats) {
         if (cats.isEmpty) {
-          return const Center(child: Text('暂无分类'));
+          return Center(child: Text(l.noCategoryYet));
         }
         return ListView.separated(
           itemCount: cats.length,
@@ -130,7 +135,7 @@ class _CategoryList extends ConsumerWidget {
                 backgroundColor: color.withValues(alpha: 0.15),
                 child: Icon(categoryIconData(cat.icon), color: color, size: 20),
               ),
-              title: Text(cat.name),
+              title: Text(localizeCategory(l, cat.name)),
               trailing: cat.isCustom
                   ? IconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -146,7 +151,7 @@ class _CategoryList extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        '默认',
+                        l.defaultLabel,
                         style: TextStyle(
                           fontSize: 11,
                           color: Theme.of(context).colorScheme.outline,
@@ -158,7 +163,7 @@ class _CategoryList extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('加载失败: $e')),
+      error: (e, _) => Center(child: Text('${l.loadFailed}: $e')),
     );
   }
 }
@@ -192,11 +197,12 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
   }
 
   Future<void> _openCustomColorPicker() async {
+    final l = AppLocalizations.of(context)!;
     Color tempColor = parseCategoryColor(_selectedColor);
     final result = await showDialog<Color>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('自定义颜色'),
+        title: Text(l.customColor),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: tempColor,
@@ -209,11 +215,11 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('取消'),
+            child: Text(l.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, tempColor),
-            child: const Text('确认'),
+            child: Text(l.confirm),
           ),
         ],
       ),
@@ -246,6 +252,7 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final accentColor = parseCategoryColor(_selectedColor);
     final isCustomColor = !kPresetColors.contains(_selectedColor);
@@ -260,7 +267,7 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
             Row(
               children: [
                 Text(
-                  '新增${widget.type == 'expense' ? '支出' : '收入'}分类',
+                  widget.type == 'expense' ? l.addExpenseCategory : l.addIncomeCategory,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
@@ -271,7 +278,7 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 else
-                  TextButton(onPressed: _save, child: const Text('保存')),
+                  TextButton(onPressed: _save, child: Text(l.save)),
               ],
             ),
             const SizedBox(height: 16),
@@ -279,15 +286,15 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
               controller: _nameController,
               autofocus: true,
               maxLength: 20,
-              decoration: const InputDecoration(
-                labelText: '分类名称',
-                border: OutlineInputBorder(
+              decoration: InputDecoration(
+                labelText: l.categoryName,
+                border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            Text('图标', style: Theme.of(context).textTheme.bodySmall),
+            Text(l.iconLabel, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 8),
             SizedBox(
               height: 220,
@@ -330,7 +337,7 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
               ),
             ),
             const SizedBox(height: 12),
-            Text('颜色', style: Theme.of(context).textTheme.bodySmall),
+            Text(l.colorLabel, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 8),
             // Layer 1: preset swatches
             Wrap(
@@ -400,7 +407,7 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '自定义颜色',
+                    l.customColor,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: isCustomColor
                               ? accentColor

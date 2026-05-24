@@ -1,0 +1,268 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Chinese (`zh`).
+class AppLocalizationsZh extends AppLocalizations {
+  AppLocalizationsZh([String locale = 'zh']) : super(locale);
+
+  @override
+  String get appName => 'Finio';
+
+  @override
+  String get dashboard => '主页';
+
+  @override
+  String get transactions => '记录';
+
+  @override
+  String get statistics => '统计';
+
+  @override
+  String get settings => '设置';
+
+  @override
+  String get income => '收入';
+
+  @override
+  String get expense => '支出';
+
+  @override
+  String get balance => '结余';
+
+  @override
+  String get balanceThisMonth => '本月结余';
+
+  @override
+  String get thisMonth => '本月';
+
+  @override
+  String get today => '今日';
+
+  @override
+  String get recentTransactions => '最近交易';
+
+  @override
+  String get addTransaction => '新增记录';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get confirm => '确认';
+
+  @override
+  String get amount => '金额';
+
+  @override
+  String get note => '备注（选填，可自动识别分类）';
+
+  @override
+  String get date => '日期';
+
+  @override
+  String get category => '分类';
+
+  @override
+  String get typeLabel => '类型';
+
+  @override
+  String get recordTime => '记录时间';
+
+  @override
+  String get noRecords => '还没有记录';
+
+  @override
+  String get tapToStart => '点击 + 开始记账';
+
+  @override
+  String get noMonthlyRecords => '本月暂无记录';
+
+  @override
+  String get loadFailed => '加载失败';
+
+  @override
+  String get pleaseSelectCategory => '请选择分类';
+
+  @override
+  String get pleaseEnterAmount => '请输入金额';
+
+  @override
+  String get pleaseEnterPositiveAmount => '请输入大于 0 的金额';
+
+  @override
+  String get budget => '预算';
+
+  @override
+  String get monthlyBudget => '月度总预算';
+
+  @override
+  String get categoryBudget => '分类预算';
+
+  @override
+  String categoryBudgetLabel(String category) {
+    return '$category 预算';
+  }
+
+  @override
+  String get notSet => '未设置';
+
+  @override
+  String get overBudget => '❌ 已超支';
+
+  @override
+  String get nearBudget => '⚠️ 即将超支';
+
+  @override
+  String get budgetInputHint => '输入金额（清空则删除预算）';
+
+  @override
+  String get appearance => '外观设置';
+
+  @override
+  String get language => '语言';
+
+  @override
+  String get currency => '货币设置';
+
+  @override
+  String get categoryManagement => '分类管理';
+
+  @override
+  String get budgetSettings => '预算设置';
+
+  @override
+  String get followSystem => '跟随系统';
+
+  @override
+  String get lightMode => '浅色';
+
+  @override
+  String get darkMode => '深色';
+
+  @override
+  String get searchTransactions => '搜索交易记录';
+
+  @override
+  String get noResults => '没有找到相关记录';
+
+  @override
+  String get searchHint => '输入关键字搜索交易记录';
+
+  @override
+  String get last6MonthsTrend => '近6个月趋势';
+
+  @override
+  String get noData => '暂无数据';
+
+  @override
+  String get totalLabel => '总计';
+
+  @override
+  String get noMonthlyExpenseRecords => '本月暂无支出记录';
+
+  @override
+  String get noMonthlyIncomeRecords => '本月暂无收入记录';
+
+  @override
+  String get deleteCategory => '删除分类';
+
+  @override
+  String confirmDeleteCategoryMsg(String name) {
+    return '确定要删除「$name」吗？';
+  }
+
+  @override
+  String get noCategoryYet => '暂无分类';
+
+  @override
+  String get defaultLabel => '默认';
+
+  @override
+  String get categoryName => '分类名称';
+
+  @override
+  String get iconLabel => '图标';
+
+  @override
+  String get colorLabel => '颜色';
+
+  @override
+  String get customColor => '自定义颜色';
+
+  @override
+  String get addExpenseCategory => '新增支出分类';
+
+  @override
+  String get addIncomeCategory => '新增收入分类';
+
+  @override
+  String get unknownCategory => '未知分类';
+
+  @override
+  String get confirmCurrencyConvert => '确认换算货币？';
+
+  @override
+  String get fromLabel => '从';
+
+  @override
+  String get toLabel => '到';
+
+  @override
+  String get currencyConvertWarning => '所有历史记录的金额将根据此汇率换算，此操作无法撤销。';
+
+  @override
+  String get confirmConvert => '确认换算';
+
+  @override
+  String currencyConvertSuccess(int count) {
+    return '已完成换算，共更新 $count 笔记录';
+  }
+
+  @override
+  String get currencyNotSupported => '该货币暂不支持汇率查询（Frankfurter 不提供此货币数据）';
+
+  @override
+  String get exchangeRateFetchFailed => '获取汇率失败，请检查网络连接';
+
+  @override
+  String get catFood => '餐饮';
+
+  @override
+  String get catTransport => '交通';
+
+  @override
+  String get catShopping => '购物';
+
+  @override
+  String get catEntertainment => '娱乐';
+
+  @override
+  String get catHealth => '医疗';
+
+  @override
+  String get catBills => '账单';
+
+  @override
+  String get catOtherExpense => '其他';
+
+  @override
+  String get catSalary => '薪资';
+
+  @override
+  String get catFreelance => '兼职';
+
+  @override
+  String get catInvestment => '投资';
+
+  @override
+  String get catOtherIncome => '其他收入';
+}

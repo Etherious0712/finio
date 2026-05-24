@@ -9,8 +9,10 @@ import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
+import 'package:finio/app_localizations.dart';
 
 const _kWeekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
@@ -23,6 +25,7 @@ class TransactionListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final transactionsAsync = ref.watch(monthlyTransactionsProvider);
     final symbol = ref.watch(currencySymbolProvider);
     final categoryMap = {
@@ -32,7 +35,7 @@ class TransactionListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('交易记录'),
+        title: Text(l.transactions),
         centerTitle: true,
         actions: [
           IconButton(
@@ -48,7 +51,7 @@ class TransactionListScreen extends ConsumerWidget {
             child: transactionsAsync.when(
               data: (txs) {
                 if (txs.isEmpty) {
-                  return const Center(child: Text('本月暂无记录'));
+                  return Center(child: Text(l.noMonthlyRecords));
                 }
                 final items = _buildItems(txs);
                 return ListView.builder(
@@ -82,7 +85,7 @@ class TransactionListScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('加载失败: $e')),
+              error: (e, _) => Center(child: Text('${l.loadFailed}: $e')),
             ),
           ),
         ],
@@ -163,7 +166,7 @@ class _TransactionTile extends StatelessWidget {
         child: Icon(categoryIconData(iconName), size: 20, color: catColor),
       ),
       title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(tx.category),
+      subtitle: Text(localizeCategory(AppLocalizations.of(context)!, tx.category)),
       trailing: Text(
         '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
         style: TextStyle(
@@ -183,6 +186,7 @@ class _DetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final isIncome = tx.type == 'income';
     final typeColor = isIncome ? Colors.green : Colors.red;
 
@@ -209,14 +213,14 @@ class _DetailSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _Row(label: '类型', value: isIncome ? '收入' : '支出'),
-          _Row(label: '分类', value: tx.category),
-          if (tx.title.isNotEmpty) _Row(label: '备注', value: tx.title),
+          _Row(label: l.typeLabel, value: isIncome ? l.income : l.expense),
+          _Row(label: l.category, value: localizeCategory(l, tx.category)),
+          if (tx.title.isNotEmpty) _Row(label: l.note, value: tx.title),
           _Row(
-              label: '日期',
+              label: l.date,
               value: DateFormat('yyyy年M月d日').format(tx.date)),
           _Row(
-            label: '记录时间',
+            label: l.recordTime,
             value: DateFormat('yyyy/M/d HH:mm').format(tx.createdAt),
           ),
         ],

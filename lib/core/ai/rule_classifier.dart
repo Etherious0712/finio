@@ -8,23 +8,29 @@ class RuleClassifier {
   static const _prefsKey = 'classifier_corrections';
 
   static const _expenseRules = <String, List<String>>{
-    '餐饮': ['餐厅', '咖啡', '外卖', '食物', '午餐', '晚餐', '麦当劳', '肯德基', '星巴克', '饭'],
-    '交通': ['grab', '打车', '油钱', '停车', '公交', '地铁', '的士', '滴滴', '高铁', '机票'],
-    '购物': ['shopee', 'lazada', '超市', '便利店', '淘宝', '京东', '购物'],
-    '娱乐': ['netflix', '电影', '游戏', 'ktv', 'spotify', '演唱会', '票'],
-    '医疗': ['药', '医院', '诊所', '体检', '手术'],
-    '账单': ['水电', '电话费', '网络', '房租', '物业', '宽带'],
+    'catFood': ['餐厅', '咖啡', '外卖', '食物', '午餐', '晚餐', '麦当劳', '肯德基', '星巴克', '饭',
+               'restaurant', 'cafe', 'food', 'lunch', 'dinner', 'makan'],
+    'catTransport': ['grab', '打车', '油钱', '停车', '公交', '地铁', '的士', '滴滴', '高铁', '机票',
+                    'taxi', 'bus', 'train', 'mrt', 'lrt', 'petrol'],
+    'catShopping': ['shopee', 'lazada', '超市', '便利店', '淘宝', '京东', '购物',
+                   'supermarket', 'grocery', 'mall'],
+    'catEntertainment': ['netflix', '电影', '游戏', 'ktv', 'spotify', '演唱会', '票',
+                        'movie', 'game', 'cinema'],
+    'catHealth': ['药', '医院', '诊所', '体检', '手术',
+                 'pharmacy', 'hospital', 'clinic', 'doctor'],
+    'catBills': ['水电', '电话费', '网络', '房租', '物业', '宽带',
+                'rent', 'utilities', 'internet', 'phone'],
   };
 
   static const _incomeRules = <String, List<String>>{
-    '薪资': ['工资', '薪水', 'salary', '月薪', '年终奖'],
-    '兼职': ['兼职', 'freelance', '外快', '稿费', '咨询费'],
-    '投资': ['股息', '利息', '分红', '股票', '基金', '理财'],
+    'catSalary': ['工资', '薪水', 'salary', '月薪', '年终奖', 'gaji'],
+    'catFreelance': ['兼职', 'freelance', '外快', '稿费', '咨询费'],
+    'catInvestment': ['股息', '利息', '分红', '股票', '基金', '理财',
+                     'dividend', 'interest', 'investment'],
   };
 
   final Map<String, String> _corrections = {};
 
-  /// 从 SharedPreferences 加载已学习的纠正记录
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
@@ -36,7 +42,6 @@ class RuleClassifier {
     }
   }
 
-  /// 纯关键词匹配分类（不考虑用户纠正记录）
   static String classify({
     required String title,
     double? amount,
@@ -45,7 +50,6 @@ class RuleClassifier {
     return _matchKeywords(title, type);
   }
 
-  /// 带学习记忆的分类（优先匹配用户纠正记录）
   String classifyWithLearning({
     required String title,
     required TransactionType type,
@@ -55,7 +59,6 @@ class RuleClassifier {
     return _matchKeywords(title, type);
   }
 
-  /// 记录用户纠正并持久化到 SharedPreferences
   Future<void> learnCorrection({
     required String original,
     required String correctedCategory,
@@ -78,6 +81,6 @@ class RuleClassifier {
       }
     }
 
-    return '其他';
+    return type == TransactionType.expense ? 'catOtherExpense' : 'catOtherIncome';
   }
 }

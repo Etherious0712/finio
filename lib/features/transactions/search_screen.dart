@@ -9,7 +9,9 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
+import 'package:finio/app_localizations.dart';
 
 Color _hexToColor(String hex) =>
     Color(int.parse(hex.replaceFirst('#', '0xFF')));
@@ -76,6 +78,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final symbol = ref.watch(currencySymbolProvider);
     final Map<String, Category> categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
@@ -89,7 +92,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           controller: _controller,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: '搜索交易记录',
+            hintText: l.searchTransactions,
             border: InputBorder.none,
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
@@ -100,26 +103,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
         ),
       ),
-      body: _buildBody(symbol, categoryMap),
+      body: _buildBody(context, symbol, categoryMap),
     );
   }
 
-  Widget _buildBody(String symbol, Map<String, Category> categoryMap) {
+  Widget _buildBody(BuildContext context, String symbol, Map<String, Category> categoryMap) {
+    final l = AppLocalizations.of(context)!;
+
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (_results == null) {
-      return const Center(
-        child: Text('输入关键字搜索交易记录',
-            style: TextStyle(color: Colors.grey)),
+      return Center(
+        child: Text(l.searchHint,
+            style: const TextStyle(color: Colors.grey)),
       );
     }
 
     if (_results!.isEmpty) {
-      return const Center(
-        child: Text('没有找到相关记录',
-            style: TextStyle(color: Colors.grey)),
+      return Center(
+        child: Text(l.noResults,
+            style: const TextStyle(color: Colors.grey)),
       );
     }
 
@@ -143,7 +148,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
           title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: Text(
-            '${tx.category}  ·  ${DateFormat('yyyy/M/d').format(tx.date)}',
+            '${localizeCategory(l, tx.category)}  ·  ${DateFormat('yyyy/M/d').format(tx.date)}',
           ),
           trailing: Text(
             '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
@@ -166,6 +171,7 @@ class _DetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final isIncome = tx.type == 'income';
     final typeColor = isIncome ? Colors.green : Colors.red;
 
@@ -192,12 +198,12 @@ class _DetailSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _Row(label: '类型', value: isIncome ? '收入' : '支出'),
-          _Row(label: '分类', value: tx.category),
-          if (tx.title.isNotEmpty) _Row(label: '备注', value: tx.title),
-          _Row(label: '日期', value: DateFormat('yyyy年M月d日').format(tx.date)),
+          _Row(label: l.typeLabel, value: isIncome ? l.income : l.expense),
+          _Row(label: l.category, value: localizeCategory(l, tx.category)),
+          if (tx.title.isNotEmpty) _Row(label: l.note, value: tx.title),
+          _Row(label: l.date, value: DateFormat('yyyy年M月d日').format(tx.date)),
           _Row(
-            label: '记录时间',
+            label: l.recordTime,
             value: DateFormat('yyyy/M/d HH:mm').format(tx.createdAt),
           ),
         ],

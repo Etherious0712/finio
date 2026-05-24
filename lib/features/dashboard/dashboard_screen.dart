@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../app_localizations.dart';
 import '../../core/database/app_database.dart';
 import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
@@ -10,6 +11,7 @@ import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
 
@@ -18,6 +20,7 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final monthlyIncome = ref.watch(monthlyIncomeProvider);
     final monthlyExpense = ref.watch(monthlyExpenseProvider);
     final todayIncome = ref.watch(todayIncomeProvider);
@@ -48,7 +51,7 @@ class DashboardScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
             child: Text(
-              '最近交易',
+              l.recentTransactions,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -65,10 +68,11 @@ class DashboardScreen extends ConsumerWidget {
                         category: categoryMap[
                             '${txs[i].type}:${txs[i].category}'],
                         symbol: symbol,
+                        l: l,
                       ),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('加载失败: $e')),
+              error: (e, _) => Center(child: Text('${l.loadFailed}: $e')),
             ),
           ),
         ],
@@ -139,12 +143,12 @@ class _SummaryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '本月结余',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                Text(
+                  AppLocalizations.of(context)!.balanceThisMonth,
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
                 Text(
-                  fullNameFromCode(currencyCode),
+                  currencyCode,
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
@@ -164,7 +168,7 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _GradientStat(
-                    label: '收入',
+                    label: AppLocalizations.of(context)!.income,
                     value: fmt.format(monthlyIncome),
                     icon: Icons.arrow_downward_rounded,
                   ),
@@ -176,7 +180,7 @@ class _SummaryCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _GradientStat(
-                    label: '支出',
+                    label: AppLocalizations.of(context)!.expense,
                     value: fmt.format(monthlyExpense),
                     icon: Icons.arrow_upward_rounded,
                   ),
@@ -189,9 +193,9 @@ class _SummaryCard extends StatelessWidget {
                 const Icon(Icons.today_outlined,
                     color: Colors.white70, size: 14),
                 const SizedBox(width: 4),
-                const Text(
-                  '今日',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                Text(
+                  AppLocalizations.of(context)!.today,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
                 const Spacer(),
                 Text(
@@ -279,14 +283,14 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '还没有记录',
+            AppLocalizations.of(context)!.noRecords,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            '点击 + 开始记账',
+            AppLocalizations.of(context)!.tapToStart,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outlineVariant,
                 ),
@@ -302,11 +306,13 @@ class _TransactionTile extends StatelessWidget {
     required this.tx,
     this.category,
     required this.symbol,
+    required this.l,
   });
 
   final Transaction tx;
   final Category? category;
   final String symbol;
+  final AppLocalizations l;
 
   @override
   Widget build(BuildContext context) {
@@ -322,8 +328,8 @@ class _TransactionTile extends StatelessWidget {
         child: Icon(categoryIconData(iconName), size: 20, color: catColor),
       ),
       title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle:
-          Text('${tx.category} · ${DateFormat('M/d').format(tx.date)}'),
+      subtitle: Text(
+          '${localizeCategory(l, tx.category)} · ${DateFormat('M/d').format(tx.date)}'),
       trailing: Text(
         '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
         style: TextStyle(
@@ -340,6 +346,7 @@ class _BudgetSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final overallBudget = ref.watch(overallBudgetProvider).valueOrNull;
     final categoryBudgets =
         ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
@@ -358,7 +365,7 @@ class _BudgetSection extends ConsumerWidget {
         children: [
           if (overallBudget != null)
             _BudgetProgressRow(
-              label: '月度总预算',
+              label: l.monthlyBudget,
               spent: monthlyExpense,
               budget: overallBudget.amount,
               symbol: symbol,
@@ -368,7 +375,7 @@ class _BudgetSection extends ConsumerWidget {
                 .where((s) => s.category == b.category)
                 .firstOrNull;
             return _BudgetProgressRow(
-              label: b.category ?? '未知分类',
+              label: localizeCategory(l, b.category ?? l.unknownCategory),
               spent: stat?.amount ?? 0.0,
               budget: b.amount,
               symbol: symbol,
@@ -398,14 +405,15 @@ class _BudgetProgressRow extends StatelessWidget {
     final ratio = budget > 0 ? spent / budget : 0.0;
     final clamped = ratio.clamp(0.0, 1.0);
 
+    final l = AppLocalizations.of(context)!;
     final Color barColor;
     final String? warningText;
     if (ratio >= 1.0) {
       barColor = Colors.red;
-      warningText = '❌ 已超支';
+      warningText = l.overBudget;
     } else if (ratio >= 0.8) {
       barColor = Colors.orange;
-      warningText = '⚠️ 即将超支';
+      warningText = l.nearBudget;
     } else {
       barColor = Colors.green;
       warningText = null;

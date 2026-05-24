@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/exchange_rate_service.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
+import 'package:finio/app_localizations.dart';
 
 class CurrencyScreen extends ConsumerStatefulWidget {
   const CurrencyScreen({super.key});
@@ -39,6 +40,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
   }
 
   Future<void> _handleSelection(String newCode) async {
+    final l = AppLocalizations.of(context)!;
     final currentCode = ref.read(currencyProvider);
     if (newCode == currentCode || _loading) return;
 
@@ -56,13 +58,13 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
         context: context,
         barrierDismissible: false,
         builder: (_) => AlertDialog(
-          title: const Text('确认换算货币？'),
+          title: Text(l.confirmCurrencyConvert),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _InfoRow(label: '从', value: fromLabel),
-              _InfoRow(label: '到', value: toLabel),
+              _InfoRow(label: l.fromLabel, value: fromLabel),
+              _InfoRow(label: l.toLabel, value: toLabel),
               const SizedBox(height: 10),
               Text(
                 '当前汇率：1 $currentCode = ${rate.toStringAsFixed(4)} $newCode',
@@ -77,20 +79,20 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                '所有历史记录的金额将根据此汇率换算，此操作无法撤销。',
-                style: TextStyle(fontSize: 13),
+              Text(
+                l.currencyConvertWarning,
+                style: const TextStyle(fontSize: 13),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('取消'),
+              child: Text(l.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('确认换算'),
+              child: Text(l.confirmConvert),
             ),
           ],
         ),
@@ -104,17 +106,17 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('已完成换算，共更新 $count 笔记录')),
+        SnackBar(content: Text(l.currencyConvertSuccess(count))),
       );
     } on UnsupportedError {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('该货币暂不支持汇率查询（Frankfurter 不提供此货币数据）')),
+        SnackBar(content: Text(l.currencyNotSupported)),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('获取汇率失败，请检查网络连接')),
+        SnackBar(content: Text(l.exchangeRateFetchFailed)),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -123,10 +125,11 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final currentCode = ref.watch(currencyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('货币设置'), centerTitle: true),
+      appBar: AppBar(title: Text(l.currency), centerTitle: true),
       body: Stack(
         children: [
           AbsorbPointer(
