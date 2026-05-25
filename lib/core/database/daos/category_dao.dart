@@ -27,4 +27,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteCategory(int id) =>
       (delete(categories)..where((c) => c.id.equals(id))).go();
+
+  Future<int> deleteCustomCategories() =>
+      (delete(categories)..where((c) => c.isCustom.equals(true))).go();
 }

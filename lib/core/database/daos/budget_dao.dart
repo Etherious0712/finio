@@ -73,4 +73,6 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
 
   Future<int> deleteBudget(int id) =>
       (delete(budgets)..where((b) => b.id.equals(id))).go();
+
+  Future<int> deleteAllBudgets() => delete(budgets).go();
 }

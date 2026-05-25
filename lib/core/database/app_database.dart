@@ -45,6 +45,9 @@ class Budgets extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  // Used in tests only
+  AppDatabase.forTesting(super.e);
+
   @override
   int get schemaVersion => 4;
 
