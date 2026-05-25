@@ -35,6 +35,9 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^17.2.2
 
+  # Cloud sync
+  supabase_flutter: ^2.5.0
+
   # Utilities
   http: ^1.2.0
   intl: ^0.20.2

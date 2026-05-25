@@ -613,6 +613,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other Income'**
   String get catOtherIncome;
+
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get signUp;
+
+  /// No description provided for @skipLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skipLogin;
+
+  /// No description provided for @checkEmailConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful! Check your email to confirm your account.'**
+  String get checkEmailConfirmation;
+
+  /// No description provided for @cloudSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync'**
+  String get cloudSync;
+
+  /// No description provided for @syncSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync successful'**
+  String get syncSuccess;
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed'**
+  String get syncFailed;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get signOut;
+
+  /// No description provided for @loginForSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to sync across devices'**
+  String get loginForSync;
 }
 
 class _AppLocalizationsDelegate

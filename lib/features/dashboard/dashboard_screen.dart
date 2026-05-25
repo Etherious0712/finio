@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../app_localizations.dart';
-import '../../core/database/app_database.dart';
+import 'package:finio/app_localizations.dart';
+import 'package:finio/core/database/app_database.dart';
 import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';

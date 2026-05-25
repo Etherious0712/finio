@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'app_localizations.dart';
 
 import 'core/notifications/budget_notifier.dart';
+import 'core/sync/sync_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/auth_screen.dart';
 import 'features/budget/budget_screen.dart';
 import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
@@ -56,6 +58,10 @@ final _router = GoRouter(
           path: 'language',
           builder: (context, state) => const LanguageScreen(),
         ),
+        GoRoute(
+          path: 'auth',
+          builder: (context, state) => const AuthScreen(),
+        ),
       ],
     ),
   ],
@@ -95,11 +101,17 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
+  // Only Dashboard is rendered on the first frame.
+  // Other tabs are built lazily on first visit, after localization is ready.
+  final Set<int> _loadedTabs = {0};
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBudgetOnStartup());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkBudgetOnStartup();
+      await ref.read(syncServiceProvider).syncAll();
+    });
   }
 
   Future<void> _checkBudgetOnStartup() async {
@@ -115,41 +127,55 @@ class _MainShellState extends ConsumerState<MainShell> {
     );
   }
 
+  void _switchTo(int i) {
+    setState(() {
+      _index = i;
+      _loadedTabs.add(i);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [
-          DashboardScreen(),
-          TransactionListScreen(),
-          StatisticsScreen(),
-          SettingsScreen(),
+        children: [
+          const DashboardScreen(),
+          _loadedTabs.contains(1)
+              ? const TransactionListScreen()
+              : const SizedBox.shrink(),
+          _loadedTabs.contains(2)
+              ? const StatisticsScreen()
+              : const SizedBox.shrink(),
+          _loadedTabs.contains(3)
+              ? const SettingsScreen()
+              : const SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: _switchTo,
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home),
-            label: AppLocalizations.of(context)!.dashboard,
+            label: l.dashboard,
           ),
           NavigationDestination(
             icon: const Icon(Icons.receipt_long_outlined),
             selectedIcon: const Icon(Icons.receipt_long),
-            label: AppLocalizations.of(context)!.transactions,
+            label: l.transactions,
           ),
           NavigationDestination(
             icon: const Icon(Icons.bar_chart_outlined),
             selectedIcon: const Icon(Icons.bar_chart),
-            label: AppLocalizations.of(context)!.statistics,
+            label: l.statistics,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings),
-            label: AppLocalizations.of(context)!.settings,
+            label: l.settings,
           ),
         ],
       ),

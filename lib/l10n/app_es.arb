@@ -83,5 +83,17 @@
   "catSalary": "Salario",
   "catFreelance": "Autónomo",
   "catInvestment": "Inversión",
-  "catOtherIncome": "Otros ingresos"
+  "catOtherIncome": "Otros ingresos",
+  "account": "Cuenta",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "signIn": "Iniciar sesión",
+  "signUp": "Registrarse",
+  "skipLogin": "Omitir",
+  "checkEmailConfirmation": "¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.",
+  "cloudSync": "Sincronización en la nube",
+  "syncSuccess": "Sincronización exitosa",
+  "syncFailed": "Error de sincronización",
+  "signOut": "Cerrar sesión",
+  "loginForSync": "Inicia sesión para sincronizar entre dispositivos"
 }

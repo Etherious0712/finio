@@ -265,4 +265,40 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get catOtherIncome => 'その他収入';
+
+  @override
+  String get account => 'アカウント';
+
+  @override
+  String get email => 'メールアドレス';
+
+  @override
+  String get password => 'パスワード';
+
+  @override
+  String get signIn => 'ログイン';
+
+  @override
+  String get signUp => '登録';
+
+  @override
+  String get skipLogin => 'スキップ';
+
+  @override
+  String get checkEmailConfirmation => '登録完了！メールを確認してアカウントを認証してください。';
+
+  @override
+  String get cloudSync => 'クラウド同期';
+
+  @override
+  String get syncSuccess => '同期完了';
+
+  @override
+  String get syncFailed => '同期失敗';
+
+  @override
+  String get signOut => 'ログアウト';
+
+  @override
+  String get loginForSync => 'デバイス間で同期するにはログインしてください';
 }

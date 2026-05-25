@@ -83,5 +83,17 @@
   "catSalary": "給与",
   "catFreelance": "フリーランス",
   "catInvestment": "投資",
-  "catOtherIncome": "その他収入"
+  "catOtherIncome": "その他収入",
+  "account": "アカウント",
+  "email": "メールアドレス",
+  "password": "パスワード",
+  "signIn": "ログイン",
+  "signUp": "登録",
+  "skipLogin": "スキップ",
+  "checkEmailConfirmation": "登録完了！メールを確認してアカウントを認証してください。",
+  "cloudSync": "クラウド同期",
+  "syncSuccess": "同期完了",
+  "syncFailed": "同期失敗",
+  "signOut": "ログアウト",
+  "loginForSync": "デバイス間で同期するにはログインしてください"
 }

@@ -93,4 +93,19 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     }
     return all.length;
   }
+
+  Future<List<Transaction>> getUnsyncedTransactions() =>
+      (select(transactions)..where((t) => t.isSynced.equals(false))).get();
+
+  Future<void> markSynced(int id, String remoteId) =>
+      (update(transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          syncId: Value(remoteId),
+          isSynced: const Value(true),
+        ),
+      );
+
+  Future<Transaction?> getTransactionBySyncId(String syncId) =>
+      (select(transactions)..where((t) => t.syncId.equals(syncId)))
+          .getSingleOrNull();
 }

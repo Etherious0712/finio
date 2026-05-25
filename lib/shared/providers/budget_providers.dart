@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/app_database.dart';
+import 'package:finio/core/database/app_database.dart';
 import 'database_provider.dart';
 
 /// Reactive overall budget (category IS NULL, month=0, year=0). Null when not set.

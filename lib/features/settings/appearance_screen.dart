@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app_localizations.dart';
+import 'package:finio/app_localizations.dart';
 import '../../shared/providers/theme_provider.dart';
 
 class AppearanceScreen extends ConsumerWidget {

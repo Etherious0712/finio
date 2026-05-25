@@ -83,5 +83,17 @@
   "catSalary": "Gaji",
   "catFreelance": "Bebas",
   "catInvestment": "Pelaburan",
-  "catOtherIncome": "Pendapatan Lain"
+  "catOtherIncome": "Pendapatan Lain",
+  "account": "Akaun",
+  "email": "E-mel",
+  "password": "Kata laluan",
+  "signIn": "Log Masuk",
+  "signUp": "Daftar",
+  "skipLogin": "Langkau",
+  "checkEmailConfirmation": "Pendaftaran berjaya! Semak e-mel anda untuk mengesahkan akaun.",
+  "cloudSync": "Penyegerakan Awan",
+  "syncSuccess": "Penyegerakan berjaya",
+  "syncFailed": "Penyegerakan gagal",
+  "signOut": "Log Keluar",
+  "loginForSync": "Log masuk untuk menyegerakkan merentas peranti"
 }

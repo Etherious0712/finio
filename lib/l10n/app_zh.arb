@@ -83,5 +83,17 @@
   "catSalary": "薪资",
   "catFreelance": "兼职",
   "catInvestment": "投资",
-  "catOtherIncome": "其他收入"
+  "catOtherIncome": "其他收入",
+  "account": "账户",
+  "email": "电子邮箱",
+  "password": "密码",
+  "signIn": "登录",
+  "signUp": "注册",
+  "skipLogin": "跳过",
+  "checkEmailConfirmation": "注册成功！请检查邮箱以确认账号。",
+  "cloudSync": "云端同步",
+  "syncSuccess": "同步成功",
+  "syncFailed": "同步失败",
+  "signOut": "退出登录",
+  "loginForSync": "登录以在设备间同步数据"
 }

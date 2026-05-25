@@ -269,4 +269,41 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get catOtherIncome => 'Pendapatan Lain';
+
+  @override
+  String get account => 'Akaun';
+
+  @override
+  String get email => 'E-mel';
+
+  @override
+  String get password => 'Kata laluan';
+
+  @override
+  String get signIn => 'Log Masuk';
+
+  @override
+  String get signUp => 'Daftar';
+
+  @override
+  String get skipLogin => 'Langkau';
+
+  @override
+  String get checkEmailConfirmation =>
+      'Pendaftaran berjaya! Semak e-mel anda untuk mengesahkan akaun.';
+
+  @override
+  String get cloudSync => 'Penyegerakan Awan';
+
+  @override
+  String get syncSuccess => 'Penyegerakan berjaya';
+
+  @override
+  String get syncFailed => 'Penyegerakan gagal';
+
+  @override
+  String get signOut => 'Log Keluar';
+
+  @override
+  String get loginForSync => 'Log masuk untuk menyegerakkan merentas peranti';
 }

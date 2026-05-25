@@ -268,4 +268,42 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get catOtherIncome => 'Sonstige Einnahmen';
+
+  @override
+  String get account => 'Konto';
+
+  @override
+  String get email => 'E-Mail';
+
+  @override
+  String get password => 'Passwort';
+
+  @override
+  String get signIn => 'Anmelden';
+
+  @override
+  String get signUp => 'Registrieren';
+
+  @override
+  String get skipLogin => 'Überspringen';
+
+  @override
+  String get checkEmailConfirmation =>
+      'Registrierung erfolgreich! Überprüfen Sie Ihre E-Mail zur Kontobestätigung.';
+
+  @override
+  String get cloudSync => 'Cloud-Synchronisierung';
+
+  @override
+  String get syncSuccess => 'Synchronisierung erfolgreich';
+
+  @override
+  String get syncFailed => 'Synchronisierung fehlgeschlagen';
+
+  @override
+  String get signOut => 'Abmelden';
+
+  @override
+  String get loginForSync =>
+      'Anmelden zur geräteübergreifenden Synchronisierung';
 }

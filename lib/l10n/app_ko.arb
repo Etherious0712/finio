@@ -83,5 +83,17 @@
   "catSalary": "급여",
   "catFreelance": "프리랜서",
   "catInvestment": "투자",
-  "catOtherIncome": "기타 수입"
+  "catOtherIncome": "기타 수입",
+  "account": "계정",
+  "email": "이메일",
+  "password": "비밀번호",
+  "signIn": "로그인",
+  "signUp": "등록",
+  "skipLogin": "건너뛰기",
+  "checkEmailConfirmation": "등록 성공! 이메일을 확인하여 계정을 인증해 주세요.",
+  "cloudSync": "클라우드 동기화",
+  "syncSuccess": "동기화 성공",
+  "syncFailed": "동기화 실패",
+  "signOut": "로그아웃",
+  "loginForSync": "기기 간 동기화를 위해 로그인하세요"
 }

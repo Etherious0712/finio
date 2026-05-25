@@ -265,4 +265,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get catOtherIncome => '其他收入';
+
+  @override
+  String get account => '账户';
+
+  @override
+  String get email => '电子邮箱';
+
+  @override
+  String get password => '密码';
+
+  @override
+  String get signIn => '登录';
+
+  @override
+  String get signUp => '注册';
+
+  @override
+  String get skipLogin => '跳过';
+
+  @override
+  String get checkEmailConfirmation => '注册成功！请检查邮箱以确认账号。';
+
+  @override
+  String get cloudSync => '云端同步';
+
+  @override
+  String get syncSuccess => '同步成功';
+
+  @override
+  String get syncFailed => '同步失败';
+
+  @override
+  String get signOut => '退出登录';
+
+  @override
+  String get loginForSync => '登录以在设备间同步数据';
 }

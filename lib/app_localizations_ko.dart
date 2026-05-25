@@ -266,4 +266,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get catOtherIncome => '기타 수입';
+
+  @override
+  String get account => '계정';
+
+  @override
+  String get email => '이메일';
+
+  @override
+  String get password => '비밀번호';
+
+  @override
+  String get signIn => '로그인';
+
+  @override
+  String get signUp => '등록';
+
+  @override
+  String get skipLogin => '건너뛰기';
+
+  @override
+  String get checkEmailConfirmation => '등록 성공! 이메일을 확인하여 계정을 인증해 주세요.';
+
+  @override
+  String get cloudSync => '클라우드 동기화';
+
+  @override
+  String get syncSuccess => '동기화 성공';
+
+  @override
+  String get syncFailed => '동기화 실패';
+
+  @override
+  String get signOut => '로그아웃';
+
+  @override
+  String get loginForSync => '기기 간 동기화를 위해 로그인하세요';
 }

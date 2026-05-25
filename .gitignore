@@ -47,3 +47,6 @@ app.*.map.json
 claude.md
 CLAUDE_CODE_PROMPTS.md
 .claude/
+
+# Supabase credentials — never commit
+lib/core/config/supabase_config.dart
