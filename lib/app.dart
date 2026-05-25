@@ -11,6 +11,7 @@ import 'features/auth/auth_screen.dart';
 import 'features/budget/budget_screen.dart';
 import 'features/categories/category_management_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
+import 'features/settings/account_data_screen.dart';
 import 'features/settings/appearance_screen.dart';
 import 'features/settings/currency_screen.dart';
 import 'features/settings/language_screen.dart';
@@ -57,6 +58,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'language',
           builder: (context, state) => const LanguageScreen(),
+        ),
+        GoRoute(
+          path: 'account-data',
+          builder: (context, state) => const AccountDataScreen(),
         ),
         GoRoute(
           path: 'auth',
