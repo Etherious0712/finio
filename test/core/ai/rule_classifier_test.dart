@@ -11,7 +11,7 @@ void main() {
       for (final title in ['麦当劳外卖', '星巴克咖啡', '午餐', '外卖订单', '晚餐聚餐']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.expense),
-          '餐饮',
+          'catFood',
           reason: '"$title" 应分类为餐饮',
         );
       }
@@ -21,7 +21,7 @@ void main() {
       for (final title in ['Grab打车', '地铁充值', '停车费', '高铁票']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.expense),
-          '交通',
+          'catTransport',
           reason: '"$title" 应分类为交通',
         );
       }
@@ -31,7 +31,7 @@ void main() {
       for (final title in ['Shopee订单', 'Lazada购物', '超市采购', '便利店']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.expense),
-          '购物',
+          'catShopping',
           reason: '"$title" 应分类为购物',
         );
       }
@@ -41,7 +41,7 @@ void main() {
       for (final title in ['Netflix订阅', '电影票', '游戏充值', 'KTV']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.expense),
-          '娱乐',
+          'catEntertainment',
           reason: '"$title" 应分类为娱乐',
         );
       }
@@ -51,7 +51,7 @@ void main() {
       for (final title in ['药店购药', '医院挂号', '诊所就诊', '体检费']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.expense),
-          '医疗',
+          'catHealth',
           reason: '"$title" 应分类为医疗',
         );
       }
@@ -61,7 +61,7 @@ void main() {
       for (final title in ['房租', '电话费', '水电费', '宽带费']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.expense),
-          '账单',
+          'catBills',
           reason: '"$title" 应分类为账单',
         );
       }
@@ -70,7 +70,7 @@ void main() {
     test('未匹配时兜底为其他', () {
       expect(
         RuleClassifier.classify(title: '未知消费', type: TransactionType.expense),
-        '其他',
+        'catOtherExpense',
       );
     });
   });
@@ -80,7 +80,7 @@ void main() {
       for (final title in ['工资发放', '薪水到账', 'Monthly salary', '年终奖']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.income),
-          '薪资',
+          'catSalary',
           reason: '"$title" 应分类为薪资',
         );
       }
@@ -90,7 +90,7 @@ void main() {
       for (final title in ['Freelance项目', '兼职收入', '稿费到账']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.income),
-          '兼职',
+          'catFreelance',
           reason: '"$title" 应分类为兼职',
         );
       }
@@ -100,7 +100,7 @@ void main() {
       for (final title in ['股息收入', '利息到账', '基金分红']) {
         expect(
           RuleClassifier.classify(title: title, type: TransactionType.income),
-          '投资',
+          'catInvestment',
           reason: '"$title" 应分类为投资',
         );
       }
@@ -109,7 +109,7 @@ void main() {
     test('未匹配收入兜底为其他', () {
       expect(
         RuleClassifier.classify(title: '红包', type: TransactionType.income),
-        '其他',
+        'catOtherIncome',
       );
     });
   });
@@ -118,15 +118,15 @@ void main() {
     test('英文关键词大小写无关', () {
       expect(
         RuleClassifier.classify(title: 'NETFLIX月费', type: TransactionType.expense),
-        '娱乐',
+        'catEntertainment',
       );
       expect(
         RuleClassifier.classify(title: 'SALARY received', type: TransactionType.income),
-        '薪资',
+        'catSalary',
       );
       expect(
         RuleClassifier.classify(title: 'GRAB ride', type: TransactionType.expense),
-        '交通',
+        'catTransport',
       );
     });
   });
@@ -141,29 +141,29 @@ void main() {
 
       expect(
         classifier.classifyWithLearning(title: '转账给朋友', type: TransactionType.expense),
-        '其他',
+        'catOtherExpense',
       );
 
       await classifier.learnCorrection(
         original: '转账给朋友',
-        correctedCategory: '餐饮',
+        correctedCategory: 'catFood',
       );
 
       expect(
         classifier.classifyWithLearning(title: '转账给朋友', type: TransactionType.expense),
-        '餐饮',
+        'catFood',
       );
     });
 
     test('纠正记录持久化后可被新实例加载', () async {
       final c1 = RuleClassifier();
-      await c1.learnCorrection(original: '特殊支出', correctedCategory: '娱乐');
+      await c1.learnCorrection(original: '特殊支出', correctedCategory: 'catEntertainment');
 
       final c2 = RuleClassifier();
       await c2.load();
       expect(
         c2.classifyWithLearning(title: '特殊支出', type: TransactionType.expense),
-        '娱乐',
+        'catEntertainment',
       );
     });
 
@@ -171,16 +171,16 @@ void main() {
       final classifier = RuleClassifier();
       await classifier.learnCorrection(
         original: 'PayPal转账',
-        correctedCategory: '兼职',
+        correctedCategory: 'catFreelance',
       );
 
       expect(
         classifier.classifyWithLearning(title: 'PayPal转账', type: TransactionType.income),
-        '兼职',
+        'catFreelance',
       );
       expect(
         classifier.classifyWithLearning(title: 'paypal转账', type: TransactionType.income),
-        '兼职',
+        'catFreelance',
       );
     });
 
@@ -188,13 +188,13 @@ void main() {
       final classifier = RuleClassifier();
       await classifier.learnCorrection(
         original: '神秘支出',
-        correctedCategory: '医疗',
+        correctedCategory: 'catHealth',
       );
 
       // static 方法不受实例纠正影响
       expect(
         RuleClassifier.classify(title: '神秘支出', type: TransactionType.expense),
-        '其他',
+        'catOtherExpense',
       );
     });
   });
