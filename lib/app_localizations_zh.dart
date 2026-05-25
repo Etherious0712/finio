@@ -337,4 +337,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get resetPasswordEmailSent => '重置邮件已发送，请检查收件箱。';
+
+  @override
+  String get dataManagement => '数据管理';
 }

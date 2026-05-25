@@ -757,6 +757,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset email sent. Check your inbox.'**
   String get resetPasswordEmailSent;
+
+  /// No description provided for @dataManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get dataManagement;
 }
 
 class _AppLocalizationsDelegate

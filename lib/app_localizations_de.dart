@@ -344,4 +344,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get resetPasswordEmailSent =>
       'Passwort-Reset-E-Mail gesendet. Bitte prüfen Sie Ihren Posteingang.';
+
+  @override
+  String get dataManagement => 'Datenverwaltung';
 }

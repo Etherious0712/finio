@@ -141,7 +141,6 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
 
     final supabase = Supabase.instance.client;
     final db = ref.read(appDatabaseProvider);
-    bool rpcSucceeded = false;
 
     try {
       await supabase.from('transactions').delete().eq('user_id', userId);
@@ -149,7 +148,6 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
 
     try {
       await supabase.rpc('delete_user');
-      rpcSucceeded = true;
     } catch (_) {}
 
     await db.transactionDao.deleteAllTransactions();
@@ -166,7 +164,7 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(rpcSucceeded ? l.accountDeleted : '账号将在 24 小时内删除'),
+        content: Text(l.accountDeleted),
         behavior: SnackBarBehavior.floating,
       ));
     }
@@ -203,7 +201,7 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(
-              'Data Management',
+              l.dataManagement,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),

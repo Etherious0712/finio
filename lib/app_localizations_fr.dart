@@ -343,4 +343,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get resetPasswordEmailSent =>
       'E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception.';
+
+  @override
+  String get dataManagement => 'Gestion des données';
 }

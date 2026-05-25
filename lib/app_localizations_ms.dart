@@ -343,4 +343,7 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get resetPasswordEmailSent =>
       'E-mel tetapan semula telah dihantar. Semak peti masuk anda.';
+
+  @override
+  String get dataManagement => 'Pengurusan Data';
 }

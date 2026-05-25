@@ -107,5 +107,6 @@
   "settingsReset": "Tetapan telah ditetapkan semula",
   "dataReset": "Semua rekod telah dipadamkan",
   "accountDeleted": "Akaun telah dipadam",
-  "resetPasswordEmailSent": "E-mel tetapan semula telah dihantar. Semak peti masuk anda."
+  "resetPasswordEmailSent": "E-mel tetapan semula telah dihantar. Semak peti masuk anda.",
+  "dataManagement": "Pengurusan Data"
 }

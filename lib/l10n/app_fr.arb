@@ -107,5 +107,6 @@
   "settingsReset": "Paramètres réinitialisés",
   "dataReset": "Tous les enregistrements supprimés",
   "accountDeleted": "Compte supprimé",
-  "resetPasswordEmailSent": "E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception."
+  "resetPasswordEmailSent": "E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception.",
+  "dataManagement": "Gestion des données"
 }

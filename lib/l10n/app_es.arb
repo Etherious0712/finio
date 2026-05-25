@@ -107,5 +107,6 @@
   "settingsReset": "Ajustes restablecidos",
   "dataReset": "Todos los registros eliminados",
   "accountDeleted": "Cuenta eliminada",
-  "resetPasswordEmailSent": "Correo de restablecimiento enviado. Revisa tu bandeja de entrada."
+  "resetPasswordEmailSent": "Correo de restablecimiento enviado. Revisa tu bandeja de entrada.",
+  "dataManagement": "Gestión de datos"
 }

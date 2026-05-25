@@ -337,4 +337,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get resetPasswordEmailSent => 'リセットメールを送信しました。受信トレイを確認してください。';
+
+  @override
+  String get dataManagement => 'データ管理';
 }

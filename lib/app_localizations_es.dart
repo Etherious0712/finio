@@ -344,4 +344,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get resetPasswordEmailSent =>
       'Correo de restablecimiento enviado. Revisa tu bandeja de entrada.';
+
+  @override
+  String get dataManagement => 'Gestión de datos';
 }

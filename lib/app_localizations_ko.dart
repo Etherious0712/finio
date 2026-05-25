@@ -338,4 +338,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get resetPasswordEmailSent => '재설정 이메일이 전송되었습니다. 받은 편지함을 확인하세요.';
+
+  @override
+  String get dataManagement => '데이터 관리';
 }

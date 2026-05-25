@@ -107,5 +107,6 @@
   "settingsReset": "设置已重置",
   "dataReset": "所有记录已清空",
   "accountDeleted": "账号已删除",
-  "resetPasswordEmailSent": "重置邮件已发送，请检查收件箱。"
+  "resetPasswordEmailSent": "重置邮件已发送，请检查收件箱。",
+  "dataManagement": "数据管理"
 }

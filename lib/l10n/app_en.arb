@@ -122,5 +122,6 @@
   "settingsReset": "Settings have been reset",
   "dataReset": "All records cleared",
   "accountDeleted": "Account deleted",
-  "resetPasswordEmailSent": "Reset email sent. Check your inbox."
+  "resetPasswordEmailSent": "Reset email sent. Check your inbox.",
+  "dataManagement": "Data Management"
 }

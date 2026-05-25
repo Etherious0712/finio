@@ -107,5 +107,6 @@
   "settingsReset": "設定がリセットされました",
   "dataReset": "すべての記録が削除されました",
   "accountDeleted": "アカウントが削除されました",
-  "resetPasswordEmailSent": "リセットメールを送信しました。受信トレイを確認してください。"
+  "resetPasswordEmailSent": "リセットメールを送信しました。受信トレイを確認してください。",
+  "dataManagement": "データ管理"
 }
