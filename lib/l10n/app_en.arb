@@ -110,5 +110,17 @@
   "syncSuccess": "Sync successful",
   "syncFailed": "Sync failed",
   "signOut": "Sign Out",
-  "loginForSync": "Sign in to sync across devices"
+  "loginForSync": "Sign in to sync across devices",
+  "accountAndData": "Account & Data",
+  "resetSettings": "Reset Settings",
+  "resetData": "Reset Data",
+  "deleteAccount": "Delete Account",
+  "forgotPassword": "Forgot Password",
+  "dangerZone": "Danger Zone",
+  "confirmDelete": "This cannot be undone.",
+  "typeDeleteToConfirm": "Type DELETE to confirm",
+  "settingsReset": "Settings have been reset",
+  "dataReset": "All records cleared",
+  "accountDeleted": "Account deleted",
+  "resetPasswordEmailSent": "Reset email sent. Check your inbox."
 }

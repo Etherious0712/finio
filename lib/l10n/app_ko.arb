@@ -95,5 +95,17 @@
   "syncSuccess": "동기화 성공",
   "syncFailed": "동기화 실패",
   "signOut": "로그아웃",
-  "loginForSync": "기기 간 동기화를 위해 로그인하세요"
+  "loginForSync": "기기 간 동기화를 위해 로그인하세요",
+  "accountAndData": "계정 및 데이터",
+  "resetSettings": "설정 초기화",
+  "resetData": "데이터 초기화",
+  "deleteAccount": "계정 삭제",
+  "forgotPassword": "비밀번호 찾기",
+  "dangerZone": "위험 구역",
+  "confirmDelete": "이 작업은 취소할 수 없습니다.",
+  "typeDeleteToConfirm": "DELETE 입력 후 확인",
+  "settingsReset": "설정이 초기화되었습니다",
+  "dataReset": "모든 기록이 삭제되었습니다",
+  "accountDeleted": "계정이 삭제되었습니다",
+  "resetPasswordEmailSent": "재설정 이메일이 전송되었습니다. 받은 편지함을 확인하세요."
 }

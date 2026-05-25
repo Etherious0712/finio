@@ -306,4 +306,42 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get loginForSync =>
       'Anmelden zur geräteübergreifenden Synchronisierung';
+
+  @override
+  String get accountAndData => 'Konto & Daten';
+
+  @override
+  String get resetSettings => 'Einstellungen zurücksetzen';
+
+  @override
+  String get resetData => 'Daten zurücksetzen';
+
+  @override
+  String get deleteAccount => 'Konto löschen';
+
+  @override
+  String get forgotPassword => 'Passwort vergessen';
+
+  @override
+  String get dangerZone => 'Gefahrenzone';
+
+  @override
+  String get confirmDelete =>
+      'Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get typeDeleteToConfirm => 'Geben Sie DELETE ein zur Bestätigung';
+
+  @override
+  String get settingsReset => 'Einstellungen zurückgesetzt';
+
+  @override
+  String get dataReset => 'Alle Einträge gelöscht';
+
+  @override
+  String get accountDeleted => 'Konto gelöscht';
+
+  @override
+  String get resetPasswordEmailSent =>
+      'Passwort-Reset-E-Mail gesendet. Bitte prüfen Sie Ihren Posteingang.';
 }

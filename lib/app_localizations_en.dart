@@ -305,4 +305,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginForSync => 'Sign in to sync across devices';
+
+  @override
+  String get accountAndData => 'Account & Data';
+
+  @override
+  String get resetSettings => 'Reset Settings';
+
+  @override
+  String get resetData => 'Reset Data';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get forgotPassword => 'Forgot Password';
+
+  @override
+  String get dangerZone => 'Danger Zone';
+
+  @override
+  String get confirmDelete => 'This cannot be undone.';
+
+  @override
+  String get typeDeleteToConfirm => 'Type DELETE to confirm';
+
+  @override
+  String get settingsReset => 'Settings have been reset';
+
+  @override
+  String get dataReset => 'All records cleared';
+
+  @override
+  String get accountDeleted => 'Account deleted';
+
+  @override
+  String get resetPasswordEmailSent => 'Reset email sent. Check your inbox.';
 }

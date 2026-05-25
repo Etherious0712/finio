@@ -302,4 +302,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get loginForSync => '기기 간 동기화를 위해 로그인하세요';
+
+  @override
+  String get accountAndData => '계정 및 데이터';
+
+  @override
+  String get resetSettings => '설정 초기화';
+
+  @override
+  String get resetData => '데이터 초기화';
+
+  @override
+  String get deleteAccount => '계정 삭제';
+
+  @override
+  String get forgotPassword => '비밀번호 찾기';
+
+  @override
+  String get dangerZone => '위험 구역';
+
+  @override
+  String get confirmDelete => '이 작업은 취소할 수 없습니다.';
+
+  @override
+  String get typeDeleteToConfirm => 'DELETE 입력 후 확인';
+
+  @override
+  String get settingsReset => '설정이 초기화되었습니다';
+
+  @override
+  String get dataReset => '모든 기록이 삭제되었습니다';
+
+  @override
+  String get accountDeleted => '계정이 삭제되었습니다';
+
+  @override
+  String get resetPasswordEmailSent => '재설정 이메일이 전송되었습니다. 받은 편지함을 확인하세요.';
 }

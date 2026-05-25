@@ -95,5 +95,17 @@
   "syncSuccess": "同步成功",
   "syncFailed": "同步失败",
   "signOut": "退出登录",
-  "loginForSync": "登录以在设备间同步数据"
+  "loginForSync": "登录以在设备间同步数据",
+  "accountAndData": "账号与数据",
+  "resetSettings": "重置设置",
+  "resetData": "重置数据",
+  "deleteAccount": "删除账号",
+  "forgotPassword": "忘记密码",
+  "dangerZone": "危险操作",
+  "confirmDelete": "此操作无法撤销。",
+  "typeDeleteToConfirm": "输入 DELETE 确认",
+  "settingsReset": "设置已重置",
+  "dataReset": "所有记录已清空",
+  "accountDeleted": "账号已删除",
+  "resetPasswordEmailSent": "重置邮件已发送，请检查收件箱。"
 }

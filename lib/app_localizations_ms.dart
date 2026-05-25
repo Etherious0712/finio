@@ -306,4 +306,41 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get loginForSync => 'Log masuk untuk menyegerakkan merentas peranti';
+
+  @override
+  String get accountAndData => 'Akaun & Data';
+
+  @override
+  String get resetSettings => 'Set Semula Tetapan';
+
+  @override
+  String get resetData => 'Tetapkan Semula Data';
+
+  @override
+  String get deleteAccount => 'Padam Akaun';
+
+  @override
+  String get forgotPassword => 'Lupa Kata Laluan';
+
+  @override
+  String get dangerZone => 'Zon Bahaya';
+
+  @override
+  String get confirmDelete => 'Tindakan ini tidak boleh dibatalkan.';
+
+  @override
+  String get typeDeleteToConfirm => 'Taip DELETE untuk sahkan';
+
+  @override
+  String get settingsReset => 'Tetapan telah ditetapkan semula';
+
+  @override
+  String get dataReset => 'Semua rekod telah dipadamkan';
+
+  @override
+  String get accountDeleted => 'Akaun telah dipadam';
+
+  @override
+  String get resetPasswordEmailSent =>
+      'E-mel tetapan semula telah dihantar. Semak peti masuk anda.';
 }

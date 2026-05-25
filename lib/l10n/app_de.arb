@@ -95,5 +95,17 @@
   "syncSuccess": "Synchronisierung erfolgreich",
   "syncFailed": "Synchronisierung fehlgeschlagen",
   "signOut": "Abmelden",
-  "loginForSync": "Anmelden zur geräteübergreifenden Synchronisierung"
+  "loginForSync": "Anmelden zur geräteübergreifenden Synchronisierung",
+  "accountAndData": "Konto & Daten",
+  "resetSettings": "Einstellungen zurücksetzen",
+  "resetData": "Daten zurücksetzen",
+  "deleteAccount": "Konto löschen",
+  "forgotPassword": "Passwort vergessen",
+  "dangerZone": "Gefahrenzone",
+  "confirmDelete": "Diese Aktion kann nicht rückgängig gemacht werden.",
+  "typeDeleteToConfirm": "Geben Sie DELETE ein zur Bestätigung",
+  "settingsReset": "Einstellungen zurückgesetzt",
+  "dataReset": "Alle Einträge gelöscht",
+  "accountDeleted": "Konto gelöscht",
+  "resetPasswordEmailSent": "Passwort-Reset-E-Mail gesendet. Bitte prüfen Sie Ihren Posteingang."
 }

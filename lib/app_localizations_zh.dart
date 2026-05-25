@@ -301,4 +301,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loginForSync => '登录以在设备间同步数据';
+
+  @override
+  String get accountAndData => '账号与数据';
+
+  @override
+  String get resetSettings => '重置设置';
+
+  @override
+  String get resetData => '重置数据';
+
+  @override
+  String get deleteAccount => '删除账号';
+
+  @override
+  String get forgotPassword => '忘记密码';
+
+  @override
+  String get dangerZone => '危险操作';
+
+  @override
+  String get confirmDelete => '此操作无法撤销。';
+
+  @override
+  String get typeDeleteToConfirm => '输入 DELETE 确认';
+
+  @override
+  String get settingsReset => '设置已重置';
+
+  @override
+  String get dataReset => '所有记录已清空';
+
+  @override
+  String get accountDeleted => '账号已删除';
+
+  @override
+  String get resetPasswordEmailSent => '重置邮件已发送，请检查收件箱。';
 }

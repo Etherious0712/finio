@@ -95,5 +95,17 @@
   "syncSuccess": "同期完了",
   "syncFailed": "同期失敗",
   "signOut": "ログアウト",
-  "loginForSync": "デバイス間で同期するにはログインしてください"
+  "loginForSync": "デバイス間で同期するにはログインしてください",
+  "accountAndData": "アカウントとデータ",
+  "resetSettings": "設定をリセット",
+  "resetData": "データをリセット",
+  "deleteAccount": "アカウントを削除",
+  "forgotPassword": "パスワードを忘れた",
+  "dangerZone": "危険な操作",
+  "confirmDelete": "この操作は元に戻せません。",
+  "typeDeleteToConfirm": "DELETE と入力して確認",
+  "settingsReset": "設定がリセットされました",
+  "dataReset": "すべての記録が削除されました",
+  "accountDeleted": "アカウントが削除されました",
+  "resetPasswordEmailSent": "リセットメールを送信しました。受信トレイを確認してください。"
 }

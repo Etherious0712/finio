@@ -301,4 +301,40 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get loginForSync => 'デバイス間で同期するにはログインしてください';
+
+  @override
+  String get accountAndData => 'アカウントとデータ';
+
+  @override
+  String get resetSettings => '設定をリセット';
+
+  @override
+  String get resetData => 'データをリセット';
+
+  @override
+  String get deleteAccount => 'アカウントを削除';
+
+  @override
+  String get forgotPassword => 'パスワードを忘れた';
+
+  @override
+  String get dangerZone => '危険な操作';
+
+  @override
+  String get confirmDelete => 'この操作は元に戻せません。';
+
+  @override
+  String get typeDeleteToConfirm => 'DELETE と入力して確認';
+
+  @override
+  String get settingsReset => '設定がリセットされました';
+
+  @override
+  String get dataReset => 'すべての記録が削除されました';
+
+  @override
+  String get accountDeleted => 'アカウントが削除されました';
+
+  @override
+  String get resetPasswordEmailSent => 'リセットメールを送信しました。受信トレイを確認してください。';
 }

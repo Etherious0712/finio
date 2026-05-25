@@ -306,4 +306,41 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get loginForSync =>
       'Connectez-vous pour synchroniser entre les appareils';
+
+  @override
+  String get accountAndData => 'Compte et données';
+
+  @override
+  String get resetSettings => 'Réinitialiser les paramètres';
+
+  @override
+  String get resetData => 'Réinitialiser les données';
+
+  @override
+  String get deleteAccount => 'Supprimer le compte';
+
+  @override
+  String get forgotPassword => 'Mot de passe oublié';
+
+  @override
+  String get dangerZone => 'Zone dangereuse';
+
+  @override
+  String get confirmDelete => 'Cette action est irréversible.';
+
+  @override
+  String get typeDeleteToConfirm => 'Tapez DELETE pour confirmer';
+
+  @override
+  String get settingsReset => 'Paramètres réinitialisés';
+
+  @override
+  String get dataReset => 'Tous les enregistrements supprimés';
+
+  @override
+  String get accountDeleted => 'Compte supprimé';
+
+  @override
+  String get resetPasswordEmailSent =>
+      'E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception.';
 }

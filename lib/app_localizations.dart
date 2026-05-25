@@ -685,6 +685,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in to sync across devices'**
   String get loginForSync;
+
+  /// No description provided for @accountAndData.
+  ///
+  /// In en, this message translates to:
+  /// **'Account & Data'**
+  String get accountAndData;
+
+  /// No description provided for @resetSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Settings'**
+  String get resetSettings;
+
+  /// No description provided for @resetData.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Data'**
+  String get resetData;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password'**
+  String get forgotPassword;
+
+  /// No description provided for @dangerZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get dangerZone;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone.'**
+  String get confirmDelete;
+
+  /// No description provided for @typeDeleteToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Type DELETE to confirm'**
+  String get typeDeleteToConfirm;
+
+  /// No description provided for @settingsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings have been reset'**
+  String get settingsReset;
+
+  /// No description provided for @dataReset.
+  ///
+  /// In en, this message translates to:
+  /// **'All records cleared'**
+  String get dataReset;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted'**
+  String get accountDeleted;
+
+  /// No description provided for @resetPasswordEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset email sent. Check your inbox.'**
+  String get resetPasswordEmailSent;
 }
 
 class _AppLocalizationsDelegate

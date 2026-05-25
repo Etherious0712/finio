@@ -95,5 +95,17 @@
   "syncSuccess": "Sincronización exitosa",
   "syncFailed": "Error de sincronización",
   "signOut": "Cerrar sesión",
-  "loginForSync": "Inicia sesión para sincronizar entre dispositivos"
+  "loginForSync": "Inicia sesión para sincronizar entre dispositivos",
+  "accountAndData": "Cuenta y datos",
+  "resetSettings": "Restablecer ajustes",
+  "resetData": "Restablecer datos",
+  "deleteAccount": "Eliminar cuenta",
+  "forgotPassword": "Olvidé mi contraseña",
+  "dangerZone": "Zona de peligro",
+  "confirmDelete": "Esta acción no se puede deshacer.",
+  "typeDeleteToConfirm": "Escribe DELETE para confirmar",
+  "settingsReset": "Ajustes restablecidos",
+  "dataReset": "Todos los registros eliminados",
+  "accountDeleted": "Cuenta eliminada",
+  "resetPasswordEmailSent": "Correo de restablecimiento enviado. Revisa tu bandeja de entrada."
 }

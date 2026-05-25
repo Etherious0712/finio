@@ -95,5 +95,17 @@
   "syncSuccess": "Synchronisation réussie",
   "syncFailed": "Échec de la synchronisation",
   "signOut": "Se déconnecter",
-  "loginForSync": "Connectez-vous pour synchroniser entre les appareils"
+  "loginForSync": "Connectez-vous pour synchroniser entre les appareils",
+  "accountAndData": "Compte et données",
+  "resetSettings": "Réinitialiser les paramètres",
+  "resetData": "Réinitialiser les données",
+  "deleteAccount": "Supprimer le compte",
+  "forgotPassword": "Mot de passe oublié",
+  "dangerZone": "Zone dangereuse",
+  "confirmDelete": "Cette action est irréversible.",
+  "typeDeleteToConfirm": "Tapez DELETE pour confirmer",
+  "settingsReset": "Paramètres réinitialisés",
+  "dataReset": "Tous les enregistrements supprimés",
+  "accountDeleted": "Compte supprimé",
+  "resetPasswordEmailSent": "E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception."
 }

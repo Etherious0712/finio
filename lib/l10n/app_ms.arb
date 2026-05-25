@@ -95,5 +95,17 @@
   "syncSuccess": "Penyegerakan berjaya",
   "syncFailed": "Penyegerakan gagal",
   "signOut": "Log Keluar",
-  "loginForSync": "Log masuk untuk menyegerakkan merentas peranti"
+  "loginForSync": "Log masuk untuk menyegerakkan merentas peranti",
+  "accountAndData": "Akaun & Data",
+  "resetSettings": "Set Semula Tetapan",
+  "resetData": "Tetapkan Semula Data",
+  "deleteAccount": "Padam Akaun",
+  "forgotPassword": "Lupa Kata Laluan",
+  "dangerZone": "Zon Bahaya",
+  "confirmDelete": "Tindakan ini tidak boleh dibatalkan.",
+  "typeDeleteToConfirm": "Taip DELETE untuk sahkan",
+  "settingsReset": "Tetapan telah ditetapkan semula",
+  "dataReset": "Semua rekod telah dipadamkan",
+  "accountDeleted": "Akaun telah dipadam",
+  "resetPasswordEmailSent": "E-mel tetapan semula telah dihantar. Semak peti masuk anda."
 }
