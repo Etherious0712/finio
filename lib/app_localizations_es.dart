@@ -347,4 +347,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dataManagement => 'Gestión de datos';
+
+  @override
+  String get changePassword => 'Cambiar contraseña';
+
+  @override
+  String resetPasswordEmailSentTo(String email) {
+    return 'Correo de restablecimiento enviado a $email';
+  }
 }

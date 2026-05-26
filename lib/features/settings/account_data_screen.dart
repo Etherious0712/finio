@@ -16,37 +16,31 @@ class AccountDataScreen extends ConsumerStatefulWidget {
 }
 
 class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
-  Future<void> _showForgotPasswordDialog(String? email) async {
+  Future<void> _showChangePasswordDialog(String email) async {
     final l = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: email ?? '');
-    try {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(l.forgotPassword),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(labelText: l.email),
-            keyboardType: TextInputType.emailAddress,
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.changePassword),
+        content: Text(l.resetPasswordEmailSentTo(email)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l.cancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l.confirm),
-            ),
-          ],
-        ),
-      );
-      if (confirmed != true || !mounted) return;
-      await Supabase.instance.client.auth
-          .resetPasswordForEmail(controller.text.trim());
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await Supabase.instance.client.auth.resetPasswordForEmail(email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(l.resetPasswordEmailSent),
+          content: Text(l.resetPasswordEmailSentTo(email)),
           behavior: SnackBarBehavior.floating,
         ));
       }
@@ -57,8 +51,6 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
           behavior: SnackBarBehavior.floating,
         ));
       }
-    } finally {
-      controller.dispose();
     }
   }
 
@@ -192,9 +184,9 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.lock_reset),
-              title: Text(l.forgotPassword),
+              title: Text(l.changePassword),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => _showForgotPasswordDialog(user.email),
+              onTap: () => _showChangePasswordDialog(user.email!),
             ),
             const Divider(height: 1),
           ],

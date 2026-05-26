@@ -108,5 +108,12 @@
   "dataReset": "すべての記録が削除されました",
   "accountDeleted": "アカウントが削除されました",
   "resetPasswordEmailSent": "リセットメールを送信しました。受信トレイを確認してください。",
-  "dataManagement": "データ管理"
+  "dataManagement": "データ管理",
+  "changePassword": "パスワードを変更",
+  "resetPasswordEmailSentTo": "{email} にリセットメールを送信しました",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }

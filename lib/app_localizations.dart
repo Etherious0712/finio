@@ -763,6 +763,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Data Management'**
   String get dataManagement;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePassword;
+
+  /// No description provided for @resetPasswordEmailSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset email sent to {email}'**
+  String resetPasswordEmailSentTo(String email);
 }
 
 class _AppLocalizationsDelegate

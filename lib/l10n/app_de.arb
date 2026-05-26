@@ -108,5 +108,12 @@
   "dataReset": "Alle Einträge gelöscht",
   "accountDeleted": "Konto gelöscht",
   "resetPasswordEmailSent": "Passwort-Reset-E-Mail gesendet. Bitte prüfen Sie Ihren Posteingang.",
-  "dataManagement": "Datenverwaltung"
+  "dataManagement": "Datenverwaltung",
+  "changePassword": "Passwort ändern",
+  "resetPasswordEmailSentTo": "Passwort-Reset-E-Mail an {email} gesendet",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }

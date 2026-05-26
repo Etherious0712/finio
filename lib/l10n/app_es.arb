@@ -108,5 +108,12 @@
   "dataReset": "Todos los registros eliminados",
   "accountDeleted": "Cuenta eliminada",
   "resetPasswordEmailSent": "Correo de restablecimiento enviado. Revisa tu bandeja de entrada.",
-  "dataManagement": "Gestión de datos"
+  "dataManagement": "Gestión de datos",
+  "changePassword": "Cambiar contraseña",
+  "resetPasswordEmailSentTo": "Correo de restablecimiento enviado a {email}",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }

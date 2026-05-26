@@ -340,4 +340,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get dataManagement => 'データ管理';
+
+  @override
+  String get changePassword => 'パスワードを変更';
+
+  @override
+  String resetPasswordEmailSentTo(String email) {
+    return '$email にリセットメールを送信しました';
+  }
 }

@@ -341,4 +341,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dataManagement => '데이터 관리';
+
+  @override
+  String get changePassword => '비밀번호 변경';
+
+  @override
+  String resetPasswordEmailSentTo(String email) {
+    return '$email로 재설정 이메일을 전송했습니다';
+  }
 }

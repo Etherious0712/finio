@@ -346,4 +346,12 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get dataManagement => 'Pengurusan Data';
+
+  @override
+  String get changePassword => 'Tukar Kata Laluan';
+
+  @override
+  String resetPasswordEmailSentTo(String email) {
+    return 'E-mel tetapan semula dihantar ke $email';
+  }
 }

@@ -48,6 +48,47 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  Future<void> _forgotPassword() async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController(text: _emailController.text.trim());
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.forgotPassword),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(labelText: l10n.email),
+            keyboardType: TextInputType.emailAddress,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.confirm),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      await Supabase.instance.client.auth
+          .resetPasswordForEmail(controller.text.trim());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l10n.resetPasswordEmailSent),
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } catch (e) {
+      if (mounted) _showError(e.toString());
+    } finally {
+      controller.dispose();
+    }
+  }
+
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -176,7 +217,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           )
                         : Text(l10n.signIn),
                   ),
-                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _isLoading ? null : _forgotPassword,
+                      child: Text(l10n.forgotPassword),
+                    ),
+                  ),
                   OutlinedButton(
                     onPressed: _isLoading ? null : _signUp,
                     child: _isLoading

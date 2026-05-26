@@ -108,5 +108,12 @@
   "dataReset": "Semua rekod telah dipadamkan",
   "accountDeleted": "Akaun telah dipadam",
   "resetPasswordEmailSent": "E-mel tetapan semula telah dihantar. Semak peti masuk anda.",
-  "dataManagement": "Pengurusan Data"
+  "dataManagement": "Pengurusan Data",
+  "changePassword": "Tukar Kata Laluan",
+  "resetPasswordEmailSentTo": "E-mel tetapan semula dihantar ke {email}",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }

@@ -108,5 +108,12 @@
   "dataReset": "所有记录已清空",
   "accountDeleted": "账号已删除",
   "resetPasswordEmailSent": "重置邮件已发送，请检查收件箱。",
-  "dataManagement": "数据管理"
+  "dataManagement": "数据管理",
+  "changePassword": "修改密码",
+  "resetPasswordEmailSentTo": "重置邮件已发送到 {email}",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }

@@ -108,5 +108,12 @@
   "dataReset": "Tous les enregistrements supprimés",
   "accountDeleted": "Compte supprimé",
   "resetPasswordEmailSent": "E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception.",
-  "dataManagement": "Gestion des données"
+  "dataManagement": "Gestion des données",
+  "changePassword": "Changer le mot de passe",
+  "resetPasswordEmailSentTo": "E-mail de réinitialisation envoyé à {email}",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }

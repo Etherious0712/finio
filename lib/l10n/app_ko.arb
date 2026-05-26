@@ -108,5 +108,12 @@
   "dataReset": "모든 기록이 삭제되었습니다",
   "accountDeleted": "계정이 삭제되었습니다",
   "resetPasswordEmailSent": "재설정 이메일이 전송되었습니다. 받은 편지함을 확인하세요.",
-  "dataManagement": "데이터 관리"
+  "dataManagement": "데이터 관리",
+  "changePassword": "비밀번호 변경",
+  "resetPasswordEmailSentTo": "{email}로 재설정 이메일을 전송했습니다",
+  "@resetPasswordEmailSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
 }
