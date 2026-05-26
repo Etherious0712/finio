@@ -345,7 +345,23 @@ class AppLocalizationsJa extends AppLocalizations {
   String get changePassword => 'パスワードを変更';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return '$email にリセットメールを送信しました';
-  }
+  String get currentPassword => '現在のパスワード';
+
+  @override
+  String get newPassword => '新しいパスワード';
+
+  @override
+  String get confirmNewPassword => '新しいパスワード（確認）';
+
+  @override
+  String get passwordsDoNotMatch => 'パスワードが一致しません';
+
+  @override
+  String get passwordUpdated => 'パスワードが正常に更新されました';
+
+  @override
+  String get incorrectCurrentPassword => '現在のパスワードが正しくありません。再試行してください';
+
+  @override
+  String get passwordTooShort => 'パスワードは6文字以上必要です';
 }

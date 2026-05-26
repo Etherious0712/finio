@@ -207,6 +207,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _isLoading ? null : _forgotPassword,
+                      child: Text(l10n.forgotPassword),
+                    ),
+                  ),
                   FilledButton(
                     onPressed: _isLoading ? null : _signIn,
                     child: _isLoading
@@ -216,13 +223,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(l10n.signIn),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _isLoading ? null : _forgotPassword,
-                      child: Text(l10n.forgotPassword),
-                    ),
                   ),
                   OutlinedButton(
                     onPressed: _isLoading ? null : _signUp,

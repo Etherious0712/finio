@@ -110,10 +110,11 @@
   "resetPasswordEmailSent": "重置邮件已发送，请检查收件箱。",
   "dataManagement": "数据管理",
   "changePassword": "修改密码",
-  "resetPasswordEmailSentTo": "重置邮件已发送到 {email}",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "当前密码",
+  "newPassword": "新密码",
+  "confirmNewPassword": "确认新密码",
+  "passwordsDoNotMatch": "两次密码不一致",
+  "passwordUpdated": "密码已成功更新",
+  "incorrectCurrentPassword": "旧密码不正确，请重试",
+  "passwordTooShort": "密码不能少于 6 位"
 }

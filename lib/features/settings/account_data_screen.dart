@@ -18,39 +18,16 @@ class AccountDataScreen extends ConsumerStatefulWidget {
 class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
   Future<void> _showChangePasswordDialog(String email) async {
     final l = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
+    final changed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.changePassword),
-        content: Text(l.resetPasswordEmailSentTo(email)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.confirm),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (_) => _ChangePasswordDialog(email: email),
     );
-    if (confirmed != true || !mounted) return;
-    try {
-      await Supabase.instance.client.auth.resetPasswordForEmail(email);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(l.resetPasswordEmailSentTo(email)),
-          behavior: SnackBarBehavior.floating,
-        ));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-          behavior: SnackBarBehavior.floating,
-        ));
-      }
+    if (changed == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l.passwordUpdated),
+        behavior: SnackBarBehavior.floating,
+      ));
     }
   }
 
@@ -302,6 +279,167 @@ class _DeleteConfirmDialogState extends State<_DeleteConfirmDialog> {
               _confirmed ? () => Navigator.pop(context, true) : null,
           style: TextButton.styleFrom(foregroundColor: Colors.red),
           child: Text(widget.actionLabel),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChangePasswordDialog extends StatefulWidget {
+  const _ChangePasswordDialog({required this.email});
+  final String email;
+
+  @override
+  State<_ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+}
+
+class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l = AppLocalizations.of(context)!;
+    final currentPw = _currentController.text;
+    final newPw = _newController.text;
+    final confirmPw = _confirmController.text;
+
+    if (newPw != confirmPw) {
+      setState(() => _errorMessage = l.passwordsDoNotMatch);
+      return;
+    }
+    if (newPw.length < 6) {
+      setState(() => _errorMessage = l.passwordTooShort);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final supabase = Supabase.instance.client;
+    try {
+      await supabase.auth.signInWithPassword(
+        email: widget.email,
+        password: currentPw,
+      );
+    } on AuthException {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = l.incorrectCurrentPassword;
+      });
+      return;
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+      return;
+    }
+
+    try {
+      await supabase.auth.updateUser(UserAttributes(password: newPw));
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
+
+  Widget _passwordField({
+    required TextEditingController controller,
+    required String label,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(obscure
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined),
+          onPressed: onToggle,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(l.changePassword),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _passwordField(
+            controller: _currentController,
+            label: l.currentPassword,
+            obscure: _obscureCurrent,
+            onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+          ),
+          const SizedBox(height: 12),
+          _passwordField(
+            controller: _newController,
+            label: l.newPassword,
+            obscure: _obscureNew,
+            onToggle: () => setState(() => _obscureNew = !_obscureNew),
+          ),
+          const SizedBox(height: 12),
+          _passwordField(
+            controller: _confirmController,
+            label: l.confirmNewPassword,
+            obscure: _obscureConfirm,
+            onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+          ),
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage!,
+              style: const TextStyle(color: Colors.red, fontSize: 13),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context, false),
+          child: Text(l.cancel),
+        ),
+        TextButton(
+          onPressed: _isLoading ? null : _submit,
+          child: _isLoading
+              ? const SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(l.confirm),
         ),
       ],
     );

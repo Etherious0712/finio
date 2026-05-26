@@ -770,11 +770,47 @@ abstract class AppLocalizations {
   /// **'Change Password'**
   String get changePassword;
 
-  /// No description provided for @resetPasswordEmailSentTo.
+  /// No description provided for @currentPassword.
   ///
   /// In en, this message translates to:
-  /// **'Reset email sent to {email}'**
-  String resetPasswordEmailSentTo(String email);
+  /// **'Current Password'**
+  String get currentPassword;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get newPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully'**
+  String get passwordUpdated;
+
+  /// No description provided for @incorrectCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect current password, please try again'**
+  String get incorrectCurrentPassword;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordTooShort;
 }
 
 class _AppLocalizationsDelegate

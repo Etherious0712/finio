@@ -110,10 +110,11 @@
   "resetPasswordEmailSent": "リセットメールを送信しました。受信トレイを確認してください。",
   "dataManagement": "データ管理",
   "changePassword": "パスワードを変更",
-  "resetPasswordEmailSentTo": "{email} にリセットメールを送信しました",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "現在のパスワード",
+  "newPassword": "新しいパスワード",
+  "confirmNewPassword": "新しいパスワード（確認）",
+  "passwordsDoNotMatch": "パスワードが一致しません",
+  "passwordUpdated": "パスワードが正常に更新されました",
+  "incorrectCurrentPassword": "現在のパスワードが正しくありません。再試行してください",
+  "passwordTooShort": "パスワードは6文字以上必要です"
 }

@@ -125,10 +125,11 @@
   "resetPasswordEmailSent": "Reset email sent. Check your inbox.",
   "dataManagement": "Data Management",
   "changePassword": "Change Password",
-  "resetPasswordEmailSentTo": "Reset email sent to {email}",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "confirmNewPassword": "Confirm New Password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "passwordUpdated": "Password updated successfully",
+  "incorrectCurrentPassword": "Incorrect current password, please try again",
+  "passwordTooShort": "Password must be at least 6 characters"
 }

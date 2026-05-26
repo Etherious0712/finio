@@ -110,10 +110,11 @@
   "resetPasswordEmailSent": "Correo de restablecimiento enviado. Revisa tu bandeja de entrada.",
   "dataManagement": "Gestión de datos",
   "changePassword": "Cambiar contraseña",
-  "resetPasswordEmailSentTo": "Correo de restablecimiento enviado a {email}",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "Contraseña actual",
+  "newPassword": "Nueva contraseña",
+  "confirmNewPassword": "Confirmar nueva contraseña",
+  "passwordsDoNotMatch": "Las contraseñas no coinciden",
+  "passwordUpdated": "Contraseña actualizada exitosamente",
+  "incorrectCurrentPassword": "Contraseña actual incorrecta, por favor intente de nuevo",
+  "passwordTooShort": "La contraseña debe tener al menos 6 caracteres"
 }

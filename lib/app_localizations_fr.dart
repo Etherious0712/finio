@@ -351,7 +351,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get changePassword => 'Changer le mot de passe';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return 'E-mail de réinitialisation envoyé à $email';
-  }
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get newPassword => 'Nouveau mot de passe';
+
+  @override
+  String get confirmNewPassword => 'Confirmer le nouveau mot de passe';
+
+  @override
+  String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas';
+
+  @override
+  String get passwordUpdated => 'Mot de passe mis à jour avec succès';
+
+  @override
+  String get incorrectCurrentPassword =>
+      'Mot de passe actuel incorrect, veuillez réessayer';
+
+  @override
+  String get passwordTooShort =>
+      'Le mot de passe doit contenir au moins 6 caractères';
 }

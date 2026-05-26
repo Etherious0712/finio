@@ -352,7 +352,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get changePassword => 'Cambiar contraseña';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return 'Correo de restablecimiento enviado a $email';
-  }
+  String get currentPassword => 'Contraseña actual';
+
+  @override
+  String get newPassword => 'Nueva contraseña';
+
+  @override
+  String get confirmNewPassword => 'Confirmar nueva contraseña';
+
+  @override
+  String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get passwordUpdated => 'Contraseña actualizada exitosamente';
+
+  @override
+  String get incorrectCurrentPassword =>
+      'Contraseña actual incorrecta, por favor intente de nuevo';
+
+  @override
+  String get passwordTooShort =>
+      'La contraseña debe tener al menos 6 caracteres';
 }

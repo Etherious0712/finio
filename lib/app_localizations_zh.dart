@@ -345,7 +345,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get changePassword => '修改密码';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return '重置邮件已发送到 $email';
-  }
+  String get currentPassword => '当前密码';
+
+  @override
+  String get newPassword => '新密码';
+
+  @override
+  String get confirmNewPassword => '确认新密码';
+
+  @override
+  String get passwordsDoNotMatch => '两次密码不一致';
+
+  @override
+  String get passwordUpdated => '密码已成功更新';
+
+  @override
+  String get incorrectCurrentPassword => '旧密码不正确，请重试';
+
+  @override
+  String get passwordTooShort => '密码不能少于 6 位';
 }

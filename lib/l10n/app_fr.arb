@@ -110,10 +110,11 @@
   "resetPasswordEmailSent": "E-mail de réinitialisation envoyé. Vérifiez votre boîte de réception.",
   "dataManagement": "Gestion des données",
   "changePassword": "Changer le mot de passe",
-  "resetPasswordEmailSentTo": "E-mail de réinitialisation envoyé à {email}",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "Mot de passe actuel",
+  "newPassword": "Nouveau mot de passe",
+  "confirmNewPassword": "Confirmer le nouveau mot de passe",
+  "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+  "passwordUpdated": "Mot de passe mis à jour avec succès",
+  "incorrectCurrentPassword": "Mot de passe actuel incorrect, veuillez réessayer",
+  "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères"
 }

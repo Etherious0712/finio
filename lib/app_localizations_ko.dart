@@ -346,7 +346,23 @@ class AppLocalizationsKo extends AppLocalizations {
   String get changePassword => '비밀번호 변경';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return '$email로 재설정 이메일을 전송했습니다';
-  }
+  String get currentPassword => '현재 비밀번호';
+
+  @override
+  String get newPassword => '새 비밀번호';
+
+  @override
+  String get confirmNewPassword => '새 비밀번호 확인';
+
+  @override
+  String get passwordsDoNotMatch => '비밀번호가 일치하지 않습니다';
+
+  @override
+  String get passwordUpdated => '비밀번호가 성공적으로 업데이트되었습니다';
+
+  @override
+  String get incorrectCurrentPassword => '현재 비밀번호가 올바르지 않습니다. 다시 시도해 주세요';
+
+  @override
+  String get passwordTooShort => '비밀번호는 6자 이상이어야 합니다';
 }

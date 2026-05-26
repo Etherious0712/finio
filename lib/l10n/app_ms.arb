@@ -110,10 +110,11 @@
   "resetPasswordEmailSent": "E-mel tetapan semula telah dihantar. Semak peti masuk anda.",
   "dataManagement": "Pengurusan Data",
   "changePassword": "Tukar Kata Laluan",
-  "resetPasswordEmailSentTo": "E-mel tetapan semula dihantar ke {email}",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "Kata Laluan Semasa",
+  "newPassword": "Kata Laluan Baharu",
+  "confirmNewPassword": "Sahkan Kata Laluan Baharu",
+  "passwordsDoNotMatch": "Kata laluan tidak sepadan",
+  "passwordUpdated": "Kata laluan berjaya dikemas kini",
+  "incorrectCurrentPassword": "Kata laluan semasa salah, sila cuba lagi",
+  "passwordTooShort": "Kata laluan mestilah sekurang-kurangnya 6 aksara"
 }

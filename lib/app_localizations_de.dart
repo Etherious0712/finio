@@ -352,7 +352,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get changePassword => 'Passwort ändern';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return 'Passwort-Reset-E-Mail an $email gesendet';
-  }
+  String get currentPassword => 'Aktuelles Passwort';
+
+  @override
+  String get newPassword => 'Neues Passwort';
+
+  @override
+  String get confirmNewPassword => 'Neues Passwort bestätigen';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwörter stimmen nicht überein';
+
+  @override
+  String get passwordUpdated => 'Passwort erfolgreich aktualisiert';
+
+  @override
+  String get incorrectCurrentPassword =>
+      'Aktuelles Passwort falsch, bitte erneut versuchen';
+
+  @override
+  String get passwordTooShort =>
+      'Das Passwort muss mindestens 6 Zeichen lang sein';
 }

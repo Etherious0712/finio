@@ -110,10 +110,11 @@
   "resetPasswordEmailSent": "Passwort-Reset-E-Mail gesendet. Bitte prüfen Sie Ihren Posteingang.",
   "dataManagement": "Datenverwaltung",
   "changePassword": "Passwort ändern",
-  "resetPasswordEmailSentTo": "Passwort-Reset-E-Mail an {email} gesendet",
-  "@resetPasswordEmailSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  }
+  "currentPassword": "Aktuelles Passwort",
+  "newPassword": "Neues Passwort",
+  "confirmNewPassword": "Neues Passwort bestätigen",
+  "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+  "passwordUpdated": "Passwort erfolgreich aktualisiert",
+  "incorrectCurrentPassword": "Aktuelles Passwort falsch, bitte erneut versuchen",
+  "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein"
 }

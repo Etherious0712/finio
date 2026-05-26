@@ -349,7 +349,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changePassword => 'Change Password';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return 'Reset email sent to $email';
-  }
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get passwordUpdated => 'Password updated successfully';
+
+  @override
+  String get incorrectCurrentPassword =>
+      'Incorrect current password, please try again';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
 }

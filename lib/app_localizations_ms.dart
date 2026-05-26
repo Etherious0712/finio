@@ -351,7 +351,25 @@ class AppLocalizationsMs extends AppLocalizations {
   String get changePassword => 'Tukar Kata Laluan';
 
   @override
-  String resetPasswordEmailSentTo(String email) {
-    return 'E-mel tetapan semula dihantar ke $email';
-  }
+  String get currentPassword => 'Kata Laluan Semasa';
+
+  @override
+  String get newPassword => 'Kata Laluan Baharu';
+
+  @override
+  String get confirmNewPassword => 'Sahkan Kata Laluan Baharu';
+
+  @override
+  String get passwordsDoNotMatch => 'Kata laluan tidak sepadan';
+
+  @override
+  String get passwordUpdated => 'Kata laluan berjaya dikemas kini';
+
+  @override
+  String get incorrectCurrentPassword =>
+      'Kata laluan semasa salah, sila cuba lagi';
+
+  @override
+  String get passwordTooShort =>
+      'Kata laluan mestilah sekurang-kurangnya 6 aksara';
 }
