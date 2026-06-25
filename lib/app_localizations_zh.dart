@@ -15,10 +15,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get editTransaction => '编辑记录';
 
   @override
-  String get groupByDay => '按日分组';
+  String get groupByDay => '按日期';
 
   @override
-  String get groupByCategory => '按类别分组';
+  String get groupByMonth => '按月份';
+
+  @override
+  String get groupByYear => '按年份';
+
+  @override
+  String get groupByCategory => '按类别';
+
+  @override
+  String get allTime => '全部时间';
 
   @override
   String get vsLastMonth => '环比上月';

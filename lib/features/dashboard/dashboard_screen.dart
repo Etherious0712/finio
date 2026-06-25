@@ -10,6 +10,7 @@ import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
+import '../../shared/providers/navigation_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_localizer.dart';
@@ -91,7 +92,9 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Spending trend (per-day for the month) + category donut, side by side.
+/// Spending trend + category donut as full-width cards. Each taps through to
+/// the Statistics tab for detail. Full width keeps the donut legend readable
+/// (no truncated category names).
 class _InsightsRow extends ConsumerWidget {
   const _InsightsRow();
 
@@ -112,51 +115,65 @@ class _InsightsRow extends ConsumerWidget {
 
     if (stats.isEmpty && series.length < 2) return const SizedBox.shrink();
 
+    void openStats() => ref.read(navIndexProvider.notifier).state = 2;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(Insets.lg, 0, Insets.lg, Insets.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
           if (series.length >= 2)
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Insets.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l.spendingTrend,
-                          style: Theme.of(context).textTheme.labelSmall),
-                      const SizedBox(height: Insets.sm),
-                      MiniSparkline(values: series, color: finio.expense),
-                    ],
-                  ),
-                ),
+            _InsightCard(
+              onTap: openStats,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.spendingTrend,
+                      style: Theme.of(context).textTheme.labelSmall),
+                  const SizedBox(height: Insets.sm),
+                  MiniSparkline(values: series, color: finio.expense),
+                ],
               ),
             ),
           if (series.length >= 2 && stats.isNotEmpty)
-            const SizedBox(width: Insets.md),
+            const SizedBox(height: Insets.md),
           if (stats.isNotEmpty)
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Insets.md),
-                  child: Row(
-                    children: [
-                      MiniDonut(stats: stats, size: 72),
-                      const SizedBox(width: Insets.sm),
-                      Expanded(
-                        child: DonutLegend(
-                          stats: stats,
-                          labelOf: (k) => localizeCategory(l, k),
-                        ),
-                      ),
-                    ],
+            _InsightCard(
+              onTap: openStats,
+              child: Row(
+                children: [
+                  MiniDonut(stats: stats, size: 88),
+                  const SizedBox(width: Insets.lg),
+                  Expanded(
+                    child: DonutLegend(
+                      stats: stats,
+                      labelOf: (k) => localizeCategory(l, k),
+                    ),
                   ),
-                ),
+                  const Icon(Icons.chevron_right, size: 18),
+                ],
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _InsightCard extends StatelessWidget {
+  const _InsightCard({required this.child, required this.onTap});
+
+  final Widget child;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(Insets.md),
+          child: child,
+        ),
       ),
     );
   }

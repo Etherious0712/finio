@@ -15,10 +15,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get editTransaction => '기록 편집';
 
   @override
-  String get groupByDay => '일별 보기';
+  String get groupByDay => '날짜별';
 
   @override
-  String get groupByCategory => '카테고리별 보기';
+  String get groupByMonth => '월별';
+
+  @override
+  String get groupByYear => '연도별';
+
+  @override
+  String get groupByCategory => '카테고리별';
+
+  @override
+  String get allTime => '전체 기간';
 
   @override
   String get vsLastMonth => '지난달 대비';

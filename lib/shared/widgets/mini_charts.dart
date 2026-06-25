@@ -124,7 +124,7 @@ class DonutLegend extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final s in stats.take(4))
+        for (final s in stats.take(5))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
             child: Row(

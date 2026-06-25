@@ -15,10 +15,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editTransaction => 'Editar registro';
 
   @override
-  String get groupByDay => 'Agrupar por día';
+  String get groupByDay => 'Por fecha';
 
   @override
-  String get groupByCategory => 'Agrupar por categoría';
+  String get groupByMonth => 'Por mes';
+
+  @override
+  String get groupByYear => 'Por año';
+
+  @override
+  String get groupByCategory => 'Por categoría';
+
+  @override
+  String get allTime => 'Todo el tiempo';
 
   @override
   String get vsLastMonth => 'vs. mes anterior';

@@ -15,10 +15,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editTransaction => '記録を編集';
 
   @override
-  String get groupByDay => '日ごとに表示';
+  String get groupByDay => '日付別';
 
   @override
-  String get groupByCategory => 'カテゴリごとに表示';
+  String get groupByMonth => '月別';
+
+  @override
+  String get groupByYear => '年別';
+
+  @override
+  String get groupByCategory => 'カテゴリ別';
+
+  @override
+  String get allTime => '全期間';
 
   @override
   String get vsLastMonth => '先月比';

@@ -15,10 +15,19 @@ class AppLocalizationsMs extends AppLocalizations {
   String get editTransaction => 'Edit Rekod';
 
   @override
-  String get groupByDay => 'Kumpul mengikut Hari';
+  String get groupByDay => 'Ikut Tarikh';
 
   @override
-  String get groupByCategory => 'Kumpul mengikut Kategori';
+  String get groupByMonth => 'Ikut Bulan';
+
+  @override
+  String get groupByYear => 'Ikut Tahun';
+
+  @override
+  String get groupByCategory => 'Ikut Kategori';
+
+  @override
+  String get allTime => 'Sepanjang masa';
 
   @override
   String get vsLastMonth => 'berbanding bulan lalu';

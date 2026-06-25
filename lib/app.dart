@@ -24,6 +24,7 @@ import 'features/transactions/transaction_list_screen.dart';
 import 'core/theme/app_motion.dart';
 import 'shared/providers/database_provider.dart';
 import 'shared/providers/locale_provider.dart';
+import 'shared/providers/navigation_provider.dart';
 import 'shared/providers/theme_provider.dart';
 import 'shared/providers/transaction_providers.dart';
 import 'shared/widgets/speed_dial_fab.dart';
@@ -109,7 +110,6 @@ class MainShell extends ConsumerStatefulWidget {
 }
 
 class _MainShellState extends ConsumerState<MainShell> {
-  int _index = 0;
   final _pageController = PageController();
 
   @override
@@ -144,24 +144,29 @@ class _MainShellState extends ConsumerState<MainShell> {
     );
   }
 
-  void _switchTo(int i) {
-    setState(() => _index = i);
-    _pageController.animateToPage(
-      i,
-      duration: Motion.medium,
-      curve: Motion.curve,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final index = ref.watch(navIndexProvider);
+    // Keep the PageView in sync when the tab is changed from elsewhere
+    // (nav bar tap, swipe, or a screen jumping tabs e.g. dashboard graphs).
+    ref.listen<int>(navIndexProvider, (_, next) {
+      if (_pageController.hasClients &&
+          _pageController.page?.round() != next) {
+        _pageController.animateToPage(
+          next,
+          duration: Motion.medium,
+          curve: Motion.curve,
+        );
+      }
+    });
     // Quick-add FAB only on Home + Records (entry-heavy screens).
-    final showFab = _index == 0 || _index == 1;
+    final showFab = index == 0 || index == 1;
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        onPageChanged: (i) => setState(() => _index = i),
+        onPageChanged: (i) =>
+            ref.read(navIndexProvider.notifier).state = i,
         children: const [
           DashboardScreen(),
           TransactionListScreen(),
@@ -171,8 +176,9 @@ class _MainShellState extends ConsumerState<MainShell> {
       ),
       floatingActionButton: showFab ? const SpeedDialFab() : null,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: _switchTo,
+        selectedIndex: index,
+        onDestinationSelected: (i) =>
+            ref.read(navIndexProvider.notifier).state = i,
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),

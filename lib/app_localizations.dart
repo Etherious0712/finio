@@ -125,14 +125,32 @@ abstract class AppLocalizations {
   /// No description provided for @groupByDay.
   ///
   /// In en, this message translates to:
-  /// **'Group by Day'**
+  /// **'By Date'**
   String get groupByDay;
+
+  /// No description provided for @groupByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'By Month'**
+  String get groupByMonth;
+
+  /// No description provided for @groupByYear.
+  ///
+  /// In en, this message translates to:
+  /// **'By Year'**
+  String get groupByYear;
 
   /// No description provided for @groupByCategory.
   ///
   /// In en, this message translates to:
-  /// **'Group by Category'**
+  /// **'By Category'**
   String get groupByCategory;
+
+  /// No description provided for @allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get allTime;
 
   /// No description provided for @vsLastMonth.
   ///
