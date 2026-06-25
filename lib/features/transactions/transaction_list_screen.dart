@@ -3,28 +3,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import 'package:finio/app_localizations.dart';
 import 'package:finio/core/database/app_database.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/transaction_providers.dart';
-import '../../shared/utils/category_icon.dart';
 import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
-import 'package:finio/app_localizations.dart';
+import '../../shared/widgets/transaction_tile.dart';
 
-const _kWeekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+enum _GroupBy { day, category }
 
-Color _hexToColor(String hex) {
-  return Color(int.parse(hex.replaceFirst('#', '0xFF')));
-}
-
-class TransactionListScreen extends ConsumerWidget {
+class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TransactionListScreen> createState() =>
+      _TransactionListScreenState();
+}
+
+class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
+  _GroupBy _groupBy = _GroupBy.day;
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final transactionsAsync = ref.watch(monthlyTransactionsProvider);
     final symbol = ref.watch(currencySymbolProvider);
@@ -36,8 +42,17 @@ class TransactionListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.transactions),
-        centerTitle: true,
         actions: [
+          PopupMenuButton<_GroupBy>(
+            icon: const Icon(Icons.sort),
+            initialValue: _groupBy,
+            onSelected: (g) => setState(() => _groupBy = g),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: _GroupBy.day, child: Text(l.groupByDay)),
+              PopupMenuItem(
+                  value: _GroupBy.category, child: Text(l.groupByCategory)),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () => context.push('/search'),
@@ -53,33 +68,28 @@ class TransactionListScreen extends ConsumerWidget {
                 if (txs.isEmpty) {
                   return Center(child: Text(l.noMonthlyRecords));
                 }
-                final items = _buildItems(txs);
+                final items = _groupBy == _GroupBy.day
+                    ? _groupByDay(txs)
+                    : _groupByCategory(txs, l);
                 return ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 96),
                   itemCount: items.length,
                   itemBuilder: (ctx, i) {
                     final item = items[i];
-                    if (item is DateTime) return _DateHeader(date: item);
+                    if (item is _Header) {
+                      return _SectionHeaderRow(
+                          label: item.label, total: item.total, symbol: symbol);
+                    }
                     final tx = item as Transaction;
-                    final cat = categoryMap['${tx.type}:${tx.category}'];
-                    return Dismissible(
-                      key: ValueKey(tx.id),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      onDismissed: (_) => ref
+                    return TransactionTile(
+                      tx: tx,
+                      category: categoryMap['${tx.type}:${tx.category}'],
+                      symbol: symbol,
+                      onEdit: () => context.push('/transactions/add', extra: tx),
+                      onDelete: () => ref
                           .read(appDatabaseProvider)
                           .transactionDao
                           .deleteTransaction(tx.id),
-                      child: _TransactionTile(
-                        tx: tx,
-                        category: cat,
-                        symbol: symbol,
-                        onTap: () => _showDetail(context, tx, symbol),
-                      ),
                     );
                   },
                 );
@@ -93,13 +103,14 @@ class TransactionListScreen extends ConsumerWidget {
     );
   }
 
-  List<Object> _buildItems(List<Transaction> txs) {
+  List<Object> _groupByDay(List<Transaction> txs) {
+    final locale = Localizations.localeOf(context).toString();
     final items = <Object>[];
     DateTime? lastDay;
     for (final tx in txs) {
       final day = DateTime(tx.date.year, tx.date.month, tx.date.day);
       if (lastDay == null || day != lastDay) {
-        items.add(day);
+        items.add(_Header(DateFormat.MMMEd(locale).format(day)));
         lastDay = day;
       }
       items.add(tx);
@@ -107,149 +118,65 @@ class TransactionListScreen extends ConsumerWidget {
     return items;
   }
 
-  void _showDetail(BuildContext context, Transaction tx, String symbol) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => _DetailSheet(tx: tx, symbol: symbol),
-    );
+  List<Object> _groupByCategory(List<Transaction> txs, AppLocalizations l) {
+    final groups = <String, List<Transaction>>{};
+    for (final tx in txs) {
+      groups.putIfAbsent(tx.category, () => []).add(tx);
+    }
+    // Sort categories by total amount, descending.
+    final sorted = groups.entries.toList()
+      ..sort((a, b) {
+        final ta = a.value.fold<double>(0, (s, t) => s + t.amount);
+        final tb = b.value.fold<double>(0, (s, t) => s + t.amount);
+        return tb.compareTo(ta);
+      });
+    final items = <Object>[];
+    for (final e in sorted) {
+      final total = e.value.fold<double>(0, (s, t) => s + t.amount);
+      items.add(_Header(localizeCategory(l, e.key), total: total));
+      items.addAll(e.value);
+    }
+    return items;
   }
 }
 
-class _DateHeader extends StatelessWidget {
-  const _DateHeader({required this.date});
-  final DateTime date;
-
-  @override
-  Widget build(BuildContext context) {
-    final label =
-        '${DateFormat('M月d日').format(date)} ${_kWeekdays[date.weekday - 1]}';
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-      ),
-    );
-  }
+class _Header {
+  _Header(this.label, {this.total});
+  final String label;
+  final double? total;
 }
 
-class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({
-    required this.tx,
-    required this.category,
+class _SectionHeaderRow extends StatelessWidget {
+  const _SectionHeaderRow({
+    required this.label,
+    required this.total,
     required this.symbol,
-    required this.onTap,
   });
 
-  final Transaction tx;
-  final Category? category;
-  final String symbol;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isIncome = tx.type == 'income';
-    final catColor = category != null
-        ? _hexToColor(category!.color)
-        : (isIncome ? Colors.green : Colors.red);
-    final iconName = category?.icon ?? 'more_horiz';
-
-    return ListTile(
-      onTap: onTap,
-      leading: CircleAvatar(
-        backgroundColor: catColor.withValues(alpha: 0.15),
-        child: Icon(categoryIconData(iconName), size: 20, color: catColor),
-      ),
-      title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(localizeCategory(AppLocalizations.of(context)!, tx.category)),
-      trailing: Text(
-        '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
-        style: TextStyle(
-          color: isIncome ? Colors.green : Colors.red,
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
-        ),
-      ),
-    );
-  }
-}
-
-class _DetailSheet extends StatelessWidget {
-  const _DetailSheet({required this.tx, required this.symbol});
-  final Transaction tx;
-  final String symbol;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final isIncome = tx.type == 'income';
-    final typeColor = isIncome ? Colors.green : Colors.red;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.outlineVariant,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Text(
-            '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: typeColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _Row(label: l.typeLabel, value: isIncome ? l.income : l.expense),
-          _Row(label: l.category, value: localizeCategory(l, tx.category)),
-          if (tx.title.isNotEmpty) _Row(label: l.note, value: tx.title),
-          _Row(
-              label: l.date,
-              value: DateFormat('yyyy年M月d日').format(tx.date)),
-          _Row(
-            label: l.recordTime,
-            value: DateFormat('yyyy/M/d HH:mm').format(tx.createdAt),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  const _Row({required this.label, required this.value});
   final String label;
-  final String value;
+  final double? total;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.fromLTRB(Insets.lg, Insets.md, Insets.lg, Insets.xs),
       child: Row(
         children: [
-          SizedBox(
-            width: 72,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-            ),
-          ),
-          Expanded(child: Text(value)),
+          Text(label,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
+                  ?.copyWith(color: scheme.outline)),
+          const Spacer(),
+          if (total != null)
+            Text(formatAmount(total!, symbol),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: scheme.outline)
+                    .tabular),
         ],
       ),
     );

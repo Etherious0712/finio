@@ -9,6 +9,27 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get spendingTrend => '支出の推移';
+
+  @override
+  String get editTransaction => '記録を編集';
+
+  @override
+  String get groupByDay => '日ごとに表示';
+
+  @override
+  String get groupByCategory => 'カテゴリごとに表示';
+
+  @override
+  String get vsLastMonth => '先月比';
+
+  @override
+  String get recordsUsed => '件';
+
+  @override
+  String get editCategory => 'カテゴリを編集';
+
+  @override
   String get appName => 'Finio';
 
   @override

@@ -1,5 +1,12 @@
 {
   "@@locale": "zh",
+  "spendingTrend": "支出趋势",
+  "editTransaction": "编辑记录",
+  "groupByDay": "按日分组",
+  "groupByCategory": "按类别分组",
+  "vsLastMonth": "环比上月",
+  "recordsUsed": "笔",
+  "editCategory": "编辑类别",
   "appName": "Finio",
   "dashboard": "主页",
   "transactions": "记录",

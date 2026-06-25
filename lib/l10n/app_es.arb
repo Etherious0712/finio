@@ -1,5 +1,12 @@
 {
   "@@locale": "es",
+  "spendingTrend": "Tendencia de gastos",
+  "editTransaction": "Editar registro",
+  "groupByDay": "Agrupar por día",
+  "groupByCategory": "Agrupar por categoría",
+  "vsLastMonth": "vs. mes anterior",
+  "recordsUsed": "registros",
+  "editCategory": "Editar categoría",
   "appName": "Finio",
   "dashboard": "Inicio",
   "transactions": "Registros",

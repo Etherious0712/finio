@@ -1,5 +1,12 @@
 {
   "@@locale": "ja",
+  "spendingTrend": "支出の推移",
+  "editTransaction": "記録を編集",
+  "groupByDay": "日ごとに表示",
+  "groupByCategory": "カテゴリごとに表示",
+  "vsLastMonth": "先月比",
+  "recordsUsed": "件",
+  "editCategory": "カテゴリを編集",
   "appName": "Finio",
   "dashboard": "ホーム",
   "transactions": "記録",

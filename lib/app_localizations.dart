@@ -110,6 +110,48 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @spendingTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Trend'**
+  String get spendingTrend;
+
+  /// No description provided for @editTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Record'**
+  String get editTransaction;
+
+  /// No description provided for @groupByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by Day'**
+  String get groupByDay;
+
+  /// No description provided for @groupByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by Category'**
+  String get groupByCategory;
+
+  /// No description provided for @vsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'vs last month'**
+  String get vsLastMonth;
+
+  /// No description provided for @recordsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'records'**
+  String get recordsUsed;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Category'**
+  String get editCategory;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:

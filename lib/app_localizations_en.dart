@@ -9,6 +9,27 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get spendingTrend => 'Spending Trend';
+
+  @override
+  String get editTransaction => 'Edit Record';
+
+  @override
+  String get groupByDay => 'Group by Day';
+
+  @override
+  String get groupByCategory => 'Group by Category';
+
+  @override
+  String get vsLastMonth => 'vs last month';
+
+  @override
+  String get recordsUsed => 'records';
+
+  @override
+  String get editCategory => 'Edit Category';
+
+  @override
   String get appName => 'Finio';
 
   @override

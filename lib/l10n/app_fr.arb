@@ -1,5 +1,12 @@
 {
   "@@locale": "fr",
+  "spendingTrend": "Tendance des dépenses",
+  "editTransaction": "Modifier l'entrée",
+  "groupByDay": "Grouper par jour",
+  "groupByCategory": "Grouper par catégorie",
+  "vsLastMonth": "vs mois dernier",
+  "recordsUsed": "entrées",
+  "editCategory": "Modifier la catégorie",
   "appName": "Finio",
   "dashboard": "Accueil",
   "transactions": "Dossiers",

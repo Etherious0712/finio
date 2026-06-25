@@ -9,6 +9,27 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String get spendingTrend => '지출 추세';
+
+  @override
+  String get editTransaction => '기록 편집';
+
+  @override
+  String get groupByDay => '일별 보기';
+
+  @override
+  String get groupByCategory => '카테고리별 보기';
+
+  @override
+  String get vsLastMonth => '지난달 대비';
+
+  @override
+  String get recordsUsed => '건';
+
+  @override
+  String get editCategory => '카테고리 편집';
+
+  @override
   String get appName => 'Finio';
 
   @override

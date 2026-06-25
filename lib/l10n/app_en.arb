@@ -1,5 +1,12 @@
 {
   "@@locale": "en",
+  "spendingTrend": "Spending Trend",
+  "editTransaction": "Edit Record",
+  "groupByDay": "Group by Day",
+  "groupByCategory": "Group by Category",
+  "vsLastMonth": "vs last month",
+  "recordsUsed": "records",
+  "editCategory": "Edit Category",
   "appName": "Finio",
   "dashboard": "Home",
   "transactions": "Records",

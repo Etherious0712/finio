@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:finio/app_localizations.dart';
 import 'package:finio/core/database/app_database.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/database_provider.dart';
+import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
 import '../../shared/utils/category_localizer.dart';
-import 'package:finio/app_localizations.dart';
 
 class CategoryManagementScreen extends ConsumerStatefulWidget {
   const CategoryManagementScreen({super.key});
@@ -21,14 +23,8 @@ class CategoryManagementScreen extends ConsumerStatefulWidget {
 class _CategoryManagementScreenState
     extends ConsumerState<CategoryManagementScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => setState(() {}));
-  }
+  late final TabController _tabController =
+      TabController(length: 2, vsync: this)..addListener(() => setState(() {}));
 
   @override
   void dispose() {
@@ -36,8 +32,7 @@ class _CategoryManagementScreenState
     super.dispose();
   }
 
-  String get _currentType =>
-      _tabController.index == 0 ? 'expense' : 'income';
+  String get _currentType => _tabController.index == 0 ? 'expense' : 'income';
 
   Future<void> _deleteCategory(Category cat) async {
     final l = AppLocalizations.of(context)!;
@@ -48,12 +43,11 @@ class _CategoryManagementScreenState
         content: Text(l.confirmDeleteCategoryMsg(localizeCategory(l, cat.name))),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
+              onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(l.delete),
           ),
         ],
@@ -64,14 +58,11 @@ class _CategoryManagementScreenState
     }
   }
 
-  void _showAddSheet() {
+  void _openSheet({Category? existing}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _AddCategorySheet(type: _currentType),
+      builder: (_) => _CategorySheet(type: _currentType, existing: existing),
     );
   }
 
@@ -81,7 +72,6 @@ class _CategoryManagementScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(l.categoryManagement),
-        centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
           tabs: [Tab(text: l.expense), Tab(text: l.income)],
@@ -91,17 +81,13 @@ class _CategoryManagementScreenState
         controller: _tabController,
         children: [
           _CategoryList(
-            type: 'expense',
-            onDelete: _deleteCategory,
-          ),
+              type: 'expense', onDelete: _deleteCategory, onEdit: (c) => _openSheet(existing: c)),
           _CategoryList(
-            type: 'income',
-            onDelete: _deleteCategory,
-          ),
+              type: 'income', onDelete: _deleteCategory, onEdit: (c) => _openSheet(existing: c)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddSheet,
+        onPressed: () => _openSheet(),
         child: const Icon(Icons.add),
       ),
     );
@@ -109,55 +95,77 @@ class _CategoryManagementScreenState
 }
 
 class _CategoryList extends ConsumerWidget {
-  const _CategoryList({required this.type, required this.onDelete});
+  const _CategoryList({
+    required this.type,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   final String type;
   final Future<void> Function(Category) onDelete;
+  final ValueChanged<Category> onEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final async = ref.watch(categoriesByTypeProvider(type));
+    final usage = ref.watch(categoryUsageProvider);
+    final scheme = Theme.of(context).colorScheme;
 
     return async.when(
       data: (cats) {
-        if (cats.isEmpty) {
-          return Center(child: Text(l.noCategoryYet));
-        }
+        if (cats.isEmpty) return Center(child: Text(l.noCategoryYet));
         return ListView.separated(
+          padding: const EdgeInsets.only(bottom: 96),
           itemCount: cats.length,
           separatorBuilder: (_, _) => const Divider(height: 1, indent: 72),
           itemBuilder: (_, i) {
             final cat = cats[i];
             final color = parseCategoryColor(cat.color);
-            return ListTile(
+            final count = usage[cat.name] ?? 0;
+
+            final tile = ListTile(
+              onTap: () => onEdit(cat),
               leading: CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.15),
                 child: Icon(categoryIconData(cat.icon), color: color, size: 20),
               ),
               title: Text(localizeCategory(l, cat.name)),
+              subtitle: count > 0
+                  ? Text('$count ${l.recordsUsed}',
+                      style: Theme.of(context).textTheme.bodySmall)
+                  : null,
               trailing: cat.isCustom
-                  ? IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () => onDelete(cat),
-                    )
+                  ? const Icon(Icons.edit_outlined, size: 18)
                   : Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                          horizontal: Insets.sm, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
+                        color: scheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(Radii.sm),
                       ),
-                      child: Text(
-                        l.defaultLabel,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
+                      child: Text(l.defaultLabel,
+                          style: TextStyle(
+                              fontSize: 11, color: scheme.outline)),
                     ),
+            );
+
+            // Only custom categories can be swiped away.
+            if (!cat.isCustom) return tile;
+            return Dismissible(
+              key: ValueKey(cat.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: scheme.error,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: Insets.xl),
+                child: const Icon(Icons.delete_outline, color: Colors.white),
+              ),
+              confirmDismiss: (_) async {
+                await onDelete(cat);
+                return false; // deletion handled with confirm dialog
+              },
+              child: tile,
             );
           },
         );
@@ -168,20 +176,35 @@ class _CategoryList extends ConsumerWidget {
   }
 }
 
-class _AddCategorySheet extends ConsumerStatefulWidget {
-  const _AddCategorySheet({required this.type});
+/// Add or edit a category. For built-in categories the name is a localization
+/// key, so the name field is locked — only icon/color are editable.
+class _CategorySheet extends ConsumerStatefulWidget {
+  const _CategorySheet({required this.type, this.existing});
 
   final String type;
+  final Category? existing;
 
   @override
-  ConsumerState<_AddCategorySheet> createState() => _AddCategorySheetState();
+  ConsumerState<_CategorySheet> createState() => _CategorySheetState();
 }
 
-class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
-  final _nameController = TextEditingController();
-  String _selectedIcon = kPickableIcons.keys.first;
-  String _selectedColor = kPresetColors.first;
+class _CategorySheetState extends ConsumerState<_CategorySheet> {
+  late final TextEditingController _nameController;
+  late String _selectedIcon;
+  late String _selectedColor;
   bool _saving = false;
+
+  bool get _isEditing => widget.existing != null;
+  bool get _isBuiltIn => _isEditing && !widget.existing!.isCustom;
+
+  @override
+  void initState() {
+    super.initState();
+    final c = widget.existing;
+    _nameController = TextEditingController(text: c?.isCustom == true ? c!.name : '');
+    _selectedIcon = c?.icon ?? kPickableIcons.keys.first;
+    _selectedColor = c?.color ?? kPresetColors.first;
+  }
 
   @override
   void dispose() {
@@ -213,14 +236,10 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l.cancel),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.cancel)),
           ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, tempColor),
-            child: Text(l.confirm),
-          ),
+              onPressed: () => Navigator.pop(ctx, tempColor),
+              child: Text(l.confirm)),
         ],
       ),
     );
@@ -230,20 +249,26 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
   }
 
   Future<void> _save() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
+    final db = ref.read(appDatabaseProvider).categoryDao;
+    if (!_isBuiltIn && _nameController.text.trim().isEmpty) return;
 
     setState(() => _saving = true);
     try {
-      await ref.read(appDatabaseProvider).categoryDao.insertCategory(
-            CategoriesCompanion.insert(
-              name: name,
-              type: widget.type,
-              icon: _selectedIcon,
-              color: _selectedColor,
-              isCustom: const Value(true),
-            ),
-          );
+      if (_isEditing) {
+        await db.updateCategory(widget.existing!.copyWith(
+          name: _isBuiltIn ? widget.existing!.name : _nameController.text.trim(),
+          icon: _selectedIcon,
+          color: _selectedColor,
+        ));
+      } else {
+        await db.insertCategory(CategoriesCompanion.insert(
+          name: _nameController.text.trim(),
+          type: widget.type,
+          icon: _selectedIcon,
+          color: _selectedColor,
+          isCustom: const Value(true),
+        ));
+      }
       if (mounted) Navigator.pop(context);
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -253,12 +278,16 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final accentColor = parseCategoryColor(_selectedColor);
+    final scheme = Theme.of(context).colorScheme;
+    final accent = parseCategoryColor(_selectedColor);
     final isCustomColor = !kPresetColors.contains(_selectedColor);
+    final title = _isEditing
+        ? l.editCategory
+        : (widget.type == 'expense' ? l.addExpenseCategory : l.addIncomeCategory);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
+      padding: EdgeInsets.fromLTRB(
+          Insets.lg, Insets.sm, Insets.lg, Insets.lg + MediaQuery.of(context).viewInsets.bottom),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -266,160 +295,132 @@ class _AddCategorySheetState extends ConsumerState<_AddCategorySheet> {
           children: [
             Row(
               children: [
-                Text(
-                  widget.type == 'expense' ? l.addExpenseCategory : l.addIncomeCategory,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
                 const Spacer(),
                 if (_saving)
                   const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
                 else
                   TextButton(onPressed: _save, child: Text(l.save)),
               ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _nameController,
-              autofocus: true,
-              maxLength: 20,
-              decoration: InputDecoration(
-                labelText: l.categoryName,
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+            const SizedBox(height: Insets.md),
+            if (_isBuiltIn)
+              // Built-in name is a translation key; show it read-only.
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: accent.withValues(alpha: 0.15),
+                  child: Icon(categoryIconData(_selectedIcon), color: accent),
                 ),
+                title: Text(localizeCategory(l, widget.existing!.name)),
+                subtitle: Text(l.defaultLabel),
+              )
+            else
+              TextField(
+                controller: _nameController,
+                autofocus: true,
+                maxLength: 20,
+                decoration: InputDecoration(labelText: l.categoryName),
               ),
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Insets.sm),
             Text(l.iconLabel, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
+            const SizedBox(height: Insets.sm),
             SizedBox(
-              height: 220,
+              height: 200,
               child: SingleChildScrollView(
                 child: GridView.count(
                   crossAxisCount: 7,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 6,
-                  crossAxisSpacing: 6,
+                  mainAxisSpacing: Insets.xs,
+                  crossAxisSpacing: Insets.xs,
                   children: kPickableIcons.entries.map((e) {
-                    final isSelected = e.key == _selectedIcon;
+                    final selected = e.key == _selectedIcon;
                     return GestureDetector(
                       onTap: () => setState(() => _selectedIcon = e.key),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 120),
+                      child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? accentColor.withValues(alpha: 0.15)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
+                          color: selected ? accent.withValues(alpha: 0.15) : null,
+                          borderRadius: BorderRadius.circular(Radii.sm),
                           border: Border.all(
-                            color: isSelected
-                                ? accentColor
-                                : Theme.of(context).colorScheme.outlineVariant,
-                            width: isSelected ? 2 : 1,
+                            color: selected ? accent : scheme.outlineVariant,
+                            width: selected ? 2 : 1,
                           ),
                         ),
-                        child: Icon(
-                          e.value,
-                          size: 28,
-                          color: isSelected
-                              ? accentColor
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        child: Icon(e.value,
+                            size: 26,
+                            color: selected ? accent : scheme.onSurfaceVariant),
                       ),
                     );
                   }).toList(),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: Insets.md),
             Text(l.colorLabel, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-            // Layer 1: preset swatches
+            const SizedBox(height: Insets.sm),
             Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: kPresetColors.map((hex) {
-                final isSelected = hex == _selectedColor;
-                final c = parseCategoryColor(hex);
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedColor = hex),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: c,
-                      shape: BoxShape.circle,
-                      border: isSelected
-                          ? Border.all(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              width: 2.5,
-                            )
-                          : null,
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                  color: c.withValues(alpha: 0.5),
-                                  blurRadius: 6)
-                            ]
-                          : null,
-                    ),
-                    child: isSelected
-                        ? const Icon(Icons.check, size: 16, color: Colors.white)
-                        : null,
+              spacing: Insets.md,
+              runSpacing: Insets.md,
+              children: [
+                for (final hex in kPresetColors)
+                  _Swatch(
+                    color: parseCategoryColor(hex),
+                    selected: hex == _selectedColor,
+                    onTap: () => setState(() => _selectedColor = hex),
                   ),
-                );
-              }).toList(),
+                _Swatch(
+                  color: isCustomColor ? accent : scheme.surfaceContainerHighest,
+                  selected: isCustomColor,
+                  icon: Icons.brush,
+                  onTap: _openCustomColorPicker,
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            // Layer 2: custom color button
-            GestureDetector(
-              onTap: _openCustomColorPicker,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: isCustomColor ? accentColor : null,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isCustomColor
-                            ? accentColor
-                            : Theme.of(context).colorScheme.outlineVariant,
-                        width: isCustomColor ? 2.5 : 1,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.brush,
-                      size: 16,
-                      color: isCustomColor
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    l.customColor,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isCustomColor
-                              ? accentColor
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Insets.sm),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Swatch extends StatelessWidget {
+  const _Swatch({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
+
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: selected
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.onSurface, width: 2.5)
+              : null,
+        ),
+        child: icon != null
+            ? Icon(icon, size: 16, color: Colors.white)
+            : (selected
+                ? const Icon(Icons.check, size: 16, color: Colors.white)
+                : null),
       ),
     );
   }

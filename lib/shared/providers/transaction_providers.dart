@@ -9,6 +9,22 @@ final selectedMonthProvider = StateProvider<DateTime>((ref) {
   return DateTime(now.year, now.month);
 });
 
+/// All non-deleted transactions (all time). Used for category usage counts.
+final allTransactionsProvider = StreamProvider<List<Transaction>>((ref) {
+  return ref.watch(appDatabaseProvider).transactionDao.watchAllTransactions();
+});
+
+/// How many transactions reference each category key. Drives the usage badge
+/// in category management.
+final categoryUsageProvider = Provider<Map<String, int>>((ref) {
+  final txs = ref.watch(allTransactionsProvider).valueOrNull ?? [];
+  final counts = <String, int>{};
+  for (final t in txs) {
+    counts[t.category] = (counts[t.category] ?? 0) + 1;
+  }
+  return counts;
+});
+
 /// 本月交易列表（实时 Stream，数据写入后自动推送）
 final monthlyTransactionsProvider =
     StreamProvider.autoDispose<List<Transaction>>((ref) {

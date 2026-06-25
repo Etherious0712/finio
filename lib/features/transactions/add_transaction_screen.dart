@@ -5,42 +5,61 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/ai/rule_classifier.dart';
+import 'package:finio/app_localizations.dart';
 import 'package:finio/core/database/app_database.dart';
+import '../../core/ai/rule_classifier.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
-import '../../shared/utils/category_icon.dart';
-import '../../shared/utils/category_localizer.dart';
-import 'package:finio/app_localizations.dart';
+import '../../shared/widgets/category_picker.dart';
 
+/// Add or edit a transaction. Pass an existing [Transaction] via GoRouter
+/// `extra` to enter edit mode.
 class AddTransactionScreen extends ConsumerStatefulWidget {
-  const AddTransactionScreen({super.key});
+  const AddTransactionScreen({super.key, this.existing});
+
+  final Transaction? existing;
 
   @override
   ConsumerState<AddTransactionScreen> createState() =>
       _AddTransactionScreenState();
 }
 
-class _AddTransactionScreenState
-    extends ConsumerState<AddTransactionScreen> {
+class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
+  late final TextEditingController _amountController;
+  late final TextEditingController _noteController;
 
-  TransactionType _type = TransactionType.expense;
+  late TransactionType _type;
   String? _selectedCategory;
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   bool _saving = false;
 
   final _classifier = RuleClassifier();
 
+  bool get _isEditing => widget.existing != null;
+
   @override
   void initState() {
     super.initState();
+    final tx = widget.existing;
+    _type = tx?.type == 'income'
+        ? TransactionType.income
+        : TransactionType.expense;
+    _selectedCategory = tx?.category;
+    _selectedDate = tx?.date ?? DateTime.now();
+    _amountController =
+        TextEditingController(text: tx != null ? _trimAmount(tx.amount) : '');
+    _noteController = TextEditingController(text: tx?.note ?? '');
     _classifier.load();
-    _noteController.addListener(_onNoteChanged);
+    if (!_isEditing) _noteController.addListener(_onNoteChanged);
   }
+
+  String _trimAmount(double v) =>
+      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
   @override
   void dispose() {
@@ -52,8 +71,7 @@ class _AddTransactionScreenState
   void _onNoteChanged() {
     final note = _noteController.text;
     if (note.isEmpty) return;
-    final suggested =
-        _classifier.classifyWithLearning(title: note, type: _type);
+    final suggested = _classifier.classifyWithLearning(title: note, type: _type);
     if (!suggested.startsWith('catOther') && suggested != _selectedCategory) {
       setState(() => _selectedCategory = suggested);
     }
@@ -70,12 +88,11 @@ class _AddTransactionScreenState
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
-      final l = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.pleaseSelectCategory)),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.pleaseSelectCategory)));
       return;
     }
 
@@ -84,17 +101,35 @@ class _AddTransactionScreenState
       final db = ref.read(appDatabaseProvider);
       final noteText = _noteController.text.trim();
       final title = noteText.isNotEmpty ? noteText : _selectedCategory!;
+      final amount = double.parse(_amountController.text);
+      final typeStr = _type == TransactionType.expense ? 'expense' : 'income';
 
-      await db.transactionDao.insertTransaction(
-        TransactionsCompanion.insert(
-          title: title,
-          amount: double.parse(_amountController.text),
-          type: _type == TransactionType.expense ? 'expense' : 'income',
-          category: _selectedCategory!,
-          date: _selectedDate,
-          note: noteText.isNotEmpty ? Value(noteText) : const Value.absent(),
-        ),
-      );
+      if (_isEditing) {
+        // Edit: replace the row, re-flag for sync.
+        await db.transactionDao.updateTransaction(
+          widget.existing!.copyWith(
+            title: title,
+            amount: amount,
+            type: typeStr,
+            category: _selectedCategory!,
+            date: _selectedDate,
+            note: noteText.isNotEmpty ? Value(noteText) : const Value(null),
+            isSynced: false,
+            updatedAt: DateTime.now(),
+          ),
+        );
+      } else {
+        await db.transactionDao.insertTransaction(
+          TransactionsCompanion.insert(
+            title: title,
+            amount: amount,
+            type: typeStr,
+            category: _selectedCategory!,
+            date: _selectedDate,
+            note: noteText.isNotEmpty ? Value(noteText) : const Value.absent(),
+          ),
+        );
+      }
 
       if (mounted) context.pop();
     } finally {
@@ -105,38 +140,31 @@ class _AddTransactionScreenState
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final finio = context.finio;
+    final locale = Localizations.localeOf(context).toString();
     final categoriesAsync = _type == TransactionType.expense
         ? ref.watch(expenseCategoriesProvider)
         : ref.watch(incomeCategoriesProvider);
-
     final isExpense = _type == TransactionType.expense;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final symbol = ref.watch(currencySymbolProvider);
-    final typeColor =
-        isExpense ? Colors.red.shade400 : Colors.green.shade500;
-    final typeBgColor = isExpense
-        ? (isDark ? const Color(0xFF3D1212) : Colors.red.shade50)
-        : (isDark ? const Color(0xFF0F2E1A) : Colors.green.shade50);
+    final typeColor = finio.forType(isExpense ? 'expense' : 'income');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l.addTransaction),
+        title: Text(_isEditing ? l.editTransaction : l.addTransaction),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: Insets.sm),
             child: _saving
                 ? const Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: EdgeInsets.all(Insets.md),
                     child: SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   )
-                : TextButton(
-                    onPressed: _save,
-                    child: Text(l.save),
-                  ),
+                : TextButton(onPressed: _save, child: Text(l.save)),
           ),
         ],
       ),
@@ -144,25 +172,14 @@ class _AddTransactionScreenState
         key: _formKey,
         child: Column(
           children: [
-            // Fixed top: type toggle + large amount display
             Container(
               width: double.infinity,
-              color: typeBgColor,
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              color: typeColor.withValues(alpha: 0.08),
+              padding: const EdgeInsets.fromLTRB(
+                  Insets.xl, Insets.lg, Insets.xl, Insets.xl),
               child: Column(
                 children: [
                   SegmentedButton<TransactionType>(
-                    style: SegmentedButton.styleFrom(
-                      selectedBackgroundColor: isExpense
-                          ? (isDark ? const Color(0xFF5C2020) : Colors.red.shade100)
-                          : (isDark ? const Color(0xFF1A4D2E) : Colors.green.shade100),
-                      selectedForegroundColor: isExpense
-                          ? (isDark ? Colors.red.shade200 : Colors.red.shade700)
-                          : (isDark ? Colors.green.shade300 : Colors.green.shade700),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                    ),
                     segments: [
                       ButtonSegment(
                         value: TransactionType.expense,
@@ -181,10 +198,10 @@ class _AddTransactionScreenState
                       _selectedCategory = null;
                     }),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: Insets.md),
                   TextFormField(
                     controller: _amountController,
-                    autofocus: true,
+                    autofocus: !_isEditing,
                     textAlign: TextAlign.center,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
@@ -192,43 +209,40 @@ class _AddTransactionScreenState
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,2}')),
                     ],
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: typeColor,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .displayMedium
+                        ?.copyWith(color: typeColor)
+                        .tabular,
                     decoration: InputDecoration(
+                      filled: false,
                       prefixText: '$symbol ',
-                      prefixStyle: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: typeColor,
-                      ),
+                      prefixStyle: Theme.of(context)
+                          .textTheme
+                          .displayMedium
+                          ?.copyWith(color: typeColor),
                       hintText: '0.00',
-                      hintStyle: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: typeColor.withValues(alpha: 0.25),
-                      ),
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                       errorStyle: const TextStyle(fontSize: 12),
-                      errorMaxLines: 1,
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) return l.pleaseEnterAmount;
                       final amount = double.tryParse(v);
-                      if (amount == null || amount <= 0) return l.pleaseEnterPositiveAmount;
+                      if (amount == null || amount <= 0) {
+                        return l.pleaseEnterPositiveAmount;
+                      }
                       return null;
                     },
                   ),
                 ],
               ),
             ),
-            // Scrollable body
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(Insets.lg),
                 children: [
                   TextFormField(
                     controller: _noteController,
@@ -236,44 +250,27 @@ class _AddTransactionScreenState
                     decoration: InputDecoration(
                       labelText: l.note,
                       prefixIcon: const Icon(Icons.notes),
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Insets.xs),
                   Card(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
                     child: ListTile(
                       leading: const Icon(Icons.calendar_today),
-                      title: Text(
-                          DateFormat('yyyy年M月d日').format(_selectedDate)),
+                      title: Text(DateFormat.yMMMMd(locale).format(_selectedDate)),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: _pickDate,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: Insets.lg),
                   Text(l.category,
                       style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Insets.sm),
                   categoriesAsync.when(
-                    data: (cats) => GridView.count(
-                      crossAxisCount: 4,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: 0.82,
-                      children: cats
-                          .map(
-                            (c) => _CategoryCell(
-                              category: c,
-                              selected: c.name == _selectedCategory,
-                              onTap: () =>
-                                  setState(() => _selectedCategory = c.name),
-                            ),
-                          )
-                          .toList(),
+                    data: (cats) => CategoryPicker(
+                      categories: cats,
+                      selected: _selectedCategory,
+                      onSelect: (name) =>
+                          setState(() => _selectedCategory = name),
                     ),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
@@ -281,77 +278,6 @@ class _AddTransactionScreenState
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryCell extends StatelessWidget {
-  const _CategoryCell({
-    required this.category,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final Category category;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final catColor = parseCategoryColor(category.color);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        margin: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: selected
-              ? catColor.withValues(alpha: 0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: selected
-              ? Border.all(color: catColor, width: 2)
-              : Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                  width: 1,
-                ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: selected
-                    ? catColor
-                    : catColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                categoryIconData(category.icon),
-                size: 20,
-                color: selected ? Colors.white : catColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              localizeCategory(AppLocalizations.of(context)!, category.name),
-              style: TextStyle(
-                fontSize: 11,
-                color: selected
-                    ? catColor
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.normal,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

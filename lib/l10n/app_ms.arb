@@ -1,5 +1,12 @@
 {
   "@@locale": "ms",
+  "spendingTrend": "Trend Perbelanjaan",
+  "editTransaction": "Edit Rekod",
+  "groupByDay": "Kumpul mengikut Hari",
+  "groupByCategory": "Kumpul mengikut Kategori",
+  "vsLastMonth": "berbanding bulan lalu",
+  "recordsUsed": "rekod",
+  "editCategory": "Edit Kategori",
   "appName": "Finio",
   "dashboard": "Utama",
   "transactions": "Rekod",

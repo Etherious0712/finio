@@ -9,6 +9,27 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get spendingTrend => '支出趋势';
+
+  @override
+  String get editTransaction => '编辑记录';
+
+  @override
+  String get groupByDay => '按日分组';
+
+  @override
+  String get groupByCategory => '按类别分组';
+
+  @override
+  String get vsLastMonth => '环比上月';
+
+  @override
+  String get recordsUsed => '笔';
+
+  @override
+  String get editCategory => '编辑类别';
+
+  @override
   String get appName => 'Finio';
 
   @override
