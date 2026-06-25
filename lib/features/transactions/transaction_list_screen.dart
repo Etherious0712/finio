@@ -12,7 +12,6 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/transaction_providers.dart';
-import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/month_nav.dart';
 import '../../shared/widgets/transaction_tile.dart';
@@ -21,8 +20,8 @@ import '../../shared/widgets/transaction_tile.dart';
 /// - date: selected month, grouped by day
 /// - month: selected year, grouped by month
 /// - year: all-time, grouped by year
-/// - category: selected month, grouped by category
-enum RecordGroup { date, month, year, category }
+/// (Category breakdown lives on the Statistics tab.)
+enum RecordGroup { date, month, year }
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -49,7 +48,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final AsyncValue<List<Transaction>> async;
     switch (_group) {
       case RecordGroup.date:
-      case RecordGroup.category:
         async = ref.watch(monthlyTransactionsProvider);
       case RecordGroup.month:
       case RecordGroup.year:
@@ -69,8 +67,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               PopupMenuItem(
                   value: RecordGroup.month, child: Text(l.groupByMonth)),
               PopupMenuItem(value: RecordGroup.year, child: Text(l.groupByYear)),
-              PopupMenuItem(
-                  value: RecordGroup.category, child: Text(l.groupByCategory)),
             ],
           ),
           IconButton(
@@ -125,7 +121,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   Widget _periodBar(AppLocalizations l) {
     switch (_group) {
       case RecordGroup.date:
-      case RecordGroup.category:
         return const MonthNav();
       case RecordGroup.month:
         return _YearNav(
@@ -147,7 +142,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   List<Transaction> _scoped(List<Transaction> all) {
     switch (_group) {
       case RecordGroup.date:
-      case RecordGroup.category:
         return all; // already month-scoped by the provider
       case RecordGroup.month:
         return all.where((t) => t.date.year == _year).toList();
@@ -160,8 +154,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     switch (_group) {
       case RecordGroup.date:
         return _groupByDay(txs);
-      case RecordGroup.category:
-        return _groupByCategory(txs, l);
       case RecordGroup.month:
         return _groupByPeriod(txs, monthly: true, l: l);
       case RecordGroup.year:
@@ -180,26 +172,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         lastDay = day;
       }
       items.add(tx);
-    }
-    return items;
-  }
-
-  List<Object> _groupByCategory(List<Transaction> txs, AppLocalizations l) {
-    final groups = <String, List<Transaction>>{};
-    for (final tx in txs) {
-      groups.putIfAbsent(tx.category, () => []).add(tx);
-    }
-    final sorted = groups.entries.toList()
-      ..sort((a, b) {
-        final ta = a.value.fold<double>(0, (s, t) => s + t.amount);
-        final tb = b.value.fold<double>(0, (s, t) => s + t.amount);
-        return tb.compareTo(ta);
-      });
-    final items = <Object>[];
-    for (final e in sorted) {
-      final total = e.value.fold<double>(0, (s, t) => s + t.amount);
-      items.add(_Header(localizeCategory(l, e.key), total: total));
-      items.addAll(e.value);
     }
     return items;
   }
