@@ -21,6 +21,8 @@ class Transactions extends Table {
   BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
   TextColumn get currencyCode =>
       text().withDefault(const Constant('USD'))();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
 class Categories extends Table {
@@ -49,7 +51,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -72,6 +74,14 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await _migrateCategoriesToKeys();
+          }
+          if (from < 5) {
+            await customStatement(
+              'ALTER TABLE transactions ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0',
+            );
+            await customStatement(
+              'ALTER TABLE transactions ADD COLUMN deleted_at INTEGER',
+            );
           }
         },
       );
