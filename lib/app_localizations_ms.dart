@@ -9,6 +9,39 @@ class AppLocalizationsMs extends AppLocalizations {
   AppLocalizationsMs([String locale = 'ms']) : super(locale);
 
   @override
+  String get spendingTrend => 'Trend Perbelanjaan';
+
+  @override
+  String get totalBalance => 'Baki Keseluruhan';
+
+  @override
+  String get editTransaction => 'Edit Rekod';
+
+  @override
+  String get groupByDay => 'Ikut Tarikh';
+
+  @override
+  String get groupByMonth => 'Ikut Bulan';
+
+  @override
+  String get groupByYear => 'Ikut Tahun';
+
+  @override
+  String get groupByCategory => 'Ikut Kategori';
+
+  @override
+  String get allTime => 'Sepanjang masa';
+
+  @override
+  String get vsLastMonth => 'berbanding bulan lalu';
+
+  @override
+  String get recordsUsed => 'rekod';
+
+  @override
+  String get editCategory => 'Edit Kategori';
+
+  @override
   String get appName => 'Finio';
 
   @override

@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import 'package:finio/app_localizations.dart';
-import 'package:finio/core/database/app_database.dart';
+import '../../core/sync/sync_service.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
+import '../../shared/providers/database_provider.dart';
+import '../../shared/providers/navigation_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
-import '../../shared/utils/category_icon.dart';
 import '../../shared/utils/category_localizer.dart';
-import '../../shared/utils/currency_formatter.dart';
+import '../../shared/widgets/balance_hero.dart';
+import '../../shared/widgets/budget_ring.dart';
+import '../../shared/widgets/mini_charts.dart';
 import '../../shared/widgets/month_nav.dart';
+import '../../shared/widgets/section_header.dart';
+import '../../shared/widgets/transaction_tile.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -21,201 +27,64 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final monthlyIncome = ref.watch(monthlyIncomeProvider);
-    final monthlyExpense = ref.watch(monthlyExpenseProvider);
-    final todayIncome = ref.watch(todayIncomeProvider);
-    final todayExpense = ref.watch(todayExpenseProvider);
     final transactionsAsync = ref.watch(monthlyTransactionsProvider);
-    final currencyCode = ref.watch(currencyProvider);
     final symbol = ref.watch(currencySymbolProvider);
+    final currencyCode = ref.watch(currencyProvider);
     final categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
         '${c.type}:${c.name}': c,
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Finio'), centerTitle: true),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MonthNav(),
-          _SummaryCard(
-            monthlyIncome: monthlyIncome,
-            monthlyExpense: monthlyExpense,
-            todayIncome: todayIncome,
-            todayExpense: todayExpense,
-            symbol: symbol,
-            currencyCode: currencyCode,
-          ),
-          const _BudgetSection(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-            child: Text(
-              l.recentTransactions,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-            ),
-          ),
-          Expanded(
-            child: transactionsAsync.when(
-              data: (txs) => txs.isEmpty
-                  ? const _EmptyState()
-                  : ListView.builder(
-                      itemCount: txs.length,
-                      itemBuilder: (ctx, i) => _TransactionTile(
-                        tx: txs[i],
-                        category: categoryMap[
-                            '${txs[i].type}:${txs[i].category}'],
-                        symbol: symbol,
-                        l: l,
-                      ),
-                    ),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('${l.loadFailed}: $e')),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/transactions/add'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.monthlyIncome,
-    required this.monthlyExpense,
-    required this.todayIncome,
-    required this.todayExpense,
-    required this.symbol,
-    required this.currencyCode,
-  });
-
-  final double monthlyIncome;
-  final double monthlyExpense;
-  final double todayIncome;
-  final double todayExpense;
-  final String symbol;
-  final String currencyCode;
-
-  @override
-  Widget build(BuildContext context) {
-    final balance = monthlyIncome - monthlyExpense;
-    final isNegative = balance < 0;
-    final fmt = NumberFormat('#,##0.00');
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final gradientStart = isNegative
-        ? (isDark ? const Color(0xFF8B2E22) : const Color(0xFFE74C3C))
-        : (isDark ? const Color(0xFF1A7A44) : const Color(0xFF2ECC71));
-    final gradientEnd = isNegative
-        ? (isDark ? const Color(0xFF6B1E18) : const Color(0xFFC0392B))
-        : (isDark ? const Color(0xFF0F5030) : const Color(0xFF1A9952));
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [gradientStart, gradientEnd],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: gradientStart.withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(title: const Text('Finio')),
+      body: RefreshIndicator(
+        onRefresh: () => ref.read(syncServiceProvider).syncAll(),
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 96),
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.balanceThisMonth,
-                  style: const TextStyle(color: Colors.white70, fontSize: 13),
-                ),
-                Text(
-                  currencyCode,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
+            const MonthNav(),
+            BalanceHero(
+              totalBalance: ref.watch(totalBalanceProvider),
+              monthlyIncome: ref.watch(monthlyIncomeProvider),
+              monthlyExpense: ref.watch(monthlyExpenseProvider),
+              todayIncome: ref.watch(todayIncomeProvider),
+              todayExpense: ref.watch(todayExpenseProvider),
+              symbol: symbol,
+              currencyCode: currencyCode,
             ),
-            const SizedBox(height: 4),
-            Text(
-              formatAmount(balance, symbol),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.5,
+            const _InsightsRow(),
+            const _BudgetRings(),
+            SectionHeader(l.recentTransactions),
+            transactionsAsync.when(
+              data: (txs) {
+                if (txs.isEmpty) return const _EmptyState();
+                final recent = txs.take(8).toList();
+                return Column(
+                  children: [
+                    for (final tx in recent)
+                      TransactionTile(
+                        tx: tx,
+                        category: categoryMap['${tx.type}:${tx.category}'],
+                        symbol: symbol,
+                        showDate: true,
+                        onEdit: () =>
+                            context.push('/transactions/add', extra: tx),
+                        onDelete: () => ref
+                            .read(appDatabaseProvider)
+                            .transactionDao
+                            .deleteTransaction(tx.id),
+                      ),
+                  ],
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.all(Insets.xl),
+                child: Center(child: CircularProgressIndicator()),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _GradientStat(
-                    label: AppLocalizations.of(context)!.income,
-                    value: fmt.format(monthlyIncome),
-                    icon: Icons.arrow_downward_rounded,
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.white.withValues(alpha: 0.25),
-                ),
-                Expanded(
-                  child: _GradientStat(
-                    label: AppLocalizations.of(context)!.expense,
-                    value: fmt.format(monthlyExpense),
-                    icon: Icons.arrow_upward_rounded,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(color: Colors.white24, height: 24),
-            Row(
-              children: [
-                const Icon(Icons.today_outlined,
-                    color: Colors.white70, size: 14),
-                const SizedBox(width: 4),
-                Text(
-                  AppLocalizations.of(context)!.today,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-                const Spacer(),
-                Text(
-                  '+${fmt.format(todayIncome)}',
-                  style: TextStyle(
-                    color: Colors.green.shade300,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  '-${fmt.format(todayExpense)}',
-                  style: TextStyle(
-                    color: Colors.red.shade200,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              error: (e, _) => Padding(
+                padding: const EdgeInsets.all(Insets.xl),
+                child: Center(child: Text('${l.loadFailed}: $e')),
+              ),
             ),
           ],
         ),
@@ -224,42 +93,176 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _GradientStat extends StatelessWidget {
-  const _GradientStat({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
+/// Spending trend + category donut as full-width cards. Each taps through to
+/// the Statistics tab for detail. Full width keeps the donut legend readable
+/// (no truncated category names).
+class _InsightsRow extends ConsumerWidget {
+  const _InsightsRow();
 
-  final String label;
-  final String value;
-  final IconData icon;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final txs = ref.watch(monthlyTransactionsProvider).valueOrNull ?? [];
+    final stats = ref.watch(categoryStatsProvider('expense'));
+    final finio = context.finio;
+
+    // Per-day expense series for the selected month.
+    final byDay = <int, double>{};
+    for (final t in txs.where((t) => t.type == 'expense')) {
+      byDay[t.date.day] = (byDay[t.date.day] ?? 0) + t.amount;
+    }
+    final days = byDay.keys.toList()..sort();
+    final series = [for (final d in days) byDay[d]!];
+
+    if (stats.isEmpty && series.length < 2) return const SizedBox.shrink();
+
+    void openStats() => ref.read(navIndexProvider.notifier).state = 2;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Insets.lg, 0, Insets.lg, Insets.sm),
+      child: Column(
+        children: [
+          if (series.length >= 2)
+            _InsightCard(
+              onTap: openStats,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.spendingTrend,
+                      style: Theme.of(context).textTheme.labelSmall),
+                  const SizedBox(height: Insets.sm),
+                  MiniSparkline(values: series, color: finio.expense),
+                ],
+              ),
+            ),
+          if (series.length >= 2 && stats.isNotEmpty)
+            const SizedBox(height: Insets.md),
+          if (stats.isNotEmpty)
+            _InsightCard(
+              onTap: openStats,
+              child: Row(
+                children: [
+                  MiniDonut(stats: stats, size: 88),
+                  const SizedBox(width: Insets.lg),
+                  Expanded(
+                    child: DonutLegend(
+                      stats: stats,
+                      labelOf: (k) => localizeCategory(l, k),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, size: 18),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InsightCard extends StatelessWidget {
+  const _InsightCard({required this.child, required this.onTap});
+
+  final Widget child;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: Colors.white70, size: 13),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(Insets.md),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Horizontal strip of animated budget rings (overall + per-category).
+class _BudgetRings extends ConsumerWidget {
+  const _BudgetRings();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final overall = ref.watch(overallBudgetProvider).valueOrNull;
+    final catBudgets = ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
+    final monthlyExpense = ref.watch(monthlyExpenseProvider);
+    final stats = ref.watch(categoryStatsProvider('expense'));
+
+    if (overall == null && catBudgets.isEmpty) return const SizedBox.shrink();
+
+    final items = <Widget>[
+      if (overall != null)
+        _RingItem(
+          label: l.monthlyBudget,
+          spent: monthlyExpense,
+          budget: overall.amount,
+        ),
+      for (final b in catBudgets)
+        _RingItem(
+          label: localizeCategory(l, b.category ?? l.unknownCategory),
+          spent: stats
+                  .where((s) => s.category == b.category)
+                  .firstOrNull
+                  ?.amount ??
+              0,
+          budget: b.amount,
+        ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(
+          l.budget,
+          action: TextButton(
+            onPressed: () => context.push('/budget'),
+            child: Text(l.budgetSettings),
           ),
-          const SizedBox(height: 2),
+        ),
+        SizedBox(
+          height: 108,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Insets.lg),
+            itemCount: items.length,
+            separatorBuilder: (_, _) => const SizedBox(width: Insets.lg),
+            itemBuilder: (_, i) => items[i],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RingItem extends StatelessWidget {
+  const _RingItem({
+    required this.label,
+    required this.spent,
+    required this.budget,
+  });
+
+  final String label;
+  final double spent;
+  final double budget;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 76,
+      child: Column(
+        children: [
+          BudgetRing(spent: spent, budget: budget),
+          const SizedBox(height: Insets.xs),
           Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),
@@ -272,185 +275,29 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.account_balance_wallet_outlined,
-            size: 72,
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context)!.noRecords,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context)!.tapToStart,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({
-    required this.tx,
-    this.category,
-    required this.symbol,
-    required this.l,
-  });
-
-  final Transaction tx;
-  final Category? category;
-  final String symbol;
-  final AppLocalizations l;
-
-  @override
-  Widget build(BuildContext context) {
-    final isIncome = tx.type == 'income';
-    final catColor = category != null
-        ? parseCategoryColor(category!.color)
-        : (isIncome ? Colors.green : Colors.red);
-    final iconName = category?.icon ?? 'more_horiz';
-
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: catColor.withValues(alpha: 0.15),
-        child: Icon(categoryIconData(iconName), size: 20, color: catColor),
-      ),
-      title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-          '${localizeCategory(l, tx.category)} · ${DateFormat('M/d').format(tx.date)}'),
-      trailing: Text(
-        '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
-        style: TextStyle(
-          color: isIncome ? Colors.green : Colors.red,
-          fontWeight: FontWeight.bold,
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(Insets.xxl),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(Icons.account_balance_wallet_outlined,
+                size: 72, color: scheme.outlineVariant),
+            const SizedBox(height: Insets.lg),
+            Text(l.noRecords,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: scheme.outline)),
+            const SizedBox(height: Insets.sm),
+            Text(l.tapToStart,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: scheme.outlineVariant)),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class _BudgetSection extends ConsumerWidget {
-  const _BudgetSection();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context)!;
-    final overallBudget = ref.watch(overallBudgetProvider).valueOrNull;
-    final categoryBudgets =
-        ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
-    final monthlyExpense = ref.watch(monthlyExpenseProvider);
-    final categoryStats = ref.watch(categoryStatsProvider('expense'));
-    final symbol = ref.watch(currencySymbolProvider);
-
-    if (overallBudget == null && categoryBudgets.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (overallBudget != null)
-            _BudgetProgressRow(
-              label: l.monthlyBudget,
-              spent: monthlyExpense,
-              budget: overallBudget.amount,
-              symbol: symbol,
-            ),
-          ...categoryBudgets.map((b) {
-            final stat = categoryStats
-                .where((s) => s.category == b.category)
-                .firstOrNull;
-            return _BudgetProgressRow(
-              label: localizeCategory(l, b.category ?? l.unknownCategory),
-              spent: stat?.amount ?? 0.0,
-              budget: b.amount,
-              symbol: symbol,
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _BudgetProgressRow extends StatelessWidget {
-  const _BudgetProgressRow({
-    required this.label,
-    required this.spent,
-    required this.budget,
-    required this.symbol,
-  });
-
-  final String label;
-  final double spent;
-  final double budget;
-  final String symbol;
-
-  @override
-  Widget build(BuildContext context) {
-    final ratio = budget > 0 ? spent / budget : 0.0;
-    final clamped = ratio.clamp(0.0, 1.0);
-
-    final l = AppLocalizations.of(context)!;
-    final Color barColor;
-    final String? warningText;
-    if (ratio >= 1.0) {
-      barColor = Colors.red;
-      warningText = l.overBudget;
-    } else if (ratio >= 0.8) {
-      barColor = Colors.orange;
-      warningText = l.nearBudget;
-    } else {
-      barColor = Colors.green;
-      warningText = null;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(label, style: Theme.of(context).textTheme.bodySmall),
-              const Spacer(),
-              Text(
-                '${formatAmount(spent, symbol)} / ${formatAmount(budget, symbol)}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-              ),
-              if (warningText != null) ...[
-                const SizedBox(width: 6),
-                Text(warningText, style: const TextStyle(fontSize: 11)),
-              ],
-            ],
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: clamped,
-              backgroundColor: barColor.withValues(alpha: 0.15),
-              valueColor: AlwaysStoppedAnimation<Color>(barColor),
-              minHeight: 6,
-            ),
-          ),
-        ],
       ),
     );
   }

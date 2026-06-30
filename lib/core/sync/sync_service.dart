@@ -12,54 +12,84 @@ class SyncService {
   final AppDatabase _db;
   final SupabaseClient _supabase;
 
-  Future<int> syncPending() async {
-    final user = _supabase.auth.currentUser;
-    if (user == null) return 0;
+  Future<void> syncOnLogin() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return;
 
-    final unsynced = await _db.transactionDao.getUnsyncedTransactions();
-    int count = 0;
-
-    for (final tx in unsynced) {
-      final row = await _supabase
-          .from('transactions')
-          .upsert({
-            'user_id': user.id,
-            'title': tx.title,
-            'amount': tx.amount,
-            'type': tx.type,
-            'category': tx.category,
-            'note': tx.note,
-            'date': tx.date.toUtc().toIso8601String(),
-            'updated_at': tx.updatedAt.toUtc().toIso8601String(),
-            'currency_code': tx.currencyCode,
-          })
-          .select('id')
-          .single();
-
-      final remoteId = row['id'] as String;
-      await _db.transactionDao.markSynced(tx.id, remoteId);
-      count++;
-    }
-
-    return count;
+    await _pushLocalChanges(userId);
+    await _pullCloudChanges(userId);
   }
 
-  Future<int> downloadAll() async {
-    final user = _supabase.auth.currentUser;
-    if (user == null) return 0;
+  // ── Push local changes to the cloud ──────────────────────────────────────
 
-    final rows = await _supabase
+  Future<void> _pushLocalChanges(String userId) async {
+    final unsynced = await _db.transactionDao.getUnsyncedTransactions();
+
+    for (final t in unsynced) {
+      if (t.isDeleted) {
+        // DELETE: remove from Supabase, then hard-delete locally
+        if (t.syncId != null) {
+          await _supabase
+              .from('transactions')
+              .delete()
+              .eq('id', t.syncId!);
+        }
+        await _db.transactionDao.hardDeleteTransaction(t.id);
+      } else if (t.syncId == null) {
+        // CREATE: insert new record and capture its cloud ID
+        final response = await _supabase
+            .from('transactions')
+            .insert({
+              'user_id': userId,
+              'title': t.title,
+              'amount': t.amount,
+              'type': t.type,
+              'category': t.category,
+              'note': t.note,
+              'date': t.date.toUtc().toIso8601String(),
+              'currency_code': t.currencyCode,
+              'updated_at': t.updatedAt.toUtc().toIso8601String(),
+            })
+            .select('id')
+            .single();
+
+        await _db.transactionDao.updateSyncId(t.id, response['id'] as String);
+        await _db.transactionDao.markSynced(t.id);
+      } else {
+        // MODIFY: update the existing cloud record
+        await _supabase
+            .from('transactions')
+            .update({
+              'title': t.title,
+              'amount': t.amount,
+              'type': t.type,
+              'category': t.category,
+              'note': t.note,
+              'date': t.date.toUtc().toIso8601String(),
+              'currency_code': t.currencyCode,
+              'updated_at': t.updatedAt.toUtc().toIso8601String(),
+            })
+            .eq('id', t.syncId!);
+
+        await _db.transactionDao.markSynced(t.id);
+      }
+    }
+  }
+
+  // ── Pull cloud records that don't exist locally ───────────────────────────
+
+  Future<void> _pullCloudChanges(String userId) async {
+    final cloudData = await _supabase
         .from('transactions')
         .select()
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
-    int count = 0;
-
-    for (final row in rows) {
-      final remoteId = row['id'] as String;
-      final existing = await _db.transactionDao.getTransactionBySyncId(remoteId);
+    for (final row in cloudData) {
+      final syncId = row['id'] as String;
+      final existing = await _db.transactionDao.getTransactionBySyncId(syncId);
       if (existing != null) continue;
 
+      // Cloud record not found locally → download it
       await _db.transactionDao.insertTransaction(
         TransactionsCompanion.insert(
           title: row['title'] as String,
@@ -70,21 +100,16 @@ class SyncService {
           date: DateTime.parse(row['date'] as String).toLocal(),
           createdAt: Value(DateTime.parse(row['created_at'] as String).toLocal()),
           updatedAt: Value(DateTime.parse(row['updated_at'] as String).toLocal()),
-          syncId: Value(remoteId),
-          isSynced: const Value(true),
           currencyCode: Value(row['currency_code'] as String? ?? 'USD'),
+          syncId: Value(syncId),
+          isSynced: const Value(true),
         ),
       );
-      count++;
     }
-
-    return count;
   }
 
-  Future<void> syncAll() async {
-    await syncPending();
-    await downloadAll();
-  }
+  // Alias kept so existing callers (app.dart, settings_screen.dart) don't break.
+  Future<void> syncAll() => syncOnLogin();
 }
 
 final syncServiceProvider = Provider<SyncService>((ref) {

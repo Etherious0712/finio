@@ -9,6 +9,39 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get spendingTrend => 'Ausgabentrend';
+
+  @override
+  String get totalBalance => 'Gesamtsaldo';
+
+  @override
+  String get editTransaction => 'Eintrag bearbeiten';
+
+  @override
+  String get groupByDay => 'Nach Datum';
+
+  @override
+  String get groupByMonth => 'Nach Monat';
+
+  @override
+  String get groupByYear => 'Nach Jahr';
+
+  @override
+  String get groupByCategory => 'Nach Kategorie';
+
+  @override
+  String get allTime => 'Gesamter Zeitraum';
+
+  @override
+  String get vsLastMonth => 'ggü. Vormonat';
+
+  @override
+  String get recordsUsed => 'Einträge';
+
+  @override
+  String get editCategory => 'Kategorie bearbeiten';
+
+  @override
   String get appName => 'Finio';
 
   @override

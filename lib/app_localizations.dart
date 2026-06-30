@@ -110,6 +110,72 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @spendingTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Trend'**
+  String get spendingTrend;
+
+  /// No description provided for @totalBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Balance'**
+  String get totalBalance;
+
+  /// No description provided for @editTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Record'**
+  String get editTransaction;
+
+  /// No description provided for @groupByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'By Date'**
+  String get groupByDay;
+
+  /// No description provided for @groupByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'By Month'**
+  String get groupByMonth;
+
+  /// No description provided for @groupByYear.
+  ///
+  /// In en, this message translates to:
+  /// **'By Year'**
+  String get groupByYear;
+
+  /// No description provided for @groupByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By Category'**
+  String get groupByCategory;
+
+  /// No description provided for @allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get allTime;
+
+  /// No description provided for @vsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'vs last month'**
+  String get vsLastMonth;
+
+  /// No description provided for @recordsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'records'**
+  String get recordsUsed;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Category'**
+  String get editCategory;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:

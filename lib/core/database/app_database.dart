@@ -21,6 +21,8 @@ class Transactions extends Table {
   BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
   TextColumn get currencyCode =>
       text().withDefault(const Constant('USD'))();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
 class Categories extends Table {
@@ -34,7 +36,7 @@ class Categories extends Table {
 
 class Budgets extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get category => text().nullable()(); // null = 整体预算
+  TextColumn get category => text().nullable()(); // null = overall budget
   RealColumn get amount => real()();
   IntColumn get month => integer()(); // 1-12, 0 = monthly repeat
   IntColumn get year => integer()(); // 0 = monthly repeat
@@ -49,7 +51,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -72,6 +74,14 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await _migrateCategoriesToKeys();
+          }
+          if (from < 5) {
+            await customStatement(
+              'ALTER TABLE transactions ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0',
+            );
+            await customStatement(
+              'ALTER TABLE transactions ADD COLUMN deleted_at INTEGER',
+            );
           }
         },
       );
@@ -103,7 +113,9 @@ class AppDatabase extends _$AppDatabase {
       );
     }
 
-    // '其他' exists for both expense and income — rename to distinct keys
+    // The old "Other" category ('其他') exists for both expense and income —
+    // rename to distinct keys
+
     await customStatement(
       "UPDATE categories SET name = 'catOtherExpense' WHERE name = '其他' AND type = 'expense' AND is_custom = 0",
     );

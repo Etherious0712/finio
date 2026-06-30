@@ -7,7 +7,7 @@ const kPresetColors = <String>[
 ];
 
 const kPickableIcons = <String, IconData>{
-  // 餐饮
+  // Food & dining
   'restaurant': Icons.restaurant,
   'coffee': Icons.coffee,
   'local_cafe': Icons.local_cafe,
@@ -22,7 +22,7 @@ const kPickableIcons = <String, IconData>{
   'icecream': Icons.icecream,
   'wine_bar': Icons.wine_bar,
   'local_bar': Icons.local_bar,
-  // 交通
+  // Transport
   'directions_car': Icons.directions_car,
   'directions_bus': Icons.directions_bus,
   'train': Icons.train,
@@ -37,7 +37,7 @@ const kPickableIcons = <String, IconData>{
   'local_gas_station': Icons.local_gas_station,
   'directions_walk': Icons.directions_walk,
   'commute': Icons.commute,
-  // 购物
+  // Shopping
   'shopping_bag': Icons.shopping_bag,
   'shopping_cart': Icons.shopping_cart,
   'storefront': Icons.storefront,
@@ -49,7 +49,7 @@ const kPickableIcons = <String, IconData>{
   'local_grocery_store': Icons.local_grocery_store,
   'local_offer': Icons.local_offer,
   'sell': Icons.sell,
-  // 娱乐
+  // Entertainment
   'movie': Icons.movie,
   'sports_esports': Icons.sports_esports,
   'music_note': Icons.music_note,
@@ -62,7 +62,7 @@ const kPickableIcons = <String, IconData>{
   'hiking': Icons.hiking,
   'sports_tennis': Icons.sports_tennis,
   'golf_course': Icons.golf_course,
-  // 居家
+  // Home
   'home': Icons.home,
   'bed': Icons.bed,
   'chair': Icons.chair,
@@ -73,7 +73,7 @@ const kPickableIcons = <String, IconData>{
   'local_laundry_service': Icons.local_laundry_service,
   'cleaning_services': Icons.cleaning_services,
   'receipt_long': Icons.receipt_long,
-  // 医疗
+  // Health
   'local_hospital': Icons.local_hospital,
   'medication': Icons.medication,
   'vaccines': Icons.vaccines,
@@ -81,7 +81,7 @@ const kPickableIcons = <String, IconData>{
   'spa': Icons.spa,
   'self_improvement': Icons.self_improvement,
   'monitor_heart': Icons.monitor_heart,
-  // 教育
+  // Education
   'school': Icons.school,
   'menu_book': Icons.menu_book,
   'science': Icons.science,
@@ -90,7 +90,7 @@ const kPickableIcons = <String, IconData>{
   'edit': Icons.edit,
   'book': Icons.book,
   'auto_stories': Icons.auto_stories,
-  // 金融
+  // Finance
   'trending_up': Icons.trending_up,
   'savings': Icons.savings,
   'account_balance': Icons.account_balance,
@@ -99,7 +99,7 @@ const kPickableIcons = <String, IconData>{
   'currency_exchange': Icons.currency_exchange,
   'attach_money': Icons.attach_money,
   'money_off': Icons.money_off,
-  // 工作
+  // Work
   'work': Icons.work,
   'business_center': Icons.business_center,
   'laptop': Icons.laptop,
@@ -109,7 +109,7 @@ const kPickableIcons = <String, IconData>{
   'laptop_mac': Icons.laptop_mac,
   'phone_android': Icons.phone_android,
   'handyman': Icons.handyman,
-  // 其他
+  // Other
   'pets': Icons.pets,
   'child_care': Icons.child_care,
   'park': Icons.park,

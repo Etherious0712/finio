@@ -9,6 +9,39 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get spendingTrend => 'Tendance des dépenses';
+
+  @override
+  String get totalBalance => 'Solde total';
+
+  @override
+  String get editTransaction => 'Modifier l\'entrée';
+
+  @override
+  String get groupByDay => 'Par date';
+
+  @override
+  String get groupByMonth => 'Par mois';
+
+  @override
+  String get groupByYear => 'Par année';
+
+  @override
+  String get groupByCategory => 'Par catégorie';
+
+  @override
+  String get allTime => 'Tout l\'historique';
+
+  @override
+  String get vsLastMonth => 'vs mois dernier';
+
+  @override
+  String get recordsUsed => 'entrées';
+
+  @override
+  String get editCategory => 'Modifier la catégorie';
+
+  @override
   String get appName => 'Finio';
 
   @override

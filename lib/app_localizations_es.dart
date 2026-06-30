@@ -9,6 +9,39 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get spendingTrend => 'Tendencia de gastos';
+
+  @override
+  String get totalBalance => 'Saldo total';
+
+  @override
+  String get editTransaction => 'Editar registro';
+
+  @override
+  String get groupByDay => 'Por fecha';
+
+  @override
+  String get groupByMonth => 'Por mes';
+
+  @override
+  String get groupByYear => 'Por año';
+
+  @override
+  String get groupByCategory => 'Por categoría';
+
+  @override
+  String get allTime => 'Todo el tiempo';
+
+  @override
+  String get vsLastMonth => 'vs. mes anterior';
+
+  @override
+  String get recordsUsed => 'registros';
+
+  @override
+  String get editCategory => 'Editar categoría';
+
+  @override
   String get appName => 'Finio';
 
   @override
