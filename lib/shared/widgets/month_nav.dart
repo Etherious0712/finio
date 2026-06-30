@@ -9,7 +9,7 @@ import '../providers/transaction_providers.dart';
 /// Gesture-first month selector. Swipe horizontally to change month, tap to
 /// open a month-grid picker. Chevron buttons remain as the tap alternative for
 /// accessibility. Date label is locale-aware (replaces the old hardcoded
-/// `yyyy年M月`).
+/// Chinese date format).
 class MonthNav extends ConsumerWidget {
   const MonthNav({super.key});
 

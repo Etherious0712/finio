@@ -36,7 +36,7 @@ class Categories extends Table {
 
 class Budgets extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get category => text().nullable()(); // null = 整体预算
+  TextColumn get category => text().nullable()(); // null = overall budget
   RealColumn get amount => real()();
   IntColumn get month => integer()(); // 1-12, 0 = monthly repeat
   IntColumn get year => integer()(); // 0 = monthly repeat
@@ -113,7 +113,9 @@ class AppDatabase extends _$AppDatabase {
       );
     }
 
-    // '其他' exists for both expense and income — rename to distinct keys
+    // The old "Other" category ('其他') exists for both expense and income —
+    // rename to distinct keys
+
     await customStatement(
       "UPDATE categories SET name = 'catOtherExpense' WHERE name = '其他' AND type = 'expense' AND is_custom = 0",
     );
