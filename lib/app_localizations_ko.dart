@@ -12,6 +12,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get spendingTrend => '지출 추세';
 
   @override
+  String get totalBalance => '총 잔액';
+
+  @override
   String get editTransaction => '기록 편집';
 
   @override

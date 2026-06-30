@@ -12,6 +12,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get spendingTrend => '支出の推移';
 
   @override
+  String get totalBalance => '総残高';
+
+  @override
   String get editTransaction => '記録を編集';
 
   @override

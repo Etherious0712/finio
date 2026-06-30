@@ -1,6 +1,7 @@
 {
   "@@locale": "fr",
   "spendingTrend": "Tendance des dépenses",
+  "totalBalance": "Solde total",
   "editTransaction": "Modifier l'entrée",
   "groupByDay": "Par date",
   "groupByMonth": "Par mois",

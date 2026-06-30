@@ -1,6 +1,7 @@
 {
   "@@locale": "ja",
   "spendingTrend": "支出の推移",
+  "totalBalance": "総残高",
   "editTransaction": "記録を編集",
   "groupByDay": "日付別",
   "groupByMonth": "月別",

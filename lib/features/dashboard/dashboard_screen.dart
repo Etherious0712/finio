@@ -44,6 +44,7 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             const MonthNav(),
             BalanceHero(
+              totalBalance: ref.watch(totalBalanceProvider),
               monthlyIncome: ref.watch(monthlyIncomeProvider),
               monthlyExpense: ref.watch(monthlyExpenseProvider),
               todayIncome: ref.watch(todayIncomeProvider),

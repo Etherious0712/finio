@@ -12,6 +12,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get spendingTrend => '支出趋势';
 
   @override
+  String get totalBalance => '总余额';
+
+  @override
   String get editTransaction => '编辑记录';
 
   @override

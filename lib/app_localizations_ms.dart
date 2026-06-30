@@ -12,6 +12,9 @@ class AppLocalizationsMs extends AppLocalizations {
   String get spendingTrend => 'Trend Perbelanjaan';
 
   @override
+  String get totalBalance => 'Baki Keseluruhan';
+
+  @override
   String get editTransaction => 'Edit Rekod';
 
   @override

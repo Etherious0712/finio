@@ -1,6 +1,7 @@
 {
   "@@locale": "ms",
   "spendingTrend": "Trend Perbelanjaan",
+  "totalBalance": "Baki Keseluruhan",
   "editTransaction": "Edit Rekod",
   "groupByDay": "Ikut Tarikh",
   "groupByMonth": "Ikut Bulan",

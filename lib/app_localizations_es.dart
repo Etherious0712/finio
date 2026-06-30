@@ -12,6 +12,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get spendingTrend => 'Tendencia de gastos';
 
   @override
+  String get totalBalance => 'Saldo total';
+
+  @override
   String get editTransaction => 'Editar registro';
 
   @override

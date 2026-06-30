@@ -12,6 +12,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get spendingTrend => 'Tendance des dépenses';
 
   @override
+  String get totalBalance => 'Solde total';
+
+  @override
   String get editTransaction => 'Modifier l\'entrée';
 
   @override

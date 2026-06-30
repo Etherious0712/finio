@@ -1,6 +1,7 @@
 {
   "@@locale": "zh",
   "spendingTrend": "支出趋势",
+  "totalBalance": "总余额",
   "editTransaction": "编辑记录",
   "groupByDay": "按日期",
   "groupByMonth": "按月份",

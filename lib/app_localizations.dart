@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// **'Spending Trend'**
   String get spendingTrend;
 
+  /// No description provided for @totalBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Balance'**
+  String get totalBalance;
+
   /// No description provided for @editTransaction.
   ///
   /// In en, this message translates to:

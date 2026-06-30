@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "spendingTrend": "Spending Trend",
+  "totalBalance": "Total Balance",
   "editTransaction": "Edit Record",
   "groupByDay": "By Date",
   "groupByMonth": "By Month",

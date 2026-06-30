@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'app_localizations.dart';
 
@@ -84,6 +85,12 @@ class FinioApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appThemeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
+
+    // Drive number/date formatting off the active language so amounts use the
+    // right grouping/decimal separators (e.g. de → 4.594,20). Updates live
+    // because this runs on every rebuild when the locale changes.
+    Intl.defaultLocale = locale?.languageCode ??
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
 
     return MaterialApp.router(
       title: 'Finio',

@@ -13,6 +13,7 @@ import '../utils/currency_formatter.dart';
 class BalanceHero extends StatelessWidget {
   const BalanceHero({
     super.key,
+    required this.totalBalance,
     required this.monthlyIncome,
     required this.monthlyExpense,
     required this.todayIncome,
@@ -21,6 +22,8 @@ class BalanceHero extends StatelessWidget {
     required this.currencyCode,
   });
 
+  /// All-time net balance shown as the headline.
+  final double totalBalance;
   final double monthlyIncome;
   final double monthlyExpense;
   final double todayIncome;
@@ -32,8 +35,7 @@ class BalanceHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final finio = context.finio;
-    final balance = monthlyIncome - monthlyExpense;
-    final isNegative = balance < 0;
+    final isNegative = totalBalance < 0;
     final fmt = NumberFormat('#,##0.00');
     final gradient = isNegative ? finio.negativeHero : finio.positiveHero;
     final onHero = finio.onHero;
@@ -63,7 +65,7 @@ class BalanceHero extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l.balanceThisMonth,
+                Text(l.totalBalance,
                     style: TextStyle(color: onHero.withValues(alpha: 0.7), fontSize: 13)),
                 Text(currencyCode,
                     style: TextStyle(color: onHero.withValues(alpha: 0.7), fontSize: 12)),
@@ -71,7 +73,7 @@ class BalanceHero extends StatelessWidget {
             ),
             const SizedBox(height: Insets.xs),
             Text(
-              formatAmount(balance, symbol),
+              formatAmount(totalBalance, symbol),
               style: TextStyle(
                 color: onHero,
                 fontSize: 36,
@@ -80,6 +82,14 @@ class BalanceHero extends StatelessWidget {
               ).tabular,
             ),
             const SizedBox(height: Insets.lg),
+            // Income/Expense below are scoped to the selected month.
+            Text(l.thisMonth,
+                style: TextStyle(
+                    color: onHero.withValues(alpha: 0.6),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.4)),
+            const SizedBox(height: Insets.sm),
             Row(
               children: [
                 Expanded(

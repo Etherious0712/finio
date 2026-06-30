@@ -25,6 +25,14 @@ final categoryUsageProvider = Provider<Map<String, int>>((ref) {
   return counts;
 });
 
+/// All-time net balance (total income − total expense). Powers the dashboard
+/// headline.
+final totalBalanceProvider = Provider<double>((ref) {
+  final txs = ref.watch(allTransactionsProvider).valueOrNull ?? [];
+  return txs.fold(
+      0.0, (sum, t) => sum + (t.type == 'income' ? t.amount : -t.amount));
+});
+
 /// 本月交易列表（实时 Stream，数据写入后自动推送）
 final monthlyTransactionsProvider =
     StreamProvider.autoDispose<List<Transaction>>((ref) {

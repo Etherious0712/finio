@@ -1,6 +1,7 @@
 {
   "@@locale": "ko",
   "spendingTrend": "지출 추세",
+  "totalBalance": "총 잔액",
   "editTransaction": "기록 편집",
   "groupByDay": "날짜별",
   "groupByMonth": "월별",
