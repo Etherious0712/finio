@@ -128,12 +128,6 @@ abstract class AppLocalizations {
   /// **'Edit Record'**
   String get editTransaction;
 
-  /// No description provided for @groupByDay.
-  ///
-  /// In en, this message translates to:
-  /// **'By Date'**
-  String get groupByDay;
-
   /// No description provided for @groupByMonth.
   ///
   /// In en, this message translates to:
@@ -331,6 +325,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No records this month'**
   String get noMonthlyRecords;
+
+  /// No description provided for @noYearlyRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No records this year'**
+  String get noYearlyRecords;
 
   /// No description provided for @loadFailed.
   ///

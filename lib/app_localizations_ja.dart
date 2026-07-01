@@ -18,9 +18,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editTransaction => '記録を編集';
 
   @override
-  String get groupByDay => '日付別';
-
-  @override
   String get groupByMonth => '月別';
 
   @override
@@ -118,6 +115,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noMonthlyRecords => '今月の記録はありません';
+
+  @override
+  String get noYearlyRecords => '今年の記録はありません';
 
   @override
   String get loadFailed => '読み込み失敗';

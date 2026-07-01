@@ -18,9 +18,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get editTransaction => '기록 편집';
 
   @override
-  String get groupByDay => '날짜별';
-
-  @override
   String get groupByMonth => '월별';
 
   @override
@@ -118,6 +115,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noMonthlyRecords => '이번 달 기록이 없습니다';
+
+  @override
+  String get noYearlyRecords => '올해 기록이 없습니다';
 
   @override
   String get loadFailed => '불러오기 실패';

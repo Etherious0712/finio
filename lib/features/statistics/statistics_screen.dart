@@ -17,7 +17,7 @@ import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
 import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
-import '../../shared/widgets/month_nav.dart';
+import '../../shared/widgets/scope_bar.dart';
 import '../../shared/widgets/transaction_tile.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
@@ -51,7 +51,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
       ),
       body: Column(
         children: [
-          const MonthNav(),
+          const ScopeBar(),
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -144,6 +144,10 @@ class _MoMBadge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    // "% vs last month" only makes sense in month scope.
+    if (ref.watch(recordScopeProvider) != RecordScope.month) {
+      return const SizedBox.shrink();
+    }
     final months = ref.watch(last6MonthsProvider).valueOrNull;
     if (months == null || months.length < 2) {
       return const SizedBox.shrink();
@@ -456,7 +460,7 @@ class _CategoryDrillSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final symbol = ref.watch(currencySymbolProvider);
-    final txs = (ref.watch(monthlyTransactionsProvider).valueOrNull ?? [])
+    final txs = (ref.watch(scopedTransactionsProvider).valueOrNull ?? [])
         .where((t) => t.type == type && t.category == category)
         .toList();
     final categoryMap = {
@@ -504,14 +508,22 @@ class _CategoryDrillSheet extends ConsumerWidget {
   }
 }
 
-class _EmptyState extends StatelessWidget {
+class _EmptyState extends ConsumerWidget {
   const _EmptyState({required this.type});
   final String type;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
+    // Month keeps the type-specific message; year/all-time reuse the generic
+    // ones (the active tab already indicates expense vs income).
+    final text = switch (ref.watch(recordScopeProvider)) {
+      RecordScope.month =>
+        type == 'expense' ? l.noMonthlyExpenseRecords : l.noMonthlyIncomeRecords,
+      RecordScope.year => l.noYearlyRecords,
+      RecordScope.allTime => l.noRecords,
+    };
     return SizedBox(
       height: 160,
       child: Center(
@@ -521,9 +533,7 @@ class _EmptyState extends StatelessWidget {
             Icon(Icons.pie_chart_outline, size: 48, color: scheme.outlineVariant),
             const SizedBox(height: Insets.md),
             Text(
-              type == 'expense'
-                  ? l.noMonthlyExpenseRecords
-                  : l.noMonthlyIncomeRecords,
+              text,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium

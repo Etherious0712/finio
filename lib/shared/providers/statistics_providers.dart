@@ -5,11 +5,11 @@ import 'category_providers.dart';
 import 'database_provider.dart';
 import 'transaction_providers.dart';
 
-/// Per-type category breakdown for the currently selected month.
-/// Watches monthlyTransactionsProvider so it reacts to month changes + new entries.
+/// Per-type category breakdown for the active scope (month / year / all-time).
+/// Watches scopedTransactionsProvider so it reacts to scope + period changes.
 final categoryStatsProvider =
     Provider.autoDispose.family<List<CategoryStat>, String>((ref, type) {
-  final txs = ref.watch(monthlyTransactionsProvider).valueOrNull ?? [];
+  final txs = ref.watch(scopedTransactionsProvider).valueOrNull ?? [];
   final cats = ref.watch(categoriesByTypeProvider(type)).valueOrNull ?? [];
 
   final catMap = {for (final c in cats) c.name: c};

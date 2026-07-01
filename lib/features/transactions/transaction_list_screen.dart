@@ -13,62 +13,27 @@ import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/currency_formatter.dart';
-import '../../shared/widgets/month_nav.dart';
+import '../../shared/widgets/scope_bar.dart';
 import '../../shared/widgets/transaction_tile.dart';
 
-/// How the Records list is scoped + grouped.
-/// - date: selected month, grouped by day
-/// - month: selected year, grouped by month
-/// - year: all-time, grouped by year
-/// (Category breakdown lives on the Statistics tab.)
-enum RecordGroup { date, month, year }
-
-class TransactionListScreen extends ConsumerStatefulWidget {
+class TransactionListScreen extends ConsumerWidget {
   const TransactionListScreen({super.key});
 
   @override
-  ConsumerState<TransactionListScreen> createState() =>
-      _TransactionListScreenState();
-}
-
-class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
-  RecordGroup _group = RecordGroup.date;
-  int _year = DateTime.now().year;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final symbol = ref.watch(currencySymbolProvider);
+    final scope = ref.watch(recordScopeProvider);
+    final async = ref.watch(scopedTransactionsProvider);
     final categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
         '${c.type}:${c.name}': c,
     };
 
-    // Pick the data source for the active mode.
-    final AsyncValue<List<Transaction>> async;
-    switch (_group) {
-      case RecordGroup.date:
-        async = ref.watch(monthlyTransactionsProvider);
-      case RecordGroup.month:
-      case RecordGroup.year:
-        async = ref.watch(allTransactionsProvider);
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(l.transactions),
         actions: [
-          PopupMenuButton<RecordGroup>(
-            icon: const Icon(Icons.sort),
-            initialValue: _group,
-            onSelected: (g) => setState(() => _group = g),
-            itemBuilder: (_) => [
-              PopupMenuItem(value: RecordGroup.date, child: Text(l.groupByDay)),
-              PopupMenuItem(
-                  value: RecordGroup.month, child: Text(l.groupByMonth)),
-              PopupMenuItem(value: RecordGroup.year, child: Text(l.groupByYear)),
-            ],
-          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () => context.push('/search'),
@@ -77,15 +42,19 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       ),
       body: Column(
         children: [
-          _periodBar(l),
+          const ScopeBar(),
           Expanded(
             child: async.when(
-              data: (all) {
-                final txs = _scoped(all);
+              data: (txs) {
                 if (txs.isEmpty) {
-                  return Center(child: Text(l.noMonthlyRecords));
+                  final emptyText = switch (scope) {
+                    RecordScope.month => l.noMonthlyRecords,
+                    RecordScope.year => l.noYearlyRecords,
+                    RecordScope.allTime => l.noRecords,
+                  };
+                  return Center(child: Text(emptyText));
                 }
-                final items = _buildItems(txs, l);
+                final items = _buildItems(context, txs, scope, l);
                 return ListView.builder(
                   padding: const EdgeInsets.only(bottom: 96),
                   itemCount: items.length,
@@ -117,51 +86,21 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
-  /// The period selector changes with the mode.
-  Widget _periodBar(AppLocalizations l) {
-    switch (_group) {
-      case RecordGroup.date:
-        return const MonthNav();
-      case RecordGroup.month:
-        return _YearNav(
-          year: _year,
-          onChanged: (y) => setState(() => _year = y),
-        );
-      case RecordGroup.year:
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: Insets.md),
-          child: Center(
-            child: Text(l.allTime,
-                style: Theme.of(context).textTheme.titleMedium),
-          ),
-        );
+  /// Grouping is derived from scope: month → by day, year → by month,
+  /// all-time → by year.
+  List<Object> _buildItems(BuildContext context, List<Transaction> txs,
+      RecordScope scope, AppLocalizations l) {
+    switch (scope) {
+      case RecordScope.month:
+        return _groupByDay(context, txs);
+      case RecordScope.year:
+        return _groupByPeriod(context, txs, monthly: true, l: l);
+      case RecordScope.allTime:
+        return _groupByPeriod(context, txs, monthly: false, l: l);
     }
   }
 
-  /// Filter the raw stream down to the active scope.
-  List<Transaction> _scoped(List<Transaction> all) {
-    switch (_group) {
-      case RecordGroup.date:
-        return all; // already month-scoped by the provider
-      case RecordGroup.month:
-        return all.where((t) => t.date.year == _year).toList();
-      case RecordGroup.year:
-        return all;
-    }
-  }
-
-  List<Object> _buildItems(List<Transaction> txs, AppLocalizations l) {
-    switch (_group) {
-      case RecordGroup.date:
-        return _groupByDay(txs);
-      case RecordGroup.month:
-        return _groupByPeriod(txs, monthly: true, l: l);
-      case RecordGroup.year:
-        return _groupByPeriod(txs, monthly: false, l: l);
-    }
-  }
-
-  List<Object> _groupByDay(List<Transaction> txs) {
+  List<Object> _groupByDay(BuildContext context, List<Transaction> txs) {
     final locale = Localizations.localeOf(context).toString();
     final items = <Object>[];
     DateTime? lastDay;
@@ -177,7 +116,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   }
 
   /// Group by calendar month or by year, with a signed net total per period.
-  List<Object> _groupByPeriod(List<Transaction> txs,
+  List<Object> _groupByPeriod(BuildContext context, List<Transaction> txs,
       {required bool monthly, required AppLocalizations l}) {
     final locale = Localizations.localeOf(context).toString();
     final items = <Object>[];
@@ -202,34 +141,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       items.add(tx);
     }
     return items;
-  }
-}
-
-class _YearNav extends StatelessWidget {
-  const _YearNav({required this.year, required this.onChanged});
-
-  final int year;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Insets.xs),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () => onChanged(year - 1),
-          ),
-          Text('$year', style: Theme.of(context).textTheme.titleMedium),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: () => onChanged(year + 1),
-          ),
-        ],
-      ),
-    );
   }
 }
 

@@ -18,9 +18,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get editTransaction => '编辑记录';
 
   @override
-  String get groupByDay => '按日期';
-
-  @override
   String get groupByMonth => '按月份';
 
   @override
@@ -118,6 +115,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noMonthlyRecords => '本月暂无记录';
+
+  @override
+  String get noYearlyRecords => '今年暂无记录';
 
   @override
   String get loadFailed => '加载失败';

@@ -13,9 +13,6 @@ import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import 'package:finio/app_localizations.dart';
 
-Color _hexToColor(String hex) =>
-    Color(int.parse(hex.replaceFirst('#', '0xFF')));
-
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -135,7 +132,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         final cat = categoryMap['${tx.type}:${tx.category}'];
         final isIncome = tx.type == 'income';
         final catColor = cat != null
-            ? _hexToColor(cat.color)
+            ? parseCategoryColor(cat.color)
             : (isIncome ? Colors.green : Colors.red);
         final iconName = cat?.icon ?? 'more_horiz';
 
