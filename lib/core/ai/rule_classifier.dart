@@ -59,6 +59,23 @@ class RuleClassifier {
     return _matchKeywords(title, type);
   }
 
+  /// The keyword in [title] that triggers a match for [type], or null if none.
+  /// Used as the auto-created sub-category name.
+  static String? matchedKeyword({
+    required String title,
+    required TransactionType type,
+  }) {
+    final lower = title.toLowerCase();
+    final rules =
+        type == TransactionType.expense ? _expenseRules : _incomeRules;
+    for (final entry in rules.entries) {
+      for (final keyword in entry.value) {
+        if (lower.contains(keyword.toLowerCase())) return keyword;
+      }
+    }
+    return null;
+  }
+
   Future<void> learnCorrection({
     required String original,
     required String correctedCategory,

@@ -44,20 +44,10 @@ class MonthNav extends ConsumerWidget {
               onPressed: () => _shift(ref, -1),
             ),
             Expanded(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(Radii.pill),
-                onTap: () => _openPicker(context, ref, month),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: Insets.sm),
-                  child: AnimatedSwitcher(
-                    duration: Motion.fast,
-                    child: Text(
-                      label,
-                      key: ValueKey(label),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
+              child: Center(
+                child: PeriodPickerButton(
+                  label: label,
+                  onTap: () => _openPicker(context, ref, month),
                 ),
               ),
             ),
@@ -80,6 +70,46 @@ class MonthNav extends ConsumerWidget {
     if (picked != null) {
       ref.read(selectedMonthProvider.notifier).state = picked;
     }
+  }
+}
+
+/// Tappable period label with a visible affordance (filled pill + caret) so it
+/// reads as a button, not plain text. Shared by [MonthNav] and the year picker.
+class PeriodPickerButton extends StatelessWidget {
+  const PeriodPickerButton({super.key, required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(Radii.pill),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.pill),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.only(
+              left: Insets.md, right: Insets.sm, top: Insets.xs, bottom: Insets.xs),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedSwitcher(
+                duration: Motion.fast,
+                child: Text(
+                  label,
+                  key: ValueKey(label),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

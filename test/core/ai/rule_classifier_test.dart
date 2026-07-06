@@ -131,6 +131,34 @@ void main() {
     });
   });
 
+  group('RuleClassifier.matchedKeyword', () {
+    test('returns the keyword that fired the match (used as sub name)', () {
+      expect(
+        RuleClassifier.matchedKeyword(
+            title: 'team lunch', type: TransactionType.expense),
+        'lunch',
+      );
+      expect(
+        RuleClassifier.matchedKeyword(
+            title: 'GRAB ride home', type: TransactionType.expense),
+        'grab',
+      );
+      expect(
+        RuleClassifier.matchedKeyword(
+            title: 'Netflix monthly', type: TransactionType.expense),
+        'netflix',
+      );
+    });
+
+    test('returns null when nothing matches', () {
+      expect(
+        RuleClassifier.matchedKeyword(
+            title: 'zzzz', type: TransactionType.expense),
+        isNull,
+      );
+    });
+  });
+
   group('RuleClassifier — 学习纠正', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});

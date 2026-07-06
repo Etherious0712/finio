@@ -5,19 +5,23 @@ import '../../core/theme/app_spacing.dart';
 import '../models/stats_models.dart';
 import '../utils/category_icon.dart';
 
-/// A tiny, axis-less line chart for at-a-glance trends (e.g. last 7 days of
-/// spending). Decorative — no labels, just shape.
+/// A tiny, axis-less line chart for at-a-glance trends. Optional [startLabel]/
+/// [endLabel] show timestamps under the two ends so the trend reads over time.
 class MiniSparkline extends StatelessWidget {
   const MiniSparkline({
     super.key,
     required this.values,
     required this.color,
     this.height = 40,
+    this.startLabel,
+    this.endLabel,
   });
 
   final List<double> values;
   final Color color;
   final double height;
+  final String? startLabel;
+  final String? endLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class MiniSparkline extends StatelessWidget {
       for (int i = 0; i < values.length; i++) FlSpot(i.toDouble(), values[i]),
     ];
 
-    return SizedBox(
+    final chart = SizedBox(
       height: height,
       child: LineChart(
         LineChartData(
@@ -52,6 +56,25 @@ class MiniSparkline extends StatelessWidget {
         ),
         duration: Duration.zero,
       ),
+    );
+
+    if (startLabel == null && endLabel == null) return chart;
+    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Theme.of(context).colorScheme.outline,
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        chart,
+        const SizedBox(height: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(startLabel ?? '', style: labelStyle),
+            Text(endLabel ?? '', style: labelStyle),
+          ],
+        ),
+      ],
     );
   }
 }

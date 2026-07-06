@@ -37,6 +37,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   String? _selectedCategory;
   late DateTime _selectedDate;
   bool _saving = false;
+  // True while the category is the classifier's suggestion (user hasn't picked
+  // one manually). Only then do we auto-create a sub-category on save.
+  bool _autoSuggested = false;
 
   final _classifier = RuleClassifier();
 
@@ -71,9 +74,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   void _onNoteChanged() {
     final note = _noteController.text;
     if (note.isEmpty) return;
+    // Always reflect the classifier's main (Other included) so a note alone is
+    // never left uncategorized.
     final suggested = _classifier.classifyWithLearning(title: note, type: _type);
-    if (!suggested.startsWith('catOther') && suggested != _selectedCategory) {
-      setState(() => _selectedCategory = suggested);
+    if (suggested != _selectedCategory) {
+      setState(() {
+        _selectedCategory = suggested;
+        _autoSuggested = true;
+      });
     }
   }
 
@@ -87,22 +95,62 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     if (picked != null) setState(() => _selectedDate = picked);
   }
 
+  /// Trimmed, length-capped note used as a fallback sub-category name.
+  String _cleanSub(String note) {
+    final s = note.trim();
+    return s.length <= 30 ? s : s.substring(0, 30).trim();
+  }
+
   Future<void> _save() async {
-    final l = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l.pleaseSelectCategory)));
-      return;
-    }
 
     setState(() => _saving = true);
     try {
       final db = ref.read(appDatabaseProvider);
       final noteText = _noteController.text.trim();
-      final title = noteText.isNotEmpty ? noteText : _selectedCategory!;
-      final amount = double.parse(_amountController.text);
       final typeStr = _type == TransactionType.expense ? 'expense' : 'income';
+
+      // A note alone always resolves to a main category: fall back to the
+      // classifier (Other when nothing matches) instead of forcing a pick.
+      final main = _selectedCategory ??
+          _classifier.classifyWithLearning(title: noteText, type: _type);
+      final auto = _autoSuggested || _selectedCategory == null;
+
+      final title = noteText.isNotEmpty ? noteText : main;
+      final amount = double.parse(_amountController.text);
+
+      // Auto path: file under a sub named from the matched keyword, or the note
+      // text itself when nothing matched. Manual picks create no sub.
+      var categoryToStore = main;
+      if (!_isEditing && auto && noteText.isNotEmpty) {
+        final subName =
+            RuleClassifier.matchedKeyword(title: noteText, type: _type) ??
+                _cleanSub(noteText);
+        if (subName.isNotEmpty) {
+          final mains = ref.read(_type == TransactionType.expense
+                      ? expenseCategoriesProvider
+                      : incomeCategoriesProvider)
+                  .valueOrNull ??
+              const <Category>[];
+          Category? mainCat;
+          for (final c in mains) {
+            if (c.name == main) {
+              mainCat = c;
+              break;
+            }
+          }
+          if (mainCat != null) {
+            final sub = await db.categoryDao.findOrCreateSub(
+              parentId: mainCat.id,
+              name: subName,
+              type: typeStr,
+              icon: mainCat.icon,
+              color: mainCat.color,
+            );
+            categoryToStore = sub.name;
+          }
+        }
+      }
 
       if (_isEditing) {
         // Edit: replace the row, re-flag for sync.
@@ -111,7 +159,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             title: title,
             amount: amount,
             type: typeStr,
-            category: _selectedCategory!,
+            category: main,
             date: _selectedDate,
             note: noteText.isNotEmpty ? Value(noteText) : const Value(null),
             isSynced: false,
@@ -124,7 +172,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             title: title,
             amount: amount,
             type: typeStr,
-            category: _selectedCategory!,
+            category: categoryToStore,
             date: _selectedDate,
             note: noteText.isNotEmpty ? Value(noteText) : const Value.absent(),
           ),
@@ -196,6 +244,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     onSelectionChanged: (s) => setState(() {
                       _type = s.first;
                       _selectedCategory = null;
+                      _autoSuggested = false;
                     }),
                   ),
                   const SizedBox(height: Insets.md),
@@ -269,8 +318,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     data: (cats) => CategoryPicker(
                       categories: cats,
                       selected: _selectedCategory,
-                      onSelect: (name) =>
-                          setState(() => _selectedCategory = name),
+                      onSelect: (name) => setState(() {
+                        _selectedCategory = name;
+                        _autoSuggested = false;
+                      }),
                     ),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),

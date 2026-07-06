@@ -18,9 +18,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get editTransaction => 'Eintrag bearbeiten';
 
   @override
-  String get groupByDay => 'Nach Datum';
-
-  @override
   String get groupByMonth => 'Nach Monat';
 
   @override
@@ -118,6 +115,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noMonthlyRecords => 'Keine Einträge diesen Monat';
+
+  @override
+  String get noYearlyRecords => 'Keine Einträge dieses Jahr';
 
   @override
   String get loadFailed => 'Laden fehlgeschlagen';

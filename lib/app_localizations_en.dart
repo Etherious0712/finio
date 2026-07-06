@@ -18,9 +18,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTransaction => 'Edit Record';
 
   @override
-  String get groupByDay => 'By Date';
-
-  @override
   String get groupByMonth => 'By Month';
 
   @override
@@ -118,6 +115,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noMonthlyRecords => 'No records this month';
+
+  @override
+  String get noYearlyRecords => 'No records this year';
 
   @override
   String get loadFailed => 'Failed to load';

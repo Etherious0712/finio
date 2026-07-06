@@ -18,9 +18,6 @@ class AppLocalizationsMs extends AppLocalizations {
   String get editTransaction => 'Edit Rekod';
 
   @override
-  String get groupByDay => 'Ikut Tarikh';
-
-  @override
   String get groupByMonth => 'Ikut Bulan';
 
   @override
@@ -118,6 +115,9 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get noMonthlyRecords => 'Tiada rekod bulan ini';
+
+  @override
+  String get noYearlyRecords => 'Tiada rekod tahun ini';
 
   @override
   String get loadFailed => 'Gagal dimuatkan';

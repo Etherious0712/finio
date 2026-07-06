@@ -110,50 +110,129 @@ class _CategoryList extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final async = ref.watch(categoriesByTypeProvider(type));
     final usage = ref.watch(categoryUsageProvider);
-    final scheme = Theme.of(context).colorScheme;
 
     return async.when(
       data: (cats) {
-        if (cats.isEmpty) return Center(child: Text(l.noCategoryYet));
-        return ListView.separated(
+        final mains = cats.where((c) => c.parentId == null).toList();
+        if (mains.isEmpty) return Center(child: Text(l.noCategoryYet));
+        final subsByParent = <int, List<Category>>{};
+        for (final c in cats.where((c) => c.parentId != null)) {
+          subsByParent.putIfAbsent(c.parentId!, () => []).add(c);
+        }
+        return ListView.builder(
           padding: const EdgeInsets.only(bottom: 96),
-          itemCount: cats.length,
-          separatorBuilder: (_, _) => const Divider(height: 1, indent: 72),
+          itemCount: mains.length,
           itemBuilder: (_, i) {
-            final cat = cats[i];
-            final color = parseCategoryColor(cat.color);
-            final count = usage[cat.name] ?? 0;
-
-            final tile = ListTile(
-              onTap: () => onEdit(cat),
-              leading: CircleAvatar(
-                backgroundColor: color.withValues(alpha: 0.15),
-                child: Icon(categoryIconData(cat.icon), color: color, size: 20),
-              ),
-              title: Text(localizeCategory(l, cat.name)),
-              subtitle: count > 0
-                  ? Text('$count ${l.recordsUsed}',
-                      style: Theme.of(context).textTheme.bodySmall)
-                  : null,
-              trailing: cat.isCustom
-                  ? const Icon(Icons.edit_outlined, size: 18)
-                  : Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Insets.sm, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(Radii.sm),
-                      ),
-                      child: Text(l.defaultLabel,
-                          style: TextStyle(
-                              fontSize: 11, color: scheme.outline)),
-                    ),
+            final main = mains[i];
+            return _MainGroup(
+              main: main,
+              subs: subsByParent[main.id] ?? const [],
+              usage: usage,
+              onEdit: onEdit,
+              onDelete: onDelete,
             );
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('${l.loadFailed}: $e')),
+    );
+  }
+}
 
-            // Only custom categories can be swiped away.
-            if (!cat.isCustom) return tile;
-            return Dismissible(
-              key: ValueKey(cat.id),
+/// A main category row that expands to reveal its sub-categories.
+class _MainGroup extends StatefulWidget {
+  const _MainGroup({
+    required this.main,
+    required this.subs,
+    required this.usage,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final Category main;
+  final List<Category> subs;
+  final Map<String, int> usage;
+  final ValueChanged<Category> onEdit;
+  final Future<void> Function(Category) onDelete;
+
+  @override
+  State<_MainGroup> createState() => _MainGroupState();
+}
+
+class _MainGroupState extends State<_MainGroup> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final main = widget.main;
+    final color = parseCategoryColor(main.color);
+    final hasSubs = widget.subs.isNotEmpty;
+
+    // Rolled-up usage = transactions filed directly under the main + its subs.
+    var count = widget.usage[main.name] ?? 0;
+    for (final s in widget.subs) {
+      count += widget.usage[s.name] ?? 0;
+    }
+
+    final header = ListTile(
+      onTap: hasSubs
+          ? () => setState(() => _expanded = !_expanded)
+          : () => widget.onEdit(main),
+      leading: CircleAvatar(
+        backgroundColor: color.withValues(alpha: 0.15),
+        child: Icon(categoryIconData(main.icon), color: color, size: 20),
+      ),
+      title: Text(localizeCategory(l, main.name)),
+      subtitle: count > 0
+          ? Text('$count ${l.recordsUsed}',
+              style: Theme.of(context).textTheme.bodySmall)
+          : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            onPressed: () => widget.onEdit(main),
+          ),
+          if (hasSubs)
+            AnimatedRotation(
+              turns: _expanded ? 0.5 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: const Icon(Icons.expand_more),
+            ),
+        ],
+      ),
+    );
+
+    // Custom mains can be swiped away; built-ins cannot.
+    final headerRow = main.isCustom
+        ? Dismissible(
+            key: ValueKey('main-${main.id}'),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: scheme.error,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: Insets.xl),
+              child: const Icon(Icons.delete_outline, color: Colors.white),
+            ),
+            confirmDismiss: (_) async {
+              await widget.onDelete(main);
+              return false;
+            },
+            child: header,
+          )
+        : header;
+
+    return Column(
+      children: [
+        headerRow,
+        if (_expanded)
+          for (final sub in widget.subs)
+            Dismissible(
+              key: ValueKey('sub-${sub.id}'),
               direction: DismissDirection.endToStart,
               background: Container(
                 color: scheme.error,
@@ -162,16 +241,28 @@ class _CategoryList extends ConsumerWidget {
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
               confirmDismiss: (_) async {
-                await onDelete(cat);
-                return false; // deletion handled with confirm dialog
+                await widget.onDelete(sub);
+                return false;
               },
-              child: tile,
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('${l.loadFailed}: $e')),
+              child: ListTile(
+                onTap: () => widget.onEdit(sub),
+                contentPadding: const EdgeInsets.only(left: 56, right: 8),
+                leading: Icon(categoryIconData(sub.icon),
+                    size: 18, color: parseCategoryColor(sub.color)),
+                title: Text(localizeCategory(l, sub.name),
+                    style: Theme.of(context).textTheme.bodyMedium),
+                subtitle: (widget.usage[sub.name] ?? 0) > 0
+                    ? Text('${widget.usage[sub.name]} ${l.recordsUsed}',
+                        style: Theme.of(context).textTheme.bodySmall)
+                    : null,
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  onPressed: () => widget.onDelete(sub),
+                ),
+              ),
+            ),
+        const Divider(height: 1, indent: 72),
+      ],
     );
   }
 }
