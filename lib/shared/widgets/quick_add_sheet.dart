@@ -62,12 +62,18 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final note = _noteController.text;
     if (note.isEmpty) return;
     final suggested = _classifier.classifyWithLearning(title: note, type: _type);
-    if (!suggested.startsWith('catOther') && suggested != _category) {
+    if (suggested != _category) {
       setState(() {
         _category = suggested;
         _autoSuggested = true;
       });
     }
+  }
+
+  /// Trimmed, length-capped note used as a fallback sub-category name.
+  String _cleanSub(String note) {
+    final s = note.trim();
+    return s.length <= 30 ? s : s.substring(0, 30).trim();
   }
 
   Future<void> _save() async {
@@ -77,21 +83,24 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       _toast(l.pleaseEnterPositiveAmount);
       return;
     }
-    if (_category == null) {
-      _toast(l.pleaseSelectCategory);
-      return;
-    }
 
     setState(() => _saving = true);
     final note = _noteController.text.trim();
     final db = ref.read(appDatabaseProvider);
     final typeStr = _type == TransactionType.expense ? 'expense' : 'income';
 
-    // Auto-file under a keyword-named sub when the suggestion was kept.
-    var categoryToStore = _category!;
-    if (_autoSuggested && note.isNotEmpty) {
-      final keyword = RuleClassifier.matchedKeyword(title: note, type: _type);
-      if (keyword != null) {
+    // A note alone always resolves to a main (Other when nothing matches).
+    final main = _category ??
+        _classifier.classifyWithLearning(title: note, type: _type);
+    final auto = _autoSuggested || _category == null;
+
+    // Auto path: sub named from the matched keyword, or the note itself.
+    var categoryToStore = main;
+    if (auto && note.isNotEmpty) {
+      final subName =
+          RuleClassifier.matchedKeyword(title: note, type: _type) ??
+              _cleanSub(note);
+      if (subName.isNotEmpty) {
         final mains = ref.read(_type == TransactionType.expense
                     ? expenseCategoriesProvider
                     : incomeCategoriesProvider)
@@ -99,7 +108,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             const <Category>[];
         Category? mainCat;
         for (final c in mains) {
-          if (c.name == _category) {
+          if (c.name == main) {
             mainCat = c;
             break;
           }
@@ -107,7 +116,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         if (mainCat != null) {
           final sub = await db.categoryDao.findOrCreateSub(
             parentId: mainCat.id,
-            name: keyword,
+            name: subName,
             type: typeStr,
             icon: mainCat.icon,
             color: mainCat.color,
@@ -119,7 +128,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
     await db.transactionDao.insertTransaction(
       TransactionsCompanion.insert(
-        title: note.isNotEmpty ? note : _category!,
+        title: note.isNotEmpty ? note : main,
         amount: amount,
         type: typeStr,
         category: categoryToStore,

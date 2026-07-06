@@ -236,7 +236,7 @@ class _BudgetRings extends ConsumerWidget {
         SectionHeader(
           l.budget,
           action: TextButton(
-            onPressed: () => context.push('/budget'),
+            onPressed: () => ref.read(navIndexProvider.notifier).state = 3,
             child: Text(l.budgetSettings),
           ),
         ),

@@ -50,10 +50,6 @@ final _router = GoRouter(
           builder: (context, state) => const CategoryManagementScreen(),
         ),
         GoRoute(
-          path: 'budget',
-          builder: (context, state) => const BudgetScreen(),
-        ),
-        GoRoute(
           path: 'appearance',
           builder: (context, state) => const AppearanceScreen(),
         ),
@@ -178,6 +174,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           DashboardScreen(),
           TransactionListScreen(),
           StatisticsScreen(),
+          BudgetScreen(),
           SettingsScreen(),
         ],
       ),
@@ -201,6 +198,11 @@ class _MainShellState extends ConsumerState<MainShell> {
             icon: const Icon(Icons.bar_chart_outlined),
             selectedIcon: const Icon(Icons.bar_chart),
             label: l.statistics,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.savings_outlined),
+            selectedIcon: const Icon(Icons.savings),
+            label: l.budget,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
