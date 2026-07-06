@@ -37,6 +37,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   String? _selectedCategory;
   late DateTime _selectedDate;
   bool _saving = false;
+  // True while the category is the classifier's suggestion (user hasn't picked
+  // one manually). Only then do we auto-create a sub-category on save.
+  bool _autoSuggested = false;
 
   final _classifier = RuleClassifier();
 
@@ -73,7 +76,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     if (note.isEmpty) return;
     final suggested = _classifier.classifyWithLearning(title: note, type: _type);
     if (!suggested.startsWith('catOther') && suggested != _selectedCategory) {
-      setState(() => _selectedCategory = suggested);
+      setState(() {
+        _selectedCategory = suggested;
+        _autoSuggested = true;
+      });
     }
   }
 
@@ -104,6 +110,38 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       final amount = double.parse(_amountController.text);
       final typeStr = _type == TransactionType.expense ? 'expense' : 'income';
 
+      // When the classifier's suggestion was kept, file under a sub-category
+      // named from the matched keyword (auto-created under the chosen main).
+      var categoryToStore = _selectedCategory!;
+      if (!_isEditing && _autoSuggested && noteText.isNotEmpty) {
+        final keyword =
+            RuleClassifier.matchedKeyword(title: noteText, type: _type);
+        if (keyword != null) {
+          final mains = ref.read(_type == TransactionType.expense
+                      ? expenseCategoriesProvider
+                      : incomeCategoriesProvider)
+                  .valueOrNull ??
+              const <Category>[];
+          Category? mainCat;
+          for (final c in mains) {
+            if (c.name == _selectedCategory) {
+              mainCat = c;
+              break;
+            }
+          }
+          if (mainCat != null) {
+            final sub = await db.categoryDao.findOrCreateSub(
+              parentId: mainCat.id,
+              name: keyword,
+              type: typeStr,
+              icon: mainCat.icon,
+              color: mainCat.color,
+            );
+            categoryToStore = sub.name;
+          }
+        }
+      }
+
       if (_isEditing) {
         // Edit: replace the row, re-flag for sync.
         await db.transactionDao.updateTransaction(
@@ -124,7 +162,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             title: title,
             amount: amount,
             type: typeStr,
-            category: _selectedCategory!,
+            category: categoryToStore,
             date: _selectedDate,
             note: noteText.isNotEmpty ? Value(noteText) : const Value.absent(),
           ),
@@ -196,6 +234,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     onSelectionChanged: (s) => setState(() {
                       _type = s.first;
                       _selectedCategory = null;
+                      _autoSuggested = false;
                     }),
                   ),
                   const SizedBox(height: Insets.md),
@@ -269,8 +308,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     data: (cats) => CategoryPicker(
                       categories: cats,
                       selected: _selectedCategory,
-                      onSelect: (name) =>
-                          setState(() => _selectedCategory = name),
+                      onSelect: (name) => setState(() {
+                        _selectedCategory = name;
+                        _autoSuggested = false;
+                      }),
                     ),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),

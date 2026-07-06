@@ -42,6 +42,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   String _amount = '';
   String? _category;
   bool _saving = false;
+  // See add_transaction_screen: only auto-create a sub when the suggestion is kept.
+  bool _autoSuggested = false;
 
   @override
   void initState() {
@@ -61,7 +63,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     if (note.isEmpty) return;
     final suggested = _classifier.classifyWithLearning(title: note, type: _type);
     if (!suggested.startsWith('catOther') && suggested != _category) {
-      setState(() => _category = suggested);
+      setState(() {
+        _category = suggested;
+        _autoSuggested = true;
+      });
     }
   }
 
@@ -79,16 +84,49 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
     setState(() => _saving = true);
     final note = _noteController.text.trim();
-    await ref.read(appDatabaseProvider).transactionDao.insertTransaction(
-          TransactionsCompanion.insert(
-            title: note.isNotEmpty ? note : _category!,
-            amount: amount,
-            type: _type == TransactionType.expense ? 'expense' : 'income',
-            category: _category!,
-            date: DateTime.now(),
-            note: note.isNotEmpty ? Value(note) : const Value.absent(),
-          ),
-        );
+    final db = ref.read(appDatabaseProvider);
+    final typeStr = _type == TransactionType.expense ? 'expense' : 'income';
+
+    // Auto-file under a keyword-named sub when the suggestion was kept.
+    var categoryToStore = _category!;
+    if (_autoSuggested && note.isNotEmpty) {
+      final keyword = RuleClassifier.matchedKeyword(title: note, type: _type);
+      if (keyword != null) {
+        final mains = ref.read(_type == TransactionType.expense
+                    ? expenseCategoriesProvider
+                    : incomeCategoriesProvider)
+                .valueOrNull ??
+            const <Category>[];
+        Category? mainCat;
+        for (final c in mains) {
+          if (c.name == _category) {
+            mainCat = c;
+            break;
+          }
+        }
+        if (mainCat != null) {
+          final sub = await db.categoryDao.findOrCreateSub(
+            parentId: mainCat.id,
+            name: keyword,
+            type: typeStr,
+            icon: mainCat.icon,
+            color: mainCat.color,
+          );
+          categoryToStore = sub.name;
+        }
+      }
+    }
+
+    await db.transactionDao.insertTransaction(
+      TransactionsCompanion.insert(
+        title: note.isNotEmpty ? note : _category!,
+        amount: amount,
+        type: typeStr,
+        category: categoryToStore,
+        date: DateTime.now(),
+        note: note.isNotEmpty ? Value(note) : const Value.absent(),
+      ),
+    );
     if (mounted) Navigator.pop(context, true);
   }
 
@@ -131,6 +169,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               onSelectionChanged: (s) => setState(() {
                 _type = s.first;
                 _category = null;
+                _autoSuggested = false;
               }),
             ),
           ),
@@ -173,7 +212,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   icon: categoryIconData(c.icon),
                   color: color,
                   selected: selected,
-                  onTap: () => setState(() => _category = c.name),
+                  onTap: () => setState(() {
+                    _category = c.name;
+                    _autoSuggested = false;
+                  }),
                 );
               },
             ),

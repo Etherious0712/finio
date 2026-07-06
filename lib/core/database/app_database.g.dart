@@ -855,8 +855,27 @@ class $CategoriesTable extends Categories
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _parentIdMeta = const VerificationMeta(
+    'parentId',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, type, icon, color, isCustom];
+  late final GeneratedColumn<int> parentId = GeneratedColumn<int>(
+    'parent_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    type,
+    icon,
+    color,
+    isCustom,
+    parentId,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -910,6 +929,12 @@ class $CategoriesTable extends Categories
         isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta),
       );
     }
+    if (data.containsKey('parent_id')) {
+      context.handle(
+        _parentIdMeta,
+        parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta),
+      );
+    }
     return context;
   }
 
@@ -943,6 +968,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.bool,
         data['${effectivePrefix}is_custom'],
       )!,
+      parentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}parent_id'],
+      ),
     );
   }
 
@@ -959,6 +988,7 @@ class Category extends DataClass implements Insertable<Category> {
   final String icon;
   final String color;
   final bool isCustom;
+  final int? parentId;
   const Category({
     required this.id,
     required this.name,
@@ -966,6 +996,7 @@ class Category extends DataClass implements Insertable<Category> {
     required this.icon,
     required this.color,
     required this.isCustom,
+    this.parentId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -976,6 +1007,9 @@ class Category extends DataClass implements Insertable<Category> {
     map['icon'] = Variable<String>(icon);
     map['color'] = Variable<String>(color);
     map['is_custom'] = Variable<bool>(isCustom);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<int>(parentId);
+    }
     return map;
   }
 
@@ -987,6 +1021,9 @@ class Category extends DataClass implements Insertable<Category> {
       icon: Value(icon),
       color: Value(color),
       isCustom: Value(isCustom),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
     );
   }
 
@@ -1002,6 +1039,7 @@ class Category extends DataClass implements Insertable<Category> {
       icon: serializer.fromJson<String>(json['icon']),
       color: serializer.fromJson<String>(json['color']),
       isCustom: serializer.fromJson<bool>(json['isCustom']),
+      parentId: serializer.fromJson<int?>(json['parentId']),
     );
   }
   @override
@@ -1014,6 +1052,7 @@ class Category extends DataClass implements Insertable<Category> {
       'icon': serializer.toJson<String>(icon),
       'color': serializer.toJson<String>(color),
       'isCustom': serializer.toJson<bool>(isCustom),
+      'parentId': serializer.toJson<int?>(parentId),
     };
   }
 
@@ -1024,6 +1063,7 @@ class Category extends DataClass implements Insertable<Category> {
     String? icon,
     String? color,
     bool? isCustom,
+    Value<int?> parentId = const Value.absent(),
   }) => Category(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1031,6 +1071,7 @@ class Category extends DataClass implements Insertable<Category> {
     icon: icon ?? this.icon,
     color: color ?? this.color,
     isCustom: isCustom ?? this.isCustom,
+    parentId: parentId.present ? parentId.value : this.parentId,
   );
   Category copyWithCompanion(CategoriesCompanion data) {
     return Category(
@@ -1040,6 +1081,7 @@ class Category extends DataClass implements Insertable<Category> {
       icon: data.icon.present ? data.icon.value : this.icon,
       color: data.color.present ? data.color.value : this.color,
       isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
     );
   }
 
@@ -1051,13 +1093,15 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('type: $type, ')
           ..write('icon: $icon, ')
           ..write('color: $color, ')
-          ..write('isCustom: $isCustom')
+          ..write('isCustom: $isCustom, ')
+          ..write('parentId: $parentId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, type, icon, color, isCustom);
+  int get hashCode =>
+      Object.hash(id, name, type, icon, color, isCustom, parentId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1067,7 +1111,8 @@ class Category extends DataClass implements Insertable<Category> {
           other.type == this.type &&
           other.icon == this.icon &&
           other.color == this.color &&
-          other.isCustom == this.isCustom);
+          other.isCustom == this.isCustom &&
+          other.parentId == this.parentId);
 }
 
 class CategoriesCompanion extends UpdateCompanion<Category> {
@@ -1077,6 +1122,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<String> icon;
   final Value<String> color;
   final Value<bool> isCustom;
+  final Value<int?> parentId;
   const CategoriesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1084,6 +1130,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.icon = const Value.absent(),
     this.color = const Value.absent(),
     this.isCustom = const Value.absent(),
+    this.parentId = const Value.absent(),
   });
   CategoriesCompanion.insert({
     this.id = const Value.absent(),
@@ -1092,6 +1139,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     required String icon,
     required String color,
     this.isCustom = const Value.absent(),
+    this.parentId = const Value.absent(),
   }) : name = Value(name),
        type = Value(type),
        icon = Value(icon),
@@ -1103,6 +1151,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Expression<String>? icon,
     Expression<String>? color,
     Expression<bool>? isCustom,
+    Expression<int>? parentId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1111,6 +1160,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       if (icon != null) 'icon': icon,
       if (color != null) 'color': color,
       if (isCustom != null) 'is_custom': isCustom,
+      if (parentId != null) 'parent_id': parentId,
     });
   }
 
@@ -1121,6 +1171,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Value<String>? icon,
     Value<String>? color,
     Value<bool>? isCustom,
+    Value<int?>? parentId,
   }) {
     return CategoriesCompanion(
       id: id ?? this.id,
@@ -1129,6 +1180,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       icon: icon ?? this.icon,
       color: color ?? this.color,
       isCustom: isCustom ?? this.isCustom,
+      parentId: parentId ?? this.parentId,
     );
   }
 
@@ -1153,6 +1205,9 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (isCustom.present) {
       map['is_custom'] = Variable<bool>(isCustom.value);
     }
+    if (parentId.present) {
+      map['parent_id'] = Variable<int>(parentId.value);
+    }
     return map;
   }
 
@@ -1164,7 +1219,8 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('type: $type, ')
           ..write('icon: $icon, ')
           ..write('color: $color, ')
-          ..write('isCustom: $isCustom')
+          ..write('isCustom: $isCustom, ')
+          ..write('parentId: $parentId')
           ..write(')'))
         .toString();
   }
@@ -1953,6 +2009,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       required String icon,
       required String color,
       Value<bool> isCustom,
+      Value<int?> parentId,
     });
 typedef $$CategoriesTableUpdateCompanionBuilder =
     CategoriesCompanion Function({
@@ -1962,6 +2019,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<String> icon,
       Value<String> color,
       Value<bool> isCustom,
+      Value<int?> parentId,
     });
 
 class $$CategoriesTableFilterComposer
@@ -2000,6 +2058,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<bool> get isCustom => $composableBuilder(
     column: $table.isCustom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get parentId => $composableBuilder(
+    column: $table.parentId,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2042,6 +2105,11 @@ class $$CategoriesTableOrderingComposer
     column: $table.isCustom,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get parentId => $composableBuilder(
+    column: $table.parentId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CategoriesTableAnnotationComposer
@@ -2070,6 +2138,9 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<bool> get isCustom =>
       $composableBuilder(column: $table.isCustom, builder: (column) => column);
+
+  GeneratedColumn<int> get parentId =>
+      $composableBuilder(column: $table.parentId, builder: (column) => column);
 }
 
 class $$CategoriesTableTableManager
@@ -2106,6 +2177,7 @@ class $$CategoriesTableTableManager
                 Value<String> icon = const Value.absent(),
                 Value<String> color = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
+                Value<int?> parentId = const Value.absent(),
               }) => CategoriesCompanion(
                 id: id,
                 name: name,
@@ -2113,6 +2185,7 @@ class $$CategoriesTableTableManager
                 icon: icon,
                 color: color,
                 isCustom: isCustom,
+                parentId: parentId,
               ),
           createCompanionCallback:
               ({
@@ -2122,6 +2195,7 @@ class $$CategoriesTableTableManager
                 required String icon,
                 required String color,
                 Value<bool> isCustom = const Value.absent(),
+                Value<int?> parentId = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
                 name: name,
@@ -2129,6 +2203,7 @@ class $$CategoriesTableTableManager
                 icon: icon,
                 color: color,
                 isCustom: isCustom,
+                parentId: parentId,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

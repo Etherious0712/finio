@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'package:finio/app_localizations.dart';
 import '../../core/sync/sync_service.dart';
@@ -116,6 +117,17 @@ class _InsightsRow extends ConsumerWidget {
 
     if (stats.isEmpty && series.length < 2) return const SizedBox.shrink();
 
+    // First/last dates of the expense series, for the sparkline's end labels.
+    String? startLabel, endLabel;
+    if (series.length >= 2) {
+      final month = ref.watch(selectedMonthProvider);
+      final locale = Localizations.localeOf(context).toString();
+      startLabel = DateFormat.MMMd(locale)
+          .format(DateTime(month.year, month.month, days.first));
+      endLabel = DateFormat.MMMd(locale)
+          .format(DateTime(month.year, month.month, days.last));
+    }
+
     void openStats() => ref.read(navIndexProvider.notifier).state = 2;
 
     return Padding(
@@ -131,7 +143,12 @@ class _InsightsRow extends ConsumerWidget {
                   Text(l.spendingTrend,
                       style: Theme.of(context).textTheme.labelSmall),
                   const SizedBox(height: Insets.sm),
-                  MiniSparkline(values: series, color: finio.expense),
+                  MiniSparkline(
+                    values: series,
+                    color: finio.expense,
+                    startLabel: startLabel,
+                    endLabel: endLabel,
+                  ),
                 ],
               ),
             ),

@@ -32,6 +32,8 @@ class Categories extends Table {
   TextColumn get icon => text()(); // Material icon name
   TextColumn get color => text()(); // Hex color string
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
+  // null = main (top-level) category; set = sub-category under this parent id.
+  IntColumn get parentId => integer().nullable()();
 }
 
 class Budgets extends Table {
@@ -51,7 +53,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -81,6 +83,12 @@ class AppDatabase extends _$AppDatabase {
             );
             await customStatement(
               'ALTER TABLE transactions ADD COLUMN deleted_at INTEGER',
+            );
+          }
+          if (from < 6) {
+            // Two-level categories: existing rows all become mains (parent NULL).
+            await customStatement(
+              'ALTER TABLE categories ADD COLUMN parent_id INTEGER',
             );
           }
         },

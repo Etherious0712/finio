@@ -27,40 +27,18 @@ class StatisticsScreen extends ConsumerStatefulWidget {
   ConsumerState<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
-class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController =
-      TabController(length: 2, vsync: this);
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
+class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    // Single view: expense breakdown (by main, drills into subs) + the
+    // income-vs-expense trend below. No expense/income tabs.
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.statistics),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [Tab(text: l.expense), Tab(text: l.income)],
-        ),
-      ),
+      appBar: AppBar(title: Text(l.statistics)),
       body: Column(
-        children: [
-          const ScopeBar(),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: const [
-                _StatsTab(type: 'expense'),
-                _StatsTab(type: 'income'),
-              ],
-            ),
-          ),
+        children: const [
+          ScopeBar(),
+          Expanded(child: _StatsTab(type: 'expense')),
         ],
       ),
     );
@@ -449,59 +427,95 @@ class _BarSection extends ConsumerWidget {
   }
 }
 
-/// Bottom sheet listing every transaction in a tapped category for the month.
+/// Bottom sheet for a tapped MAIN category: its sub-category breakdown, then
+/// every transaction rolled up under it for the active scope.
 class _CategoryDrillSheet extends ConsumerWidget {
   const _CategoryDrillSheet({required this.type, required this.category});
 
   final String type;
-  final String category;
+  final String category; // main category name
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final symbol = ref.watch(currencySymbolProvider);
+    final mainKeyMap = ref.watch(categoryMainKeyProvider);
+    final subStats =
+        ref.watch(subcategoryStatsProvider((type: type, main: category)));
     final txs = (ref.watch(scopedTransactionsProvider).valueOrNull ?? [])
-        .where((t) => t.type == type && t.category == category)
+        .where((t) =>
+            t.type == type &&
+            (mainKeyMap['${t.type}:${t.category}'] ?? t.category) == category)
         .toList();
     final categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
         '${c.type}:${c.name}': c,
     };
 
+    // Only worth showing a sub list when there's real sub-detail.
+    final showSubs = subStats.length > 1 ||
+        (subStats.length == 1 && subStats.first.category != category);
+
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.6,
       maxChildSize: 0.9,
-      builder: (_, controller) => Column(
+      builder: (_, controller) => ListView(
+        controller: controller,
+        padding: const EdgeInsets.only(bottom: Insets.xl),
         children: [
           Padding(
             padding: const EdgeInsets.all(Insets.lg),
             child: Text(localizeCategory(l, category),
                 style: Theme.of(context).textTheme.titleLarge),
           ),
-          Expanded(
-            child: ListView.builder(
-              controller: controller,
-              itemCount: txs.length,
-              itemBuilder: (_, i) {
-                final tx = txs[i];
-                return TransactionTile(
-                  tx: tx,
-                  category: categoryMap['${tx.type}:${tx.category}'],
-                  symbol: symbol,
-                  showDate: true,
-                  onEdit: () {
-                    Navigator.pop(context);
-                    context.push('/transactions/add', extra: tx);
-                  },
-                  onDelete: () => ref
-                      .read(appDatabaseProvider)
-                      .transactionDao
-                      .deleteTransaction(tx.id),
-                );
+          if (showSubs) ...[
+            for (final s in subStats)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Insets.lg, vertical: Insets.xs),
+                child: Row(
+                  children: [
+                    Icon(categoryIconData(s.icon),
+                        size: 16, color: parseCategoryColor(s.color)),
+                    const SizedBox(width: Insets.sm),
+                    Expanded(
+                      child: Text(localizeCategory(l, s.category),
+                          style: Theme.of(context).textTheme.bodyMedium),
+                    ),
+                    Text(formatAmount(s.amount, symbol),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)
+                            .tabular),
+                    const SizedBox(width: Insets.sm),
+                    SizedBox(
+                      width: 44,
+                      child: Text('${s.percentage.toStringAsFixed(0)}%',
+                          textAlign: TextAlign.right,
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ),
+                  ],
+                ),
+              ),
+            const Divider(height: Insets.xl),
+          ],
+          for (final tx in txs)
+            TransactionTile(
+              tx: tx,
+              category: categoryMap['${tx.type}:${tx.category}'],
+              symbol: symbol,
+              showDate: true,
+              onEdit: () {
+                Navigator.pop(context);
+                context.push('/transactions/add', extra: tx);
               },
+              onDelete: () => ref
+                  .read(appDatabaseProvider)
+                  .transactionDao
+                  .deleteTransaction(tx.id),
             ),
-          ),
         ],
       ),
     );
