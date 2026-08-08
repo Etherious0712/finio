@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
   "passwordUpdated": "Mot de passe mis à jour avec succès",
   "incorrectCurrentPassword": "Mot de passe actuel incorrect, veuillez réessayer",
-  "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères"
+  "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+  "savingsAccounts": "Comptes d'épargne",
+  "savingsAccount": "Compte d'épargne",
+  "addSavingsAccount": "Ajouter un compte d'épargne",
+  "editSavingsAccount": "Modifier le compte d'épargne",
+  "savingsAccountName": "Nom du compte",
+  "setAsDefaultAccount": "Définir par défaut",
+  "unassignedAccount": "Non attribué",
+  "noAccountYet": "Aucun compte d'épargne",
+  "currentRateLabel": "Taux actuel",
+  "rateSourceLabel": "Source"
 }

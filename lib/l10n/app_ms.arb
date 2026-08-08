@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "Kata laluan tidak sepadan",
   "passwordUpdated": "Kata laluan berjaya dikemas kini",
   "incorrectCurrentPassword": "Kata laluan semasa salah, sila cuba lagi",
-  "passwordTooShort": "Kata laluan mestilah sekurang-kurangnya 6 aksara"
+  "passwordTooShort": "Kata laluan mestilah sekurang-kurangnya 6 aksara",
+  "savingsAccounts": "Akaun Simpanan",
+  "savingsAccount": "Akaun Simpanan",
+  "addSavingsAccount": "Tambah Akaun Simpanan",
+  "editSavingsAccount": "Edit Akaun Simpanan",
+  "savingsAccountName": "Nama Akaun",
+  "setAsDefaultAccount": "Tetapkan sebagai lalai",
+  "unassignedAccount": "Tidak ditetapkan",
+  "noAccountYet": "Belum ada akaun simpanan",
+  "currentRateLabel": "Kadar semasa",
+  "rateSourceLabel": "Sumber"
 }

@@ -397,4 +397,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get passwordTooShort => 'パスワードは6文字以上必要です';
+
+  @override
+  String get savingsAccounts => '貯蓄口座';
+
+  @override
+  String get savingsAccount => '貯蓄口座';
+
+  @override
+  String get addSavingsAccount => '貯蓄口座を追加';
+
+  @override
+  String get editSavingsAccount => '貯蓄口座を編集';
+
+  @override
+  String get savingsAccountName => '口座名';
+
+  @override
+  String get setAsDefaultAccount => 'デフォルトに設定';
+
+  @override
+  String get unassignedAccount => '未割り当て';
+
+  @override
+  String get noAccountYet => '貯蓄口座がありません';
+
+  @override
+  String get currentRateLabel => '現在のレート';
+
+  @override
+  String get rateSourceLabel => 'データ提供元';
 }

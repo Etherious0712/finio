@@ -146,6 +146,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/categories'),
           ),
+          ListTile(
+            leading: const Icon(Icons.savings_outlined),
+            title: Text(l.savingsAccounts),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/accounts'),
+          ),
         ],
       ),
     );

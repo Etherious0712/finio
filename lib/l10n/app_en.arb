@@ -142,5 +142,15 @@
   "passwordsDoNotMatch": "Passwords do not match",
   "passwordUpdated": "Password updated successfully",
   "incorrectCurrentPassword": "Incorrect current password, please try again",
-  "passwordTooShort": "Password must be at least 6 characters"
+  "passwordTooShort": "Password must be at least 6 characters",
+  "savingsAccounts": "Savings Accounts",
+  "savingsAccount": "Savings Account",
+  "addSavingsAccount": "Add Savings Account",
+  "editSavingsAccount": "Edit Savings Account",
+  "savingsAccountName": "Account Name",
+  "setAsDefaultAccount": "Set as default",
+  "unassignedAccount": "Unassigned",
+  "noAccountYet": "No savings accounts yet",
+  "currentRateLabel": "Current rate",
+  "rateSourceLabel": "Source"
 }

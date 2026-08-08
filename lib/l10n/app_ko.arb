@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다",
   "passwordUpdated": "비밀번호가 성공적으로 업데이트되었습니다",
   "incorrectCurrentPassword": "현재 비밀번호가 올바르지 않습니다. 다시 시도해 주세요",
-  "passwordTooShort": "비밀번호는 6자 이상이어야 합니다"
+  "passwordTooShort": "비밀번호는 6자 이상이어야 합니다",
+  "savingsAccounts": "저축 계좌",
+  "savingsAccount": "저축 계좌",
+  "addSavingsAccount": "저축 계좌 추가",
+  "editSavingsAccount": "저축 계좌 편집",
+  "savingsAccountName": "계좌 이름",
+  "setAsDefaultAccount": "기본으로 설정",
+  "unassignedAccount": "미지정",
+  "noAccountYet": "저축 계좌가 없습니다",
+  "currentRateLabel": "현재 환율",
+  "rateSourceLabel": "출처"
 }

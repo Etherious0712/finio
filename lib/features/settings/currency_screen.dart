@@ -46,7 +46,8 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
     setState(() => _loading = true);
     try {
-      final rate = await ExchangeRateService.getRate(currentCode, newCode);
+      final quote = await ExchangeRateService.getRate(currentCode, newCode);
+      final rate = quote.rate;
       if (!mounted) return;
 
       final from = _option(currentCode);
@@ -67,15 +68,19 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
               _InfoRow(label: l.toLabel, value: toLabel),
               const SizedBox(height: 10),
               Text(
-                '当前汇率：1 $currentCode = ${rate.toStringAsFixed(4)} $newCode',
+                '${l.currentRateLabel}: 1 $currentCode = '
+                '${rate.toStringAsFixed(4)} $newCode',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 2),
               Text(
-                '数据来源：Frankfurter，每日更新',
+                // The actual provider — a rate for a currency the ECB list omits
+                // (e.g. TWD) comes from the fallback, so naming one source
+                // unconditionally would be false.
+                '${l.rateSourceLabel}: ${quote.source}',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.outline,
                 ),
               ),
               const SizedBox(height: 12),
@@ -169,12 +174,10 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 24,
-            child: Text(
-              '$label：',
-              style: TextStyle(color: Theme.of(context).colorScheme.outline),
-            ),
+          // No fixed width: 24px fits "从"/"至" but shreds "From:"/"Desde:".
+          Text(
+            '$label: ',
+            style: TextStyle(color: Theme.of(context).colorScheme.outline),
           ),
           Expanded(child: Text(value)),
         ],

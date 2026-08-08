@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/models/stats_models.dart';
+import '../../shared/providers/account_providers.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
@@ -100,6 +101,7 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
           ),
         ],
         const SizedBox(height: Insets.xl),
+        const _AccountSection(),
         Text(l.last6MonthsTrend, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Insets.sm),
         last6Async.when(
@@ -109,6 +111,82 @@ class _StatsTabState extends ConsumerState<_StatsTab> {
           error: (e, _) =>
               SizedBox(height: 200, child: Center(child: Text(l.loadFailed))),
         ),
+      ],
+    );
+  }
+}
+
+/// Net balance per savings jar.
+///
+/// Always all-time, regardless of the [ScopeBar] above: "how much is in this
+/// jar" is a running total, and the sum has to match the dashboard's total
+/// balance. A list rather than a pie — a jar balance can go negative, and
+/// negatives can't be pie slices.
+class _AccountSection extends ConsumerWidget {
+  const _AccountSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final balances = ref.watch(accountBalancesProvider);
+    // Nothing to show before the user creates a jar.
+    if (balances.isEmpty || balances.every((b) => b.isUnassigned)) {
+      return const SizedBox.shrink();
+    }
+
+    final symbol = ref.watch(currencySymbolProvider);
+    final finio = context.finio;
+    final total = balances.fold(0.0, (s, b) => s + b.balance);
+
+    Widget row(String label, double amount, IconData icon, Color color,
+        {bool bold = false}) {
+      final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
+          );
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: Insets.sm),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: Insets.sm),
+            Expanded(
+              child: Text(label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: bold ? FontWeight.w700 : null,
+                      )),
+            ),
+            Text(
+              formatAmount(amount, symbol),
+              style: style
+                  ?.copyWith(
+                      color: amount < 0 ? finio.expense : finio.income)
+                  .tabular,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l.savingsAccounts,
+            style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: Insets.xs),
+        for (final b in balances)
+          row(
+            b.isUnassigned ? l.unassignedAccount : b.name,
+            b.balance,
+            categoryIconData(b.icon),
+            b.isUnassigned
+                ? Theme.of(context).colorScheme.outline
+                : parseCategoryColor(b.color),
+          ),
+        const Divider(),
+        row(l.totalBalance, total, Icons.account_balance_wallet,
+            Theme.of(context).colorScheme.primary,
+            bold: true),
+        const SizedBox(height: Insets.xl),
       ],
     );
   }

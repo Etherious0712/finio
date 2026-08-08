@@ -79,6 +79,7 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
 
     final db = ref.read(appDatabaseProvider);
     await db.transactionDao.deleteAllTransactions();
+    await db.accountDao.deleteAllAccounts();
     if (userId != null) {
       try {
         await Supabase.instance.client
@@ -122,6 +123,7 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
     await db.transactionDao.deleteAllTransactions();
     await db.budgetDao.deleteAllBudgets();
     await db.categoryDao.deleteCustomCategories();
+    await db.accountDao.deleteAllAccounts();
 
     if (mounted) {
       ref.read(localeProvider.notifier).setLocale(null);

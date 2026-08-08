@@ -877,6 +877,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password must be at least 6 characters'**
   String get passwordTooShort;
+
+  /// No description provided for @savingsAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Accounts'**
+  String get savingsAccounts;
+
+  /// No description provided for @savingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Account'**
+  String get savingsAccount;
+
+  /// No description provided for @addSavingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Savings Account'**
+  String get addSavingsAccount;
+
+  /// No description provided for @editSavingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Savings Account'**
+  String get editSavingsAccount;
+
+  /// No description provided for @savingsAccountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Name'**
+  String get savingsAccountName;
+
+  /// No description provided for @setAsDefaultAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as default'**
+  String get setAsDefaultAccount;
+
+  /// No description provided for @unassignedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get unassignedAccount;
+
+  /// No description provided for @noAccountYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No savings accounts yet'**
+  String get noAccountYet;
+
+  /// No description provided for @currentRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current rate'**
+  String get currentRateLabel;
+
+  /// No description provided for @rateSourceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get rateSourceLabel;
 }
 
 class _AppLocalizationsDelegate

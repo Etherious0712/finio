@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "两次密码不一致",
   "passwordUpdated": "密码已成功更新",
   "incorrectCurrentPassword": "旧密码不正确，请重试",
-  "passwordTooShort": "密码不能少于 6 位"
+  "passwordTooShort": "密码不能少于 6 位",
+  "savingsAccounts": "储蓄账户",
+  "savingsAccount": "储蓄账户",
+  "addSavingsAccount": "添加储蓄账户",
+  "editSavingsAccount": "编辑储蓄账户",
+  "savingsAccountName": "账户名称",
+  "setAsDefaultAccount": "设为默认",
+  "unassignedAccount": "未分配",
+  "noAccountYet": "暂无储蓄账户",
+  "currentRateLabel": "当前汇率",
+  "rateSourceLabel": "数据来源"
 }

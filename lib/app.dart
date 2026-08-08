@@ -9,6 +9,7 @@ import 'core/database/app_database.dart';
 import 'core/notifications/budget_notifier.dart';
 import 'core/sync/sync_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/accounts/account_management_screen.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/budget/budget_screen.dart';
 import 'features/categories/category_management_screen.dart';
@@ -48,6 +49,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'categories',
           builder: (context, state) => const CategoryManagementScreen(),
+        ),
+        GoRoute(
+          path: 'accounts',
+          builder: (context, state) => const AccountManagementScreen(),
         ),
         GoRoute(
           path: 'appearance',

@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "Las contraseñas no coinciden",
   "passwordUpdated": "Contraseña actualizada exitosamente",
   "incorrectCurrentPassword": "Contraseña actual incorrecta, por favor intente de nuevo",
-  "passwordTooShort": "La contraseña debe tener al menos 6 caracteres"
+  "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+  "savingsAccounts": "Cuentas de ahorro",
+  "savingsAccount": "Cuenta de ahorro",
+  "addSavingsAccount": "Agregar cuenta de ahorro",
+  "editSavingsAccount": "Editar cuenta de ahorro",
+  "savingsAccountName": "Nombre de la cuenta",
+  "setAsDefaultAccount": "Establecer como predeterminada",
+  "unassignedAccount": "Sin asignar",
+  "noAccountYet": "Aún no hay cuentas de ahorro",
+  "currentRateLabel": "Tipo de cambio actual",
+  "rateSourceLabel": "Fuente"
 }

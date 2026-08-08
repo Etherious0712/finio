@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
   "passwordUpdated": "Passwort erfolgreich aktualisiert",
   "incorrectCurrentPassword": "Aktuelles Passwort falsch, bitte erneut versuchen",
-  "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein"
+  "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein",
+  "savingsAccounts": "Sparkonten",
+  "savingsAccount": "Sparkonto",
+  "addSavingsAccount": "Sparkonto hinzufügen",
+  "editSavingsAccount": "Sparkonto bearbeiten",
+  "savingsAccountName": "Kontoname",
+  "setAsDefaultAccount": "Als Standard festlegen",
+  "unassignedAccount": "Nicht zugeordnet",
+  "noAccountYet": "Noch keine Sparkonten",
+  "currentRateLabel": "Aktueller Kurs",
+  "rateSourceLabel": "Quelle"
 }
