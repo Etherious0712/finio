@@ -127,5 +127,15 @@
   "passwordsDoNotMatch": "パスワードが一致しません",
   "passwordUpdated": "パスワードが正常に更新されました",
   "incorrectCurrentPassword": "現在のパスワードが正しくありません。再試行してください",
-  "passwordTooShort": "パスワードは6文字以上必要です"
+  "passwordTooShort": "パスワードは6文字以上必要です",
+  "savingsAccounts": "貯蓄口座",
+  "savingsAccount": "貯蓄口座",
+  "addSavingsAccount": "貯蓄口座を追加",
+  "editSavingsAccount": "貯蓄口座を編集",
+  "savingsAccountName": "口座名",
+  "setAsDefaultAccount": "デフォルトに設定",
+  "unassignedAccount": "未割り当て",
+  "noAccountYet": "貯蓄口座がありません",
+  "currentRateLabel": "現在のレート",
+  "rateSourceLabel": "データ提供元"
 }

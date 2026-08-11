@@ -397,4 +397,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get passwordTooShort => '密码不能少于 6 位';
+
+  @override
+  String get savingsAccounts => '储蓄账户';
+
+  @override
+  String get savingsAccount => '储蓄账户';
+
+  @override
+  String get addSavingsAccount => '添加储蓄账户';
+
+  @override
+  String get editSavingsAccount => '编辑储蓄账户';
+
+  @override
+  String get savingsAccountName => '账户名称';
+
+  @override
+  String get setAsDefaultAccount => '设为默认';
+
+  @override
+  String get unassignedAccount => '未分配';
+
+  @override
+  String get noAccountYet => '暂无储蓄账户';
+
+  @override
+  String get currentRateLabel => '当前汇率';
+
+  @override
+  String get rateSourceLabel => '数据来源';
 }

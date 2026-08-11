@@ -398,4 +398,34 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get passwordTooShort => '비밀번호는 6자 이상이어야 합니다';
+
+  @override
+  String get savingsAccounts => '저축 계좌';
+
+  @override
+  String get savingsAccount => '저축 계좌';
+
+  @override
+  String get addSavingsAccount => '저축 계좌 추가';
+
+  @override
+  String get editSavingsAccount => '저축 계좌 편집';
+
+  @override
+  String get savingsAccountName => '계좌 이름';
+
+  @override
+  String get setAsDefaultAccount => '기본으로 설정';
+
+  @override
+  String get unassignedAccount => '미지정';
+
+  @override
+  String get noAccountYet => '저축 계좌가 없습니다';
+
+  @override
+  String get currentRateLabel => '현재 환율';
+
+  @override
+  String get rateSourceLabel => '출처';
 }

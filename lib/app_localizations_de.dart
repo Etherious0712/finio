@@ -406,4 +406,34 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get passwordTooShort =>
       'Das Passwort muss mindestens 6 Zeichen lang sein';
+
+  @override
+  String get savingsAccounts => 'Sparkonten';
+
+  @override
+  String get savingsAccount => 'Sparkonto';
+
+  @override
+  String get addSavingsAccount => 'Sparkonto hinzufügen';
+
+  @override
+  String get editSavingsAccount => 'Sparkonto bearbeiten';
+
+  @override
+  String get savingsAccountName => 'Kontoname';
+
+  @override
+  String get setAsDefaultAccount => 'Als Standard festlegen';
+
+  @override
+  String get unassignedAccount => 'Nicht zugeordnet';
+
+  @override
+  String get noAccountYet => 'Noch keine Sparkonten';
+
+  @override
+  String get currentRateLabel => 'Aktueller Kurs';
+
+  @override
+  String get rateSourceLabel => 'Quelle';
 }

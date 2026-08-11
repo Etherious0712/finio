@@ -8,11 +8,13 @@ import '../../core/ai/rule_classifier.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../providers/account_providers.dart';
 import '../providers/category_providers.dart';
 import '../providers/currency_provider.dart';
 import '../providers/database_provider.dart';
 import '../utils/category_icon.dart';
 import '../utils/category_localizer.dart';
+import 'account_picker.dart';
 import 'amount_keypad.dart';
 
 /// Fast transaction entry as a bottom sheet: type → amount (custom keypad) →
@@ -41,6 +43,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   final _classifier = RuleClassifier();
   String _amount = '';
   String? _category;
+  String? _account;
+  // See add_transaction_screen: one-shot default-jar seeding.
+  bool _accountInitialized = false;
   bool _saving = false;
   // See add_transaction_screen: only auto-create a sub when the suggestion is kept.
   bool _autoSuggested = false;
@@ -134,6 +139,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         category: categoryToStore,
         date: DateTime.now(),
         note: note.isNotEmpty ? Value(note) : const Value.absent(),
+        account: Value(_account),
       ),
     );
     if (mounted) Navigator.pop(context, true);
@@ -155,98 +161,116 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         .valueOrNull ??
         const <Category>[];
 
+    final defaultAccount = ref.watch(defaultAccountProvider);
+    if (!_accountInitialized && defaultAccount != null) {
+      _account = defaultAccount.name;
+      _accountInitialized = true;
+    }
+
     return Padding(
       padding: EdgeInsets.only(
         left: Insets.lg,
         right: Insets.lg,
         bottom: MediaQuery.of(context).viewInsets.bottom + Insets.lg,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Type toggle
-          Center(
-            child: SegmentedButton<TransactionType>(
-              segments: [
-                ButtonSegment(
-                    value: TransactionType.expense, label: Text(l.expense)),
-                ButtonSegment(
-                    value: TransactionType.income, label: Text(l.income)),
-              ],
-              selected: {_type},
-              onSelectionChanged: (s) => setState(() {
-                _type = s.first;
-                _category = null;
-                _autoSuggested = false;
+      // Scrollable: with the jar row added, this content can outgrow a short
+      // screen with the keyboard up, which would leave Save unreachable.
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Type toggle
+            Center(
+              child: SegmentedButton<TransactionType>(
+                segments: [
+                  ButtonSegment(
+                      value: TransactionType.expense, label: Text(l.expense)),
+                  ButtonSegment(
+                      value: TransactionType.income, label: Text(l.income)),
+                ],
+                selected: {_type},
+                onSelectionChanged: (s) => setState(() {
+                  _type = s.first;
+                  _category = null;
+                  _autoSuggested = false;
+                }),
+              ),
+            ),
+            const SizedBox(height: Insets.lg),
+            // Amount display
+            Text(
+              '$symbol ${_amount.isEmpty ? '0' : _amount}',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .displayMedium
+                  ?.copyWith(color: typeColor, fontWeight: FontWeight.w700)
+                  .tabular,
+            ),
+            const SizedBox(height: Insets.sm),
+            // Optional note (drives auto-categorization)
+            TextField(
+              controller: _noteController,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                isDense: true,
+                hintText: l.note,
+                prefixIcon: const Icon(Icons.notes, size: 20),
+              ),
+            ),
+            const SizedBox(height: Insets.md),
+            // Category chips (one-tap)
+            SizedBox(
+              height: 40,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                separatorBuilder: (_, _) => const SizedBox(width: Insets.sm),
+                itemBuilder: (_, i) {
+                  final c = categories[i];
+                  final color = parseCategoryColor(c.color);
+                  final selected = c.name == _category;
+                  return _CatChip(
+                    label: localizeCategory(l, c.name),
+                    icon: categoryIconData(c.icon),
+                    color: color,
+                    selected: selected,
+                    onTap: () => setState(() {
+                      _category = c.name;
+                      _autoSuggested = false;
+                    }),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: Insets.sm),
+            AccountPicker(
+              selected: _account,
+              onSelect: (name) => setState(() {
+                _account = name;
+                _accountInitialized = true;
               }),
             ),
-          ),
-          const SizedBox(height: Insets.lg),
-          // Amount display
-          Text(
-            '$symbol ${_amount.isEmpty ? '0' : _amount}',
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .displayMedium
-                ?.copyWith(color: typeColor, fontWeight: FontWeight.w700)
-                .tabular,
-          ),
-          const SizedBox(height: Insets.sm),
-          // Optional note (drives auto-categorization)
-          TextField(
-            controller: _noteController,
-            textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: l.note,
-              prefixIcon: const Icon(Icons.notes, size: 20),
+            const SizedBox(height: Insets.sm),
+            AmountKeypad(
+              value: _amount,
+              onChanged: (v) => setState(() => _amount = v),
             ),
-          ),
-          const SizedBox(height: Insets.md),
-          // Category chips (one-tap)
-          SizedBox(
-            height: 40,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              separatorBuilder: (_, _) => const SizedBox(width: Insets.sm),
-              itemBuilder: (_, i) {
-                final c = categories[i];
-                final color = parseCategoryColor(c.color);
-                final selected = c.name == _category;
-                return _CatChip(
-                  label: localizeCategory(l, c.name),
-                  icon: categoryIconData(c.icon),
-                  color: color,
-                  selected: selected,
-                  onTap: () => setState(() {
-                    _category = c.name;
-                    _autoSuggested = false;
-                  }),
-                );
-              },
+            const SizedBox(height: Insets.sm),
+            FilledButton(
+              onPressed: _saving ? null : _save,
+              style: FilledButton.styleFrom(backgroundColor: typeColor),
+              child: _saving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
+                  : Text(l.save),
             ),
-          ),
-          const SizedBox(height: Insets.sm),
-          AmountKeypad(
-            value: _amount,
-            onChanged: (v) => setState(() => _amount = v),
-          ),
-          const SizedBox(height: Insets.sm),
-          FilledButton(
-            onPressed: _saving ? null : _save,
-            style: FilledButton.styleFrom(backgroundColor: typeColor),
-            child: _saving
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
-                : Text(l.save),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

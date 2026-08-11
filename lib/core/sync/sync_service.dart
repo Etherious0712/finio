@@ -48,6 +48,7 @@ class SyncService {
               'note': t.note,
               'date': t.date.toUtc().toIso8601String(),
               'currency_code': t.currencyCode,
+              'account': t.account,
               'updated_at': t.updatedAt.toUtc().toIso8601String(),
             })
             .select('id')
@@ -67,6 +68,7 @@ class SyncService {
               'note': t.note,
               'date': t.date.toUtc().toIso8601String(),
               'currency_code': t.currencyCode,
+              'account': t.account,
               'updated_at': t.updatedAt.toUtc().toIso8601String(),
             })
             .eq('id', t.syncId!);
@@ -89,6 +91,15 @@ class SyncService {
       final existing = await _db.transactionDao.getTransactionBySyncId(syncId);
       if (existing != null) continue;
 
+      // Savings jars are referenced by name and are local-only, so a record
+      // arriving from another device needs its jar materialised here. Icon and
+      // color don't sync in v1 — a recreated jar gets the DAO's defaults and
+      // the user can restyle it.
+      final account = row['account'] as String?;
+      if (account != null && account.isNotEmpty) {
+        await _db.accountDao.findOrCreateByName(account);
+      }
+
       // Cloud record not found locally → download it
       await _db.transactionDao.insertTransaction(
         TransactionsCompanion.insert(
@@ -101,6 +112,7 @@ class SyncService {
           createdAt: Value(DateTime.parse(row['created_at'] as String).toLocal()),
           updatedAt: Value(DateTime.parse(row['updated_at'] as String).toLocal()),
           currencyCode: Value(row['currency_code'] as String? ?? 'USD'),
+          account: Value(account),
           syncId: Value(syncId),
           isSynced: const Value(true),
         ),

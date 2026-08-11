@@ -11,9 +11,11 @@ import '../../core/ai/rule_classifier.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../shared/providers/account_providers.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
+import '../../shared/widgets/account_picker.dart';
 import '../../shared/widgets/category_picker.dart';
 
 /// Add or edit a transaction. Pass an existing [Transaction] via GoRouter
@@ -35,6 +37,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   late TransactionType _type;
   String? _selectedCategory;
+  String? _selectedAccount;
+  // Only preselect the default jar once, so it can't overwrite a manual pick on
+  // a later rebuild.
+  bool _accountInitialized = false;
   late DateTime _selectedDate;
   bool _saving = false;
   // True while the category is the classifier's suggestion (user hasn't picked
@@ -53,6 +59,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         ? TransactionType.income
         : TransactionType.expense;
     _selectedCategory = tx?.category;
+    _selectedAccount = tx?.account;
+    // Editing keeps whatever the record already had, including "unassigned".
+    _accountInitialized = _isEditing;
     _selectedDate = tx?.date ?? DateTime.now();
     _amountController =
         TextEditingController(text: tx != null ? _trimAmount(tx.amount) : '');
@@ -162,6 +171,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             category: main,
             date: _selectedDate,
             note: noteText.isNotEmpty ? Value(noteText) : const Value(null),
+            account: Value(_selectedAccount),
             isSynced: false,
             updatedAt: DateTime.now(),
           ),
@@ -175,6 +185,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             category: categoryToStore,
             date: _selectedDate,
             note: noteText.isNotEmpty ? Value(noteText) : const Value.absent(),
+            account: Value(_selectedAccount),
           ),
         );
       }
@@ -196,6 +207,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final isExpense = _type == TransactionType.expense;
     final symbol = ref.watch(currencySymbolProvider);
     final typeColor = finio.forType(isExpense ? 'expense' : 'income');
+
+    // Jars arrive asynchronously, so seed the default pick on the first build
+    // that has them. Guarded so it never clobbers a manual choice.
+    final defaultAccount = ref.watch(defaultAccountProvider);
+    if (!_accountInitialized && defaultAccount != null) {
+      _selectedAccount = defaultAccount.name;
+      _accountInitialized = true;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -326,6 +345,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Text('${l.loadFailed}: $e'),
+                  ),
+                  const SizedBox(height: Insets.lg),
+                  AccountPicker(
+                    selected: _selectedAccount,
+                    onSelect: (name) => setState(() {
+                      _selectedAccount = name;
+                      _accountInitialized = true;
+                    }),
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import 'daos/account_dao.dart';
 import 'daos/budget_dao.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
@@ -23,6 +24,21 @@ class Transactions extends Table {
       text().withDefault(const Constant('USD'))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get deletedAt => dateTime().nullable()();
+  // Savings jar this record belongs to, referenced by name (same convention as
+  // [category] above). null = unassigned. Renames cascade via
+  // AccountDao.renameAccount.
+  TextColumn get account => text().nullable()();
+}
+
+/// A user-defined "savings jar" — a bank, e-wallet or cash pile money sits in.
+class Accounts extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(max: 50)();
+  TextColumn get icon => text()(); // Material icon name
+  TextColumn get color => text()(); // Hex color string
+  // Preselected when adding a transaction. At most one row is true — enforced
+  // by AccountDao.setDefault.
+  BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
 }
 
 class Categories extends Table {
@@ -45,7 +61,7 @@ class Budgets extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [Transactions, Categories, Budgets])
+@DriftDatabase(tables: [Transactions, Categories, Budgets, Accounts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -53,11 +69,12 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
   late final budgetDao = BudgetDao(this);
+  late final accountDao = AccountDao(this);
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -89,6 +106,13 @@ class AppDatabase extends _$AppDatabase {
             // Two-level categories: existing rows all become mains (parent NULL).
             await customStatement(
               'ALTER TABLE categories ADD COLUMN parent_id INTEGER',
+            );
+          }
+          if (from < 7) {
+            // Savings jars. Existing transactions stay NULL = unassigned.
+            await m.createTable(accounts);
+            await customStatement(
+              'ALTER TABLE transactions ADD COLUMN account TEXT',
             );
           }
         },

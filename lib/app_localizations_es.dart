@@ -406,4 +406,34 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get passwordTooShort =>
       'La contraseña debe tener al menos 6 caracteres';
+
+  @override
+  String get savingsAccounts => 'Cuentas de ahorro';
+
+  @override
+  String get savingsAccount => 'Cuenta de ahorro';
+
+  @override
+  String get addSavingsAccount => 'Agregar cuenta de ahorro';
+
+  @override
+  String get editSavingsAccount => 'Editar cuenta de ahorro';
+
+  @override
+  String get savingsAccountName => 'Nombre de la cuenta';
+
+  @override
+  String get setAsDefaultAccount => 'Establecer como predeterminada';
+
+  @override
+  String get unassignedAccount => 'Sin asignar';
+
+  @override
+  String get noAccountYet => 'Aún no hay cuentas de ahorro';
+
+  @override
+  String get currentRateLabel => 'Tipo de cambio actual';
+
+  @override
+  String get rateSourceLabel => 'Fuente';
 }

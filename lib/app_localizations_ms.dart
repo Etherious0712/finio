@@ -405,4 +405,34 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get passwordTooShort =>
       'Kata laluan mestilah sekurang-kurangnya 6 aksara';
+
+  @override
+  String get savingsAccounts => 'Akaun Simpanan';
+
+  @override
+  String get savingsAccount => 'Akaun Simpanan';
+
+  @override
+  String get addSavingsAccount => 'Tambah Akaun Simpanan';
+
+  @override
+  String get editSavingsAccount => 'Edit Akaun Simpanan';
+
+  @override
+  String get savingsAccountName => 'Nama Akaun';
+
+  @override
+  String get setAsDefaultAccount => 'Tetapkan sebagai lalai';
+
+  @override
+  String get unassignedAccount => 'Tidak ditetapkan';
+
+  @override
+  String get noAccountYet => 'Belum ada akaun simpanan';
+
+  @override
+  String get currentRateLabel => 'Kadar semasa';
+
+  @override
+  String get rateSourceLabel => 'Sumber';
 }

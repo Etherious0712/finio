@@ -402,4 +402,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get savingsAccounts => 'Savings Accounts';
+
+  @override
+  String get savingsAccount => 'Savings Account';
+
+  @override
+  String get addSavingsAccount => 'Add Savings Account';
+
+  @override
+  String get editSavingsAccount => 'Edit Savings Account';
+
+  @override
+  String get savingsAccountName => 'Account Name';
+
+  @override
+  String get setAsDefaultAccount => 'Set as default';
+
+  @override
+  String get unassignedAccount => 'Unassigned';
+
+  @override
+  String get noAccountYet => 'No savings accounts yet';
+
+  @override
+  String get currentRateLabel => 'Current rate';
+
+  @override
+  String get rateSourceLabel => 'Source';
 }
