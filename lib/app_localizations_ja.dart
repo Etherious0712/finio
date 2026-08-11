@@ -241,7 +241,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get unknownCategory => '不明';
 
   @override
-  String get confirmCurrencyConvert => '通貨換算を確認しますか？';
+  String get confirmCurrencyConvert => '通貨を変更しますか？';
 
   @override
   String get fromLabel => 'から';
@@ -250,21 +250,82 @@ class AppLocalizationsJa extends AppLocalizations {
   String get toLabel => 'へ';
 
   @override
-  String get currencyConvertWarning => '全取引の金額がこのレートで換算されます。この操作は取り消せません。';
+  String get currencyConvertWarning => '既存の金額は換算されません。表示される通貨記号のみが変わります。';
 
   @override
-  String get confirmConvert => '換算する';
+  String get confirmConvert => '変更する';
 
   @override
-  String currencyConvertSuccess(int count) {
-    return '換算完了、$count件を更新しました';
-  }
+  String get curUSD => '米ドル';
 
   @override
-  String get currencyNotSupported => 'この通貨はFrankfurterに対応していません';
+  String get curSGD => 'シンガポールドル';
 
   @override
-  String get exchangeRateFetchFailed => '為替レートの取得に失敗しました。接続を確認してください。';
+  String get curMYR => 'マレーシアリンギット';
+
+  @override
+  String get curCNY => '人民元';
+
+  @override
+  String get curJPY => '日本円';
+
+  @override
+  String get curEUR => 'ユーロ';
+
+  @override
+  String get curGBP => '英ポンド';
+
+  @override
+  String get curKRW => '韓国ウォン';
+
+  @override
+  String get curTHB => 'タイバーツ';
+
+  @override
+  String get curINR => 'インドルピー';
+
+  @override
+  String get curTWD => '台湾ドル';
+
+  @override
+  String get curHKD => '香港ドル';
+
+  @override
+  String get curRegionUSD => 'アメリカ';
+
+  @override
+  String get curRegionSGD => 'シンガポール';
+
+  @override
+  String get curRegionMYR => 'マレーシア';
+
+  @override
+  String get curRegionCNY => '中国';
+
+  @override
+  String get curRegionJPY => '日本';
+
+  @override
+  String get curRegionEUR => 'ヨーロッパ';
+
+  @override
+  String get curRegionGBP => 'イギリス';
+
+  @override
+  String get curRegionKRW => '韓国';
+
+  @override
+  String get curRegionTHB => 'タイ';
+
+  @override
+  String get curRegionINR => 'インド';
+
+  @override
+  String get curRegionTWD => '台湾';
+
+  @override
+  String get curRegionHKD => '香港';
 
   @override
   String get catFood => '食事';
@@ -421,10 +482,4 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noAccountYet => '貯蓄口座がありません';
-
-  @override
-  String get currentRateLabel => '現在のレート';
-
-  @override
-  String get rateSourceLabel => 'データ提供元';
 }

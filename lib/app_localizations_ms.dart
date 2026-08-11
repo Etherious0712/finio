@@ -242,7 +242,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get unknownCategory => 'Tidak diketahui';
 
   @override
-  String get confirmCurrencyConvert => 'Sahkan penukaran mata wang?';
+  String get confirmCurrencyConvert => 'Tukar mata wang?';
 
   @override
   String get fromLabel => 'Dari';
@@ -252,23 +252,82 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get currencyConvertWarning =>
-      'Semua jumlah transaksi akan ditukar mengikut kadar ini. Tindakan ini tidak boleh dibatalkan.';
+      'Jumlah sedia ada tidak akan ditukar — hanya simbol mata wang yang berubah.';
 
   @override
   String get confirmConvert => 'Sahkan';
 
   @override
-  String currencyConvertSuccess(int count) {
-    return 'Penukaran selesai, $count rekod dikemas kini';
-  }
+  String get curUSD => 'Dolar AS';
 
   @override
-  String get currencyNotSupported =>
-      'Mata wang ini tidak disokong oleh Frankfurter';
+  String get curSGD => 'Dolar Singapura';
 
   @override
-  String get exchangeRateFetchFailed =>
-      'Gagal mendapatkan kadar pertukaran. Semak sambungan anda.';
+  String get curMYR => 'Ringgit Malaysia';
+
+  @override
+  String get curCNY => 'Yuan China';
+
+  @override
+  String get curJPY => 'Yen Jepun';
+
+  @override
+  String get curEUR => 'Euro';
+
+  @override
+  String get curGBP => 'Paun British';
+
+  @override
+  String get curKRW => 'Won Korea Selatan';
+
+  @override
+  String get curTHB => 'Baht Thai';
+
+  @override
+  String get curINR => 'Rupee India';
+
+  @override
+  String get curTWD => 'Dolar Taiwan Baharu';
+
+  @override
+  String get curHKD => 'Dolar Hong Kong';
+
+  @override
+  String get curRegionUSD => 'Amerika Syarikat';
+
+  @override
+  String get curRegionSGD => 'Singapura';
+
+  @override
+  String get curRegionMYR => 'Malaysia';
+
+  @override
+  String get curRegionCNY => 'China';
+
+  @override
+  String get curRegionJPY => 'Jepun';
+
+  @override
+  String get curRegionEUR => 'Eropah';
+
+  @override
+  String get curRegionGBP => 'United Kingdom';
+
+  @override
+  String get curRegionKRW => 'Korea Selatan';
+
+  @override
+  String get curRegionTHB => 'Thailand';
+
+  @override
+  String get curRegionINR => 'India';
+
+  @override
+  String get curRegionTWD => 'Taiwan';
+
+  @override
+  String get curRegionHKD => 'Hong Kong';
 
   @override
   String get catFood => 'Makanan';
@@ -429,10 +488,4 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get noAccountYet => 'Belum ada akaun simpanan';
-
-  @override
-  String get currentRateLabel => 'Kadar semasa';
-
-  @override
-  String get rateSourceLabel => 'Sumber';
 }

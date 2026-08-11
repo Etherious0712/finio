@@ -241,7 +241,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get unknownCategory => 'Unbekannt';
 
   @override
-  String get confirmCurrencyConvert => 'Währungsumrechnung bestätigen?';
+  String get confirmCurrencyConvert => 'Währung ändern?';
 
   @override
   String get fromLabel => 'Von';
@@ -251,23 +251,82 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get currencyConvertWarning =>
-      'Alle Beträge werden zum aktuellen Kurs umgerechnet. Dies kann nicht rückgängig gemacht werden.';
+      'Vorhandene Beträge werden nicht umgerechnet — nur das Währungssymbol ändert sich.';
 
   @override
   String get confirmConvert => 'Bestätigen';
 
   @override
-  String currencyConvertSuccess(int count) {
-    return 'Umrechnung abgeschlossen, $count Einträge aktualisiert';
-  }
+  String get curUSD => 'US-Dollar';
 
   @override
-  String get currencyNotSupported =>
-      'Diese Währung wird von Frankfurter nicht unterstützt';
+  String get curSGD => 'Singapur-Dollar';
 
   @override
-  String get exchangeRateFetchFailed =>
-      'Wechselkurs konnte nicht abgerufen werden. Bitte Verbindung prüfen.';
+  String get curMYR => 'Malaysischer Ringgit';
+
+  @override
+  String get curCNY => 'Chinesischer Yuan';
+
+  @override
+  String get curJPY => 'Japanischer Yen';
+
+  @override
+  String get curEUR => 'Euro';
+
+  @override
+  String get curGBP => 'Britisches Pfund';
+
+  @override
+  String get curKRW => 'Südkoreanischer Won';
+
+  @override
+  String get curTHB => 'Thailändischer Baht';
+
+  @override
+  String get curINR => 'Indische Rupie';
+
+  @override
+  String get curTWD => 'Neuer Taiwan-Dollar';
+
+  @override
+  String get curHKD => 'Hongkong-Dollar';
+
+  @override
+  String get curRegionUSD => 'Vereinigte Staaten';
+
+  @override
+  String get curRegionSGD => 'Singapur';
+
+  @override
+  String get curRegionMYR => 'Malaysia';
+
+  @override
+  String get curRegionCNY => 'China';
+
+  @override
+  String get curRegionJPY => 'Japan';
+
+  @override
+  String get curRegionEUR => 'Europa';
+
+  @override
+  String get curRegionGBP => 'Vereinigtes Königreich';
+
+  @override
+  String get curRegionKRW => 'Südkorea';
+
+  @override
+  String get curRegionTHB => 'Thailand';
+
+  @override
+  String get curRegionINR => 'Indien';
+
+  @override
+  String get curRegionTWD => 'Taiwan';
+
+  @override
+  String get curRegionHKD => 'Hongkong';
 
   @override
   String get catFood => 'Essen & Trinken';
@@ -430,10 +489,4 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noAccountYet => 'Noch keine Sparkonten';
-
-  @override
-  String get currentRateLabel => 'Aktueller Kurs';
-
-  @override
-  String get rateSourceLabel => 'Quelle';
 }

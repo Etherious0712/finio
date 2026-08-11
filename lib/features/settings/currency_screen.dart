@@ -1,162 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/services/exchange_rate_service.dart';
 import '../../shared/providers/currency_provider.dart';
-import '../../shared/providers/database_provider.dart';
+import '../../shared/utils/currency_localizer.dart';
 import 'package:finio/app_localizations.dart';
 
-class CurrencyScreen extends ConsumerStatefulWidget {
+class CurrencyScreen extends ConsumerWidget {
   const CurrencyScreen({super.key});
 
-  @override
-  ConsumerState<CurrencyScreen> createState() => _CurrencyScreenState();
-}
-
-class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
-  bool _loading = false;
-
-  // (code, symbol, name, region)
-  static const _kOptions = [
-    ('USD', r'$',    '美元',        'USD · 美国'),
-    ('SGD', r'$',    '新加坡元',    'SGD · 新加坡'),
-    ('MYR', 'RM',   '马来西亚令吉', 'MYR · 马来西亚'),
-    ('CNY', '¥',    '人民币',      'CNY · 中国'),
-    ('JPY', '¥',    '日元',        'JPY · 日本'),
-    ('EUR', '€',    '欧元',        'EUR · 欧洲'),
-    ('GBP', '£',    '英镑',        'GBP · 英国'),
-    ('KRW', '₩',    '韩元',        'KRW · 韩国'),
-    ('THB', '฿',    '泰铢',        'THB · 泰国'),
-    ('INR', '₹',    '印度卢比',    'INR · 印度'),
-    ('TWD', r'NT$', '新台币',      'TWD · 台湾'),
-    ('HKD', r'HK$', '港币',        'HKD · 香港'),
-  ];
-
-  static (String, String, String, String)? _option(String code) {
-    for (final o in _kOptions) {
-      if (o.$1 == code) return o;
-    }
-    return null;
-  }
-
-  Future<void> _handleSelection(String newCode) async {
+  Future<void> _handleSelection(
+    BuildContext context,
+    WidgetRef ref,
+    String newCode,
+  ) async {
     final l = AppLocalizations.of(context)!;
     final currentCode = ref.read(currencyProvider);
-    if (newCode == currentCode || _loading) return;
+    if (newCode == currentCode) return;
 
-    setState(() => _loading = true);
-    try {
-      final quote = await ExchangeRateService.getRate(currentCode, newCode);
-      final rate = quote.rate;
-      if (!mounted) return;
+    String label(String code) =>
+        '$code · ${symbolFromCode(code)} ${localizeCurrencyName(l, code)}';
 
-      final from = _option(currentCode);
-      final to = _option(newCode);
-      final fromLabel = from != null ? '$currentCode（${from.$2} ${from.$3}）' : currentCode;
-      final toLabel   = to   != null ? '$newCode（${to.$2} ${to.$3}）'         : newCode;
-
-      final confirmed = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          title: Text(l.confirmCurrencyConvert),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _InfoRow(label: l.fromLabel, value: fromLabel),
-              _InfoRow(label: l.toLabel, value: toLabel),
-              const SizedBox(height: 10),
-              Text(
-                '${l.currentRateLabel}: 1 $currentCode = '
-                '${rate.toStringAsFixed(4)} $newCode',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                // The actual provider — a rate for a currency the ECB list omits
-                // (e.g. TWD) comes from the fallback, so naming one source
-                // unconditionally would be false.
-                '${l.rateSourceLabel}: ${quote.source}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                l.currencyConvertWarning,
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.confirmConvert),
-            ),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l.confirmCurrencyConvert),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _InfoRow(label: l.fromLabel, value: label(currentCode)),
+            _InfoRow(label: l.toLabel, value: label(newCode)),
+            const SizedBox(height: 12),
+            Text(l.currencyConvertWarning, style: const TextStyle(fontSize: 13)),
           ],
         ),
-      );
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.confirmConvert),
+          ),
+        ],
+      ),
+    );
 
-      if (!mounted || confirmed != true) return;
-
-      final db = ref.read(appDatabaseProvider);
-      final count = await db.transactionDao.updateAllAmounts(rate);
-      await ref.read(currencyProvider.notifier).setCode(newCode);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.currencyConvertSuccess(count))),
-      );
-    } on UnsupportedError {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.currencyNotSupported)),
-      );
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.exchangeRateFetchFailed)),
-      );
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
+    if (confirmed != true) return;
+    await ref.read(currencyProvider.notifier).setCode(newCode);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final currentCode = ref.watch(currencyProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l.currency), centerTitle: true),
-      body: Stack(
-        children: [
-          AbsorbPointer(
-            absorbing: _loading,
-            child: RadioGroup<String>(
-              groupValue: currentCode,
-              onChanged: (v) => _handleSelection(v!),
-              child: ListView(
-                children: [
-                  for (final (code, symbol, name, region) in _kOptions)
-                    RadioListTile<String>(
-                      value: code,
-                      title: Text('$symbol  $name'),
-                      subtitle: Text(region),
-                    ),
-                ],
+      body: RadioGroup<String>(
+        groupValue: currentCode,
+        onChanged: (v) => _handleSelection(context, ref, v!),
+        child: ListView(
+          children: [
+            for (final code in kCurrencyCodes)
+              RadioListTile<String>(
+                value: code,
+                title: Text(
+                  '${symbolFromCode(code)}  ${localizeCurrencyName(l, code)}',
+                ),
+                subtitle: Text('$code · ${localizeCurrencyRegion(l, code)}'),
               ),
-            ),
-          ),
-          if (_loading)
-            const Center(child: CircularProgressIndicator()),
-        ],
+          ],
+        ),
       ),
     );
   }

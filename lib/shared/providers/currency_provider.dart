@@ -1,6 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// The supported currencies, in display order. Names and countries are
+/// localized via `localizeCurrencyName` / `localizeCurrencyRegion`.
+const kCurrencyCodes = [
+  'USD', 'SGD', 'MYR', 'CNY', 'JPY', 'EUR',
+  'GBP', 'KRW', 'THB', 'INR', 'TWD', 'HKD',
+];
+
 String symbolFromCode(String code) {
   const map = {
     'USD': r'$',

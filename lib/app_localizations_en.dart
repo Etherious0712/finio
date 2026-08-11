@@ -241,7 +241,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownCategory => 'Unknown';
 
   @override
-  String get confirmCurrencyConvert => 'Confirm currency conversion?';
+  String get confirmCurrencyConvert => 'Change currency?';
 
   @override
   String get fromLabel => 'From';
@@ -251,23 +251,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currencyConvertWarning =>
-      'All transaction amounts will be converted at this rate. This cannot be undone.';
+      'Existing amounts are not converted — only the currency symbol changes.';
 
   @override
   String get confirmConvert => 'Confirm';
 
   @override
-  String currencyConvertSuccess(int count) {
-    return 'Conversion complete, updated $count records';
-  }
+  String get curUSD => 'US Dollar';
 
   @override
-  String get currencyNotSupported =>
-      'This currency is not supported by Frankfurter';
+  String get curSGD => 'Singapore Dollar';
 
   @override
-  String get exchangeRateFetchFailed =>
-      'Failed to fetch exchange rate. Please check your connection.';
+  String get curMYR => 'Malaysian Ringgit';
+
+  @override
+  String get curCNY => 'Chinese Yuan';
+
+  @override
+  String get curJPY => 'Japanese Yen';
+
+  @override
+  String get curEUR => 'Euro';
+
+  @override
+  String get curGBP => 'British Pound';
+
+  @override
+  String get curKRW => 'South Korean Won';
+
+  @override
+  String get curTHB => 'Thai Baht';
+
+  @override
+  String get curINR => 'Indian Rupee';
+
+  @override
+  String get curTWD => 'New Taiwan Dollar';
+
+  @override
+  String get curHKD => 'Hong Kong Dollar';
+
+  @override
+  String get curRegionUSD => 'United States';
+
+  @override
+  String get curRegionSGD => 'Singapore';
+
+  @override
+  String get curRegionMYR => 'Malaysia';
+
+  @override
+  String get curRegionCNY => 'China';
+
+  @override
+  String get curRegionJPY => 'Japan';
+
+  @override
+  String get curRegionEUR => 'Europe';
+
+  @override
+  String get curRegionGBP => 'United Kingdom';
+
+  @override
+  String get curRegionKRW => 'South Korea';
+
+  @override
+  String get curRegionTHB => 'Thailand';
+
+  @override
+  String get curRegionINR => 'India';
+
+  @override
+  String get curRegionTWD => 'Taiwan';
+
+  @override
+  String get curRegionHKD => 'Hong Kong';
 
   @override
   String get catFood => 'Food & Dining';
@@ -426,10 +485,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noAccountYet => 'No savings accounts yet';
-
-  @override
-  String get currentRateLabel => 'Current rate';
-
-  @override
-  String get rateSourceLabel => 'Source';
 }

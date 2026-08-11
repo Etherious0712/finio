@@ -241,7 +241,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unknownCategory => '未知分类';
 
   @override
-  String get confirmCurrencyConvert => '确认换算货币？';
+  String get confirmCurrencyConvert => '更改货币？';
 
   @override
   String get fromLabel => '从';
@@ -250,21 +250,82 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toLabel => '到';
 
   @override
-  String get currencyConvertWarning => '所有历史记录的金额将根据此汇率换算，此操作无法撤销。';
+  String get currencyConvertWarning => '已有记录的金额不会换算，仅更改显示的货币符号。';
 
   @override
-  String get confirmConvert => '确认换算';
+  String get confirmConvert => '确认更改';
 
   @override
-  String currencyConvertSuccess(int count) {
-    return '已完成换算，共更新 $count 笔记录';
-  }
+  String get curUSD => '美元';
 
   @override
-  String get currencyNotSupported => '该货币暂不支持汇率查询（Frankfurter 不提供此货币数据）';
+  String get curSGD => '新加坡元';
 
   @override
-  String get exchangeRateFetchFailed => '获取汇率失败，请检查网络连接';
+  String get curMYR => '马来西亚令吉';
+
+  @override
+  String get curCNY => '人民币';
+
+  @override
+  String get curJPY => '日元';
+
+  @override
+  String get curEUR => '欧元';
+
+  @override
+  String get curGBP => '英镑';
+
+  @override
+  String get curKRW => '韩元';
+
+  @override
+  String get curTHB => '泰铢';
+
+  @override
+  String get curINR => '印度卢比';
+
+  @override
+  String get curTWD => '新台币';
+
+  @override
+  String get curHKD => '港币';
+
+  @override
+  String get curRegionUSD => '美国';
+
+  @override
+  String get curRegionSGD => '新加坡';
+
+  @override
+  String get curRegionMYR => '马来西亚';
+
+  @override
+  String get curRegionCNY => '中国';
+
+  @override
+  String get curRegionJPY => '日本';
+
+  @override
+  String get curRegionEUR => '欧洲';
+
+  @override
+  String get curRegionGBP => '英国';
+
+  @override
+  String get curRegionKRW => '韩国';
+
+  @override
+  String get curRegionTHB => '泰国';
+
+  @override
+  String get curRegionINR => '印度';
+
+  @override
+  String get curRegionTWD => '台湾';
+
+  @override
+  String get curRegionHKD => '香港';
 
   @override
   String get catFood => '餐饮';
@@ -421,10 +482,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noAccountYet => '暂无储蓄账户';
-
-  @override
-  String get currentRateLabel => '当前汇率';
-
-  @override
-  String get rateSourceLabel => '数据来源';
 }

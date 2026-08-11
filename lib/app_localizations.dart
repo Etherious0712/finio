@@ -569,7 +569,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmCurrencyConvert.
   ///
   /// In en, this message translates to:
-  /// **'Confirm currency conversion?'**
+  /// **'Change currency?'**
   String get confirmCurrencyConvert;
 
   /// No description provided for @fromLabel.
@@ -587,7 +587,7 @@ abstract class AppLocalizations {
   /// No description provided for @currencyConvertWarning.
   ///
   /// In en, this message translates to:
-  /// **'All transaction amounts will be converted at this rate. This cannot be undone.'**
+  /// **'Existing amounts are not converted — only the currency symbol changes.'**
   String get currencyConvertWarning;
 
   /// No description provided for @confirmConvert.
@@ -596,23 +596,149 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirmConvert;
 
-  /// No description provided for @currencyConvertSuccess.
+  /// No description provided for @curUSD.
   ///
   /// In en, this message translates to:
-  /// **'Conversion complete, updated {count} records'**
-  String currencyConvertSuccess(int count);
+  /// **'US Dollar'**
+  String get curUSD;
 
-  /// No description provided for @currencyNotSupported.
+  /// No description provided for @curSGD.
   ///
   /// In en, this message translates to:
-  /// **'This currency is not supported by Frankfurter'**
-  String get currencyNotSupported;
+  /// **'Singapore Dollar'**
+  String get curSGD;
 
-  /// No description provided for @exchangeRateFetchFailed.
+  /// No description provided for @curMYR.
   ///
   /// In en, this message translates to:
-  /// **'Failed to fetch exchange rate. Please check your connection.'**
-  String get exchangeRateFetchFailed;
+  /// **'Malaysian Ringgit'**
+  String get curMYR;
+
+  /// No description provided for @curCNY.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese Yuan'**
+  String get curCNY;
+
+  /// No description provided for @curJPY.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese Yen'**
+  String get curJPY;
+
+  /// No description provided for @curEUR.
+  ///
+  /// In en, this message translates to:
+  /// **'Euro'**
+  String get curEUR;
+
+  /// No description provided for @curGBP.
+  ///
+  /// In en, this message translates to:
+  /// **'British Pound'**
+  String get curGBP;
+
+  /// No description provided for @curKRW.
+  ///
+  /// In en, this message translates to:
+  /// **'South Korean Won'**
+  String get curKRW;
+
+  /// No description provided for @curTHB.
+  ///
+  /// In en, this message translates to:
+  /// **'Thai Baht'**
+  String get curTHB;
+
+  /// No description provided for @curINR.
+  ///
+  /// In en, this message translates to:
+  /// **'Indian Rupee'**
+  String get curINR;
+
+  /// No description provided for @curTWD.
+  ///
+  /// In en, this message translates to:
+  /// **'New Taiwan Dollar'**
+  String get curTWD;
+
+  /// No description provided for @curHKD.
+  ///
+  /// In en, this message translates to:
+  /// **'Hong Kong Dollar'**
+  String get curHKD;
+
+  /// No description provided for @curRegionUSD.
+  ///
+  /// In en, this message translates to:
+  /// **'United States'**
+  String get curRegionUSD;
+
+  /// No description provided for @curRegionSGD.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore'**
+  String get curRegionSGD;
+
+  /// No description provided for @curRegionMYR.
+  ///
+  /// In en, this message translates to:
+  /// **'Malaysia'**
+  String get curRegionMYR;
+
+  /// No description provided for @curRegionCNY.
+  ///
+  /// In en, this message translates to:
+  /// **'China'**
+  String get curRegionCNY;
+
+  /// No description provided for @curRegionJPY.
+  ///
+  /// In en, this message translates to:
+  /// **'Japan'**
+  String get curRegionJPY;
+
+  /// No description provided for @curRegionEUR.
+  ///
+  /// In en, this message translates to:
+  /// **'Europe'**
+  String get curRegionEUR;
+
+  /// No description provided for @curRegionGBP.
+  ///
+  /// In en, this message translates to:
+  /// **'United Kingdom'**
+  String get curRegionGBP;
+
+  /// No description provided for @curRegionKRW.
+  ///
+  /// In en, this message translates to:
+  /// **'South Korea'**
+  String get curRegionKRW;
+
+  /// No description provided for @curRegionTHB.
+  ///
+  /// In en, this message translates to:
+  /// **'Thailand'**
+  String get curRegionTHB;
+
+  /// No description provided for @curRegionINR.
+  ///
+  /// In en, this message translates to:
+  /// **'India'**
+  String get curRegionINR;
+
+  /// No description provided for @curRegionTWD.
+  ///
+  /// In en, this message translates to:
+  /// **'Taiwan'**
+  String get curRegionTWD;
+
+  /// No description provided for @curRegionHKD.
+  ///
+  /// In en, this message translates to:
+  /// **'Hong Kong'**
+  String get curRegionHKD;
 
   /// No description provided for @catFood.
   ///
@@ -925,18 +1051,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No savings accounts yet'**
   String get noAccountYet;
-
-  /// No description provided for @currentRateLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Current rate'**
-  String get currentRateLabel;
-
-  /// No description provided for @rateSourceLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Source'**
-  String get rateSourceLabel;
 }
 
 class _AppLocalizationsDelegate

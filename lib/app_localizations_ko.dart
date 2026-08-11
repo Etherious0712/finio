@@ -241,7 +241,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unknownCategory => '알 수 없음';
 
   @override
-  String get confirmCurrencyConvert => '환율 환산을 확인하시겠습니까?';
+  String get confirmCurrencyConvert => '통화를 변경하시겠습니까?';
 
   @override
   String get fromLabel => '에서';
@@ -250,22 +250,82 @@ class AppLocalizationsKo extends AppLocalizations {
   String get toLabel => '로';
 
   @override
-  String get currencyConvertWarning =>
-      '모든 거래 금액이 이 환율로 환산됩니다. 이 작업은 취소할 수 없습니다.';
+  String get currencyConvertWarning => '기존 금액은 환산되지 않으며 표시되는 통화 기호만 변경됩니다.';
 
   @override
-  String get confirmConvert => '환산 확인';
+  String get confirmConvert => '변경 확인';
 
   @override
-  String currencyConvertSuccess(int count) {
-    return '환산 완료, $count개 기록 업데이트';
-  }
+  String get curUSD => '미국 달러';
 
   @override
-  String get currencyNotSupported => '이 통화는 Frankfurter에서 지원되지 않습니다';
+  String get curSGD => '싱가포르 달러';
 
   @override
-  String get exchangeRateFetchFailed => '환율 조회 실패. 네트워크를 확인하세요.';
+  String get curMYR => '말레이시아 링깃';
+
+  @override
+  String get curCNY => '중국 위안';
+
+  @override
+  String get curJPY => '일본 엔';
+
+  @override
+  String get curEUR => '유로';
+
+  @override
+  String get curGBP => '영국 파운드';
+
+  @override
+  String get curKRW => '대한민국 원';
+
+  @override
+  String get curTHB => '태국 바트';
+
+  @override
+  String get curINR => '인도 루피';
+
+  @override
+  String get curTWD => '신 타이완 달러';
+
+  @override
+  String get curHKD => '홍콩 달러';
+
+  @override
+  String get curRegionUSD => '미국';
+
+  @override
+  String get curRegionSGD => '싱가포르';
+
+  @override
+  String get curRegionMYR => '말레이시아';
+
+  @override
+  String get curRegionCNY => '중국';
+
+  @override
+  String get curRegionJPY => '일본';
+
+  @override
+  String get curRegionEUR => '유럽';
+
+  @override
+  String get curRegionGBP => '영국';
+
+  @override
+  String get curRegionKRW => '대한민국';
+
+  @override
+  String get curRegionTHB => '태국';
+
+  @override
+  String get curRegionINR => '인도';
+
+  @override
+  String get curRegionTWD => '타이완';
+
+  @override
+  String get curRegionHKD => '홍콩';
 
   @override
   String get catFood => '외식';
@@ -422,10 +482,4 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noAccountYet => '저축 계좌가 없습니다';
-
-  @override
-  String get currentRateLabel => '현재 환율';
-
-  @override
-  String get rateSourceLabel => '출처';
 }

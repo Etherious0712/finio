@@ -102,21 +102,6 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
-  /// Multiplies every non-deleted transaction's amount by [rate].
-  /// Returns the number of records updated.
-  Future<int> updateAllAmounts(double rate) async {
-    final all = await (select(transactions)
-          ..where((t) => t.isDeleted.equals(false)))
-        .get();
-    final now = DateTime.now();
-    for (final t in all) {
-      await update(transactions).replace(
-        t.copyWith(amount: t.amount * rate, isSynced: false, updatedAt: now),
-      );
-    }
-    return all.length;
-  }
-
   // Returns all unsynced records, including soft-deleted ones awaiting cloud deletion.
   Future<List<Transaction>> getUnsyncedTransactions() =>
       (select(transactions)..where((t) => t.isSynced.equals(false))).get();
