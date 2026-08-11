@@ -1,0 +1,6 @@
+# Dart tooling (flutter gen-l10n, build_runner) always writes LF, but this repo
+# is cloned with core.autocrlf=true, which expects CRLF in the working tree.
+# Without pinning these, every build leaves the generated files looking modified
+# with no actual content change — enough to block `git checkout`.
+*.dart text eol=lf
+*.arb  text eol=lf
