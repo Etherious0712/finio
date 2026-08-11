@@ -13,7 +13,7 @@ String symbolFromCode(String code) {
     'USD': r'$',
     'SGD': r'$',
     'MYR': 'RM',
-    'CNY': '¥',
+    'CNY': 'CN¥',
     'JPY': '¥',
     'EUR': '€',
     'GBP': '£',
