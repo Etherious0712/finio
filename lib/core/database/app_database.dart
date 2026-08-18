@@ -12,7 +12,7 @@ class Transactions extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text().withLength(max: 100)();
   RealColumn get amount => real()();
-  TextColumn get type => text()(); // 'income' | 'expense'
+  TextColumn get type => text()(); // 'income' | 'expense' | 'transfer'
   TextColumn get category => text()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get date => dateTime()();
@@ -24,13 +24,16 @@ class Transactions extends Table {
       text().withDefault(const Constant('USD'))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get deletedAt => dateTime().nullable()();
-  // Savings jar this record belongs to, referenced by name (same convention as
+  // Account this record belongs to, referenced by name (same convention as
   // [category] above). null = unassigned. Renames cascade via
   // AccountDao.renameAccount.
   TextColumn get account => text().nullable()();
+  // Transfer destination, by name. Non-null only when type = 'transfer', where
+  // [account] is the source. Renames cascade the same way.
+  TextColumn get toAccount => text().nullable()();
 }
 
-/// A user-defined "savings jar" — a bank, e-wallet or cash pile money sits in.
+/// A pot of money — cash, a bank account, a credit card, an e-wallet.
 class Accounts extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text().withLength(max: 50)();
@@ -39,6 +42,11 @@ class Accounts extends Table {
   // Preselected when adding a transaction. At most one row is true — enforced
   // by AccountDao.setDefault.
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
+  // 'cash' | 'bank' | 'creditCard' | 'eWallet' | 'savings'. Display name via
+  // localizeAccountType.
+  TextColumn get type => text().withDefault(const Constant('savings'))();
+  // Balance before tracking started. Negative on a credit card = money owed.
+  RealColumn get openingBalance => real().withDefault(const Constant(0))();
 }
 
 class Categories extends Table {
@@ -69,7 +77,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -80,6 +88,7 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
+          await _uniqueAccountNameIndex();
           await _seedDefaultCategories();
         },
         onUpgrade: (m, from, to) async {
@@ -115,7 +124,40 @@ class AppDatabase extends _$AppDatabase {
               'ALTER TABLE transactions ADD COLUMN account TEXT',
             );
           }
+          if (from < 8) {
+            // Account types, opening balances and transfers. SQLite backfills
+            // existing rows from the DEFAULT, so every jar becomes a savings
+            // account at 0 without an UPDATE.
+            if (from >= 7) {
+              // Only a table that already existed needs the columns added: the
+              // createTable above builds `accounts` from today's definition,
+              // which already has them.
+              await customStatement(
+                "ALTER TABLE accounts ADD COLUMN type TEXT NOT NULL DEFAULT 'savings'",
+              );
+              await customStatement(
+                'ALTER TABLE accounts ADD COLUMN opening_balance REAL NOT NULL DEFAULT 0',
+              );
+            }
+            await customStatement(
+              'ALTER TABLE transactions ADD COLUMN to_account TEXT',
+            );
+            // Transactions reference accounts by name, so duplicates are
+            // ambiguous (and make findOrCreateByName throw). Collapse them
+            // before the index, or CREATE would abort the whole migration for
+            // exactly the users who have the problem. Transactions keep
+            // pointing at the name and lose nothing but a duplicate's styling.
+            await customStatement(
+              'DELETE FROM accounts WHERE id NOT IN '
+              '(SELECT MIN(id) FROM accounts GROUP BY name)',
+            );
+            await _uniqueAccountNameIndex();
+          }
         },
+      );
+
+  Future<void> _uniqueAccountNameIndex() => customStatement(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)',
       );
 
   /// Renames built-in Chinese category names to language-neutral ARB keys so

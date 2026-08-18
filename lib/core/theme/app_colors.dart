@@ -11,6 +11,7 @@ class FinioColors extends ThemeExtension<FinioColors> {
   const FinioColors({
     required this.income,
     required this.expense,
+    required this.transfer,
     required this.budgetSafe,
     required this.budgetWarning,
     required this.budgetDanger,
@@ -24,6 +25,9 @@ class FinioColors extends ThemeExtension<FinioColors> {
 
   /// Expense / negative amounts.
   final Color expense;
+
+  /// Transfers — neither a gain nor a loss, so neither green nor red.
+  final Color transfer;
 
   /// Budget progress states.
   final Color budgetSafe;
@@ -40,6 +44,7 @@ class FinioColors extends ThemeExtension<FinioColors> {
   static const FinioColors light = FinioColors(
     income: Color(0xFF1A9952),
     expense: Color(0xFFE05252),
+    transfer: Color(0xFF3B82F6),
     budgetSafe: Color(0xFF1A9952),
     budgetWarning: Color(0xFFF59E0B),
     budgetDanger: Color(0xFFE05252),
@@ -51,6 +56,7 @@ class FinioColors extends ThemeExtension<FinioColors> {
   static const FinioColors dark = FinioColors(
     income: Color(0xFF4ADE80),
     expense: Color(0xFFF87171),
+    transfer: Color(0xFF60A5FA),
     budgetSafe: Color(0xFF4ADE80),
     budgetWarning: Color(0xFFFBBF24),
     budgetDanger: Color(0xFFF87171),
@@ -59,13 +65,18 @@ class FinioColors extends ThemeExtension<FinioColors> {
     onHero: Colors.white,
   );
 
-  /// Returns the income or expense color for a transaction `type` string.
-  Color forType(String type) => type == 'income' ? income : expense;
+  /// Returns the color for a transaction `type` string.
+  Color forType(String type) => switch (type) {
+        'income' => income,
+        'transfer' => transfer,
+        _ => expense,
+      };
 
   @override
   FinioColors copyWith({
     Color? income,
     Color? expense,
+    Color? transfer,
     Color? budgetSafe,
     Color? budgetWarning,
     Color? budgetDanger,
@@ -76,6 +87,7 @@ class FinioColors extends ThemeExtension<FinioColors> {
     return FinioColors(
       income: income ?? this.income,
       expense: expense ?? this.expense,
+      transfer: transfer ?? this.transfer,
       budgetSafe: budgetSafe ?? this.budgetSafe,
       budgetWarning: budgetWarning ?? this.budgetWarning,
       budgetDanger: budgetDanger ?? this.budgetDanger,
@@ -91,6 +103,7 @@ class FinioColors extends ThemeExtension<FinioColors> {
     return FinioColors(
       income: Color.lerp(income, other.income, t)!,
       expense: Color.lerp(expense, other.expense, t)!,
+      transfer: Color.lerp(transfer, other.transfer, t)!,
       budgetSafe: Color.lerp(budgetSafe, other.budgetSafe, t)!,
       budgetWarning: Color.lerp(budgetWarning, other.budgetWarning, t)!,
       budgetDanger: Color.lerp(budgetDanger, other.budgetDanger, t)!,

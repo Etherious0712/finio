@@ -460,19 +460,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get passwordTooShort => 'パスワードは6文字以上必要です';
 
   @override
-  String get savingsAccounts => '貯蓄口座';
+  String get accounts => '口座';
 
   @override
-  String get savingsAccount => '貯蓄口座';
+  String get accountLabel => '口座';
 
   @override
-  String get addSavingsAccount => '貯蓄口座を追加';
+  String get addAccount => '口座を追加';
 
   @override
-  String get editSavingsAccount => '貯蓄口座を編集';
+  String get editAccount => '口座を編集';
 
   @override
-  String get savingsAccountName => '口座名';
+  String get accountName => '口座名';
 
   @override
   String get setAsDefaultAccount => 'デフォルトに設定';
@@ -481,5 +481,50 @@ class AppLocalizationsJa extends AppLocalizations {
   String get unassignedAccount => '未割り当て';
 
   @override
-  String get noAccountYet => '貯蓄口座がありません';
+  String get noAccountYet => '口座がありません';
+
+  @override
+  String get accountType => '口座の種類';
+
+  @override
+  String get acctCash => '現金';
+
+  @override
+  String get acctBank => '銀行口座';
+
+  @override
+  String get acctCreditCard => 'クレジットカード';
+
+  @override
+  String get acctEWallet => '電子マネー';
+
+  @override
+  String get acctSavings => '貯蓄';
+
+  @override
+  String get openingBalance => '開始残高';
+
+  @override
+  String get amountOwed => '未払い残高';
+
+  @override
+  String get duplicateAccountName => '同じ名前の口座がすでにあります';
+
+  @override
+  String get transfer => '振替';
+
+  @override
+  String get catTransfer => '振替';
+
+  @override
+  String get fromAccount => '振替元';
+
+  @override
+  String get toAccount => '振替先';
+
+  @override
+  String get needTwoAccountsForTransfer => '振替するには口座が2つ以上必要です';
+
+  @override
+  String get sameAccountTransfer => '異なる口座を選んでください';
 }

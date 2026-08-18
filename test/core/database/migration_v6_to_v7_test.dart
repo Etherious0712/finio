@@ -97,7 +97,7 @@ void main() {
     expect((await db.accountDao.getDefaultAccount())?.name, 'Maybank');
   });
 
-  test('schema version is recorded as 7 after upgrade', () async {
+  test('schema version matches the current app schema after upgrade', () async {
     final db = openAsV6();
     // Force the migration to run before reading the version back.
     await db.accountDao.getAllAccounts();
@@ -108,6 +108,6 @@ void main() {
     final row = await reopened
         .customSelect('PRAGMA user_version')
         .getSingle();
-    expect(row.data.values.first, 7);
+    expect(row.data.values.first, reopened.schemaVersion);
   });
 }

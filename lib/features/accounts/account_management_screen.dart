@@ -1,17 +1,21 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:finio/app_localizations.dart';
 import 'package:finio/core/database/app_database.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../shared/providers/account_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
+import '../../shared/utils/account_localizer.dart';
 import '../../shared/utils/category_icon.dart';
 import '../../shared/utils/currency_formatter.dart';
 
-/// Manage savings jars: the banks / e-wallets / cash piles money sits in.
+/// Manage accounts: the cash, banks, cards and e-wallets money sits in.
 class AccountManagementScreen extends ConsumerStatefulWidget {
   const AccountManagementScreen({super.key});
 
@@ -27,7 +31,7 @@ class _AccountManagementScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.savingsAccount),
+        title: Text(l.accountLabel),
         content: Text(l.confirmDeleteCategoryMsg(account.name)),
         actions: [
           TextButton(
@@ -65,7 +69,7 @@ class _AccountManagementScreenState
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.savingsAccounts), centerTitle: true),
+      appBar: AppBar(title: Text(l.accounts), centerTitle: true),
       body: async.when(
         data: (accounts) {
           if (accounts.isEmpty) {
@@ -113,14 +117,21 @@ class _AccountManagementScreenState
                     child: Icon(categoryIconData(a.icon), color: color, size: 20),
                   ),
                   title: Text(a.name),
-                  subtitle: a.isDefault
-                      ? Text(l.defaultLabel,
-                          style: Theme.of(context).textTheme.bodySmall)
-                      : null,
+                  subtitle: Text(
+                    [
+                      localizeAccountType(l, a.type),
+                      if (a.isDefault) l.defaultLabel,
+                    ].join(' · '),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   trailing: Text(
                     formatAmount(balance, symbol),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
+                          // A credit card sits in the red; say so.
+                          color: balance < 0
+                              ? context.finio.expense
+                              : context.finio.income,
                         ),
                   ),
                 ),
@@ -139,7 +150,8 @@ class _AccountManagementScreenState
   }
 }
 
-/// Add or edit a jar: name, icon, color, and whether it's the default pick.
+/// Add or edit an account: name, type, opening balance, icon, color, and
+/// whether it's the default pick.
 class _AccountSheet extends ConsumerStatefulWidget {
   const _AccountSheet({this.existing});
 
@@ -151,21 +163,32 @@ class _AccountSheet extends ConsumerStatefulWidget {
 
 class _AccountSheetState extends ConsumerState<_AccountSheet> {
   late final TextEditingController _nameController;
+  late final TextEditingController _openingController;
   late String _selectedIcon;
   late String _selectedColor;
+  late String _selectedType;
   late bool _isDefault;
   bool _saving = false;
+  /// Set once the user picks an icon by hand, so switching type stops
+  /// overwriting their choice.
+  bool _iconTouched = false;
 
   bool get _isEditing => widget.existing != null;
+  bool get _isCard => _selectedType == 'creditCard';
 
   @override
   void initState() {
     super.initState();
     final a = widget.existing;
     _nameController = TextEditingController(text: a?.name ?? '');
+    // Stored negative on a card (money owed); the field shows what's owed.
+    final opening = a?.openingBalance ?? 0;
+    _openingController = TextEditingController(
+        text: opening == 0 ? '' : opening.abs().toStringAsFixed(2));
+    _selectedType = a?.type ?? 'cash';
     // Default to the savings icon; the grid itself is the shared category icon
     // list, so finance icons sit further down it.
-    _selectedIcon = a?.icon ?? 'savings';
+    _selectedIcon = a?.icon ?? defaultIconForAccountType(_selectedType);
     _selectedColor = a?.color ?? kPresetColors.first;
     _isDefault = a?.isDefault ?? false;
   }
@@ -173,6 +196,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
   @override
   void dispose() {
     _nameController.dispose();
+    _openingController.dispose();
     super.dispose();
   }
 
@@ -213,16 +237,34 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
     final dao = ref.read(appDatabaseProvider).accountDao;
+    // Names are the join key for transactions and are uniquely indexed, so
+    // check here rather than letting the insert surface a SqliteException.
+    final clash = (await dao.getAllAccounts())
+        .where((a) => a.name == name && a.id != widget.existing?.id);
+    if (clash.isNotEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.duplicateAccountName)));
+      }
+      return;
+    }
+
+    final typed = double.tryParse(_openingController.text.trim()) ?? 0;
+    // A card's opening balance is debt, so it's stored negative.
+    final opening = _isCard ? -typed.abs() : typed;
+
     setState(() => _saving = true);
     try {
       int id;
       if (_isEditing) {
         final old = widget.existing!;
-        // Rename goes through the DAO so existing transactions follow the jar.
+        // Rename goes through the DAO so existing transactions follow the
+        // account.
         if (old.name != name) {
           await dao.renameAccount(id: old.id, oldName: old.name, newName: name);
         }
@@ -230,6 +272,8 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
           name: name,
           icon: _selectedIcon,
           color: _selectedColor,
+          type: _selectedType,
+          openingBalance: opening,
         ));
         id = old.id;
       } else {
@@ -237,10 +281,12 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
           name: name,
           icon: _selectedIcon,
           color: _selectedColor,
+          type: Value(_selectedType),
+          openingBalance: Value(opening),
         ));
       }
-      // setDefault clears the flag on every other jar, so only call it when the
-      // switch is on; turning it off just leaves no default.
+      // setDefault clears the flag on every other account, so only call it when
+      // the switch is on; turning it off just leaves no default.
       if (_isDefault) {
         await dao.setDefault(id);
       } else if (_isEditing && widget.existing!.isDefault) {
@@ -260,6 +306,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
+    final symbol = ref.watch(currencySymbolProvider);
     final accent = parseCategoryColor(_selectedColor);
     final isCustomColor = !kPresetColors.contains(_selectedColor);
 
@@ -274,7 +321,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
             Row(
               children: [
                 Text(
-                  _isEditing ? l.editSavingsAccount : l.addSavingsAccount,
+                  _isEditing ? l.editAccount : l.addAccount,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
@@ -292,7 +339,42 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
               controller: _nameController,
               autofocus: !_isEditing,
               maxLength: 20,
-              decoration: InputDecoration(labelText: l.savingsAccountName),
+              decoration: InputDecoration(labelText: l.accountName),
+            ),
+            const SizedBox(height: Insets.sm),
+            Text(l.accountType, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: Insets.sm),
+            // Chips, not a SegmentedButton: five localized labels don't fit on
+            // one row at 360dp.
+            Wrap(
+              spacing: Insets.sm,
+              children: [
+                for (final t in kAccountTypes)
+                  ChoiceChip(
+                    label: Text(localizeAccountType(l, t)),
+                    selected: t == _selectedType,
+                    onSelected: (_) => setState(() {
+                      _selectedType = t;
+                      if (!_isEditing && !_iconTouched) {
+                        _selectedIcon = defaultIconForAccountType(t);
+                      }
+                    }),
+                  ),
+              ],
+            ),
+            const SizedBox(height: Insets.md),
+            TextField(
+              controller: _openingController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
+              decoration: InputDecoration(
+                labelText: _isCard ? l.amountOwed : l.openingBalance,
+                prefixText: '$symbol ',
+                hintText: '0.00',
+              ),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -315,7 +397,10 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
                   children: kPickableIcons.entries.map((e) {
                     final selected = e.key == _selectedIcon;
                     return GestureDetector(
-                      onTap: () => setState(() => _selectedIcon = e.key),
+                      onTap: () => setState(() {
+                        _selectedIcon = e.key;
+                        _iconTouched = true;
+                      }),
                       child: Container(
                         decoration: BoxDecoration(
                           color:

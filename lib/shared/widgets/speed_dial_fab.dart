@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:finio/app_localizations.dart';
 import '../../core/ai/rule_classifier.dart';
@@ -9,7 +10,8 @@ import '../../core/theme/app_spacing.dart';
 import 'quick_add_sheet.dart';
 
 /// Expanding FAB: tap to reveal expense/income quick-add actions, each opening
-/// the [QuickAddSheet]. Replaces the single static add button.
+/// the [QuickAddSheet], plus a transfer action that opens the full screen.
+/// Replaces the single static add button.
 class SpeedDialFab extends ConsumerStatefulWidget {
   const SpeedDialFab({super.key});
 
@@ -44,6 +46,13 @@ class _SpeedDialFabState extends ConsumerState<SpeedDialFab>
     await QuickAddSheet.show(context, type);
   }
 
+  /// Transfers need two account picks, so they get the full screen rather than
+  /// the 2-tap quick-add sheet.
+  void _addTransfer() {
+    _toggle();
+    context.push('/transactions/add?type=transfer');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -53,6 +62,13 @@ class _SpeedDialFabState extends ConsumerState<SpeedDialFab>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        _action(
+          visible: _open,
+          label: l.transfer,
+          icon: Icons.swap_horiz,
+          color: finio.transfer,
+          onTap: _addTransfer,
+        ),
         _action(
           visible: _open,
           label: l.income,

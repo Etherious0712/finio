@@ -24,59 +24,66 @@ class SyncService {
 
   Future<void> _pushLocalChanges(String userId) async {
     final unsynced = await _db.transactionDao.getUnsyncedTransactions();
+    // One rejected row must not block every other record: leave it unsynced so
+    // the next sync retries it, keep pushing the rest, and surface the first
+    // failure once the loop is done.
+    Object? firstError;
 
     for (final t in unsynced) {
-      if (t.isDeleted) {
-        // DELETE: remove from Supabase, then hard-delete locally
-        if (t.syncId != null) {
-          await _supabase
-              .from('transactions')
-              .delete()
-              .eq('id', t.syncId!);
-        }
-        await _db.transactionDao.hardDeleteTransaction(t.id);
-      } else if (t.syncId == null) {
-        // CREATE: insert new record and capture its cloud ID
-        final response = await _supabase
-            .from('transactions')
-            .insert({
-              'user_id': userId,
-              'title': t.title,
-              'amount': t.amount,
-              'type': t.type,
-              'category': t.category,
-              'note': t.note,
-              'date': t.date.toUtc().toIso8601String(),
-              'currency_code': t.currencyCode,
-              'account': t.account,
-              'updated_at': t.updatedAt.toUtc().toIso8601String(),
-            })
-            .select('id')
-            .single();
-
-        await _db.transactionDao.updateSyncId(t.id, response['id'] as String);
-        await _db.transactionDao.markSynced(t.id);
-      } else {
-        // MODIFY: update the existing cloud record
-        await _supabase
-            .from('transactions')
-            .update({
-              'title': t.title,
-              'amount': t.amount,
-              'type': t.type,
-              'category': t.category,
-              'note': t.note,
-              'date': t.date.toUtc().toIso8601String(),
-              'currency_code': t.currencyCode,
-              'account': t.account,
-              'updated_at': t.updatedAt.toUtc().toIso8601String(),
-            })
-            .eq('id', t.syncId!);
-
-        await _db.transactionDao.markSynced(t.id);
+      try {
+        await _pushOne(userId, t);
+      } catch (e) {
+        firstError ??= e;
       }
     }
+    if (firstError != null) throw firstError;
   }
+
+  Future<void> _pushOne(String userId, Transaction t) async {
+    if (t.isDeleted) {
+      // DELETE: remove from Supabase, then hard-delete locally
+      if (t.syncId != null) {
+        await _supabase.from('transactions').delete().eq('id', t.syncId!);
+      }
+      await _db.transactionDao.hardDeleteTransaction(t.id);
+    } else if (t.syncId == null) {
+      // CREATE: insert new record and capture its cloud ID
+      final response = await _supabase
+          .from('transactions')
+          .insert({
+            'user_id': userId,
+            ..._payload(t),
+          })
+          .select('id')
+          .single();
+
+      await _db.transactionDao.updateSyncId(t.id, response['id'] as String);
+      await _db.transactionDao.markSynced(t.id);
+    } else {
+      // MODIFY: update the existing cloud record
+      await _supabase
+          .from('transactions')
+          .update(_payload(t))
+          .eq('id', t.syncId!);
+
+      await _db.transactionDao.markSynced(t.id);
+    }
+  }
+
+  /// Column map shared by insert and update. `to_account` is sent on every row
+  /// (null outside transfers) so the shape never varies.
+  Map<String, dynamic> _payload(Transaction t) => {
+        'title': t.title,
+        'amount': t.amount,
+        'type': t.type,
+        'category': t.category,
+        'note': t.note,
+        'date': t.date.toUtc().toIso8601String(),
+        'currency_code': t.currencyCode,
+        'account': t.account,
+        'to_account': t.toAccount,
+        'updated_at': t.updatedAt.toUtc().toIso8601String(),
+      };
 
   // ── Pull cloud records that don't exist locally ───────────────────────────
 
@@ -91,13 +98,17 @@ class SyncService {
       final existing = await _db.transactionDao.getTransactionBySyncId(syncId);
       if (existing != null) continue;
 
-      // Savings jars are referenced by name and are local-only, so a record
-      // arriving from another device needs its jar materialised here. Icon and
-      // color don't sync in v1 — a recreated jar gets the DAO's defaults and
-      // the user can restyle it.
+      // Accounts are referenced by name and are local-only, so a record
+      // arriving from another device needs its accounts materialised here.
+      // ponytail: type, icon, color and opening balance don't sync — a
+      // recreated account gets the DAO's defaults and the user restyles it.
+      // Sync the accounts table itself if that becomes annoying.
       final account = row['account'] as String?;
-      if (account != null && account.isNotEmpty) {
-        await _db.accountDao.findOrCreateByName(account);
+      final toAccount = row['to_account'] as String?;
+      for (final name in [account, toAccount]) {
+        if (name != null && name.isNotEmpty) {
+          await _db.accountDao.findOrCreateByName(name);
+        }
       }
 
       // Cloud record not found locally → download it
@@ -113,6 +124,7 @@ class SyncService {
           updatedAt: Value(DateTime.parse(row['updated_at'] as String).toLocal()),
           currencyCode: Value(row['currency_code'] as String? ?? 'USD'),
           account: Value(account),
+          toAccount: Value(toAccount),
           syncId: Value(syncId),
           isSynced: const Value(true),
         ),

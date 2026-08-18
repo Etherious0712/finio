@@ -21,9 +21,13 @@ import '../../shared/widgets/category_picker.dart';
 /// Add or edit a transaction. Pass an existing [Transaction] via GoRouter
 /// `extra` to enter edit mode.
 class AddTransactionScreen extends ConsumerStatefulWidget {
-  const AddTransactionScreen({super.key, this.existing});
+  const AddTransactionScreen({super.key, this.existing, this.initialType});
 
   final Transaction? existing;
+
+  /// Preselected segment for a new record — the FAB opens straight into
+  /// transfer mode. Ignored when editing.
+  final TransactionType? initialType;
 
   @override
   ConsumerState<AddTransactionScreen> createState() =>
@@ -38,8 +42,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   late TransactionType _type;
   String? _selectedCategory;
   String? _selectedAccount;
-  // Only preselect the default jar once, so it can't overwrite a manual pick on
-  // a later rebuild.
+  /// Transfer destination. Only used when [_type] is transfer.
+  String? _toAccount;
+  // Only preselect the default account once, so it can't overwrite a manual
+  // pick on a later rebuild.
   bool _accountInitialized = false;
   late DateTime _selectedDate;
   bool _saving = false;
@@ -55,23 +61,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   void initState() {
     super.initState();
     final tx = widget.existing;
-    _type = tx?.type == 'income'
-        ? TransactionType.income
-        : TransactionType.expense;
+    _type = switch (tx?.type) {
+      'income' => TransactionType.income,
+      'transfer' => TransactionType.transfer,
+      'expense' => TransactionType.expense,
+      _ => widget.initialType ?? TransactionType.expense,
+    };
     _selectedCategory = tx?.category;
     _selectedAccount = tx?.account;
+    _toAccount = tx?.toAccount;
     // Editing keeps whatever the record already had, including "unassigned".
     _accountInitialized = _isEditing;
     _selectedDate = tx?.date ?? DateTime.now();
-    _amountController =
-        TextEditingController(text: tx != null ? _trimAmount(tx.amount) : '');
+    _amountController = TextEditingController(
+        text: tx != null ? tx.amount.toStringAsFixed(2) : '');
     _noteController = TextEditingController(text: tx?.note ?? '');
     _classifier.load();
     if (!_isEditing) _noteController.addListener(_onNoteChanged);
   }
-
-  String _trimAmount(double v) =>
-      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
   @override
   void dispose() {
@@ -82,7 +89,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   void _onNoteChanged() {
     final note = _noteController.text;
-    if (note.isEmpty) return;
+    // A transfer has no category to suggest — the note is just a description.
+    if (note.isEmpty || _isTransfer) return;
     // Always reflect the classifier's main (Other included) so a note alone is
     // never left uncategorized.
     final suggested = _classifier.classifyWithLearning(title: note, type: _type);
@@ -110,8 +118,65 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     return s.length <= 30 ? s : s.substring(0, 30).trim();
   }
 
+  bool get _isTransfer => _type == TransactionType.transfer;
+
+  /// Writes a transfer: one row holding both ends, so every income/expense
+  /// fold can skip it with a single type check.
+  Future<void> _saveTransfer() async {
+    final l = AppLocalizations.of(context)!;
+    final from = _selectedAccount;
+    final to = _toAccount;
+    if (from == null || to == null || from == to) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.sameAccountTransfer)));
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      final db = ref.read(appDatabaseProvider);
+      final noteText = _noteController.text.trim();
+      final amount = double.parse(_amountController.text);
+      final title = noteText.isNotEmpty ? noteText : '$from → $to';
+
+      if (_isEditing) {
+        await db.transactionDao.updateTransaction(
+          widget.existing!.copyWith(
+            title: title,
+            amount: amount,
+            type: 'transfer',
+            category: 'catTransfer',
+            date: _selectedDate,
+            note: noteText.isNotEmpty ? Value(noteText) : const Value(null),
+            account: Value(from),
+            toAccount: Value(to),
+            isSynced: false,
+            updatedAt: DateTime.now(),
+          ),
+        );
+      } else {
+        await db.transactionDao.insertTransaction(
+          TransactionsCompanion.insert(
+            title: title,
+            amount: amount,
+            type: 'transfer',
+            category: 'catTransfer',
+            date: _selectedDate,
+            note: noteText.isNotEmpty ? Value(noteText) : const Value.absent(),
+            account: Value(from),
+            toAccount: Value(to),
+          ),
+        );
+      }
+      if (mounted) context.pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isTransfer) return _saveTransfer();
 
     setState(() => _saving = true);
     try {
@@ -204,12 +269,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final categoriesAsync = _type == TransactionType.expense
         ? ref.watch(expenseCategoriesProvider)
         : ref.watch(incomeCategoriesProvider);
-    final isExpense = _type == TransactionType.expense;
     final symbol = ref.watch(currencySymbolProvider);
-    final typeColor = finio.forType(isExpense ? 'expense' : 'income');
+    final typeColor = finio.forType(switch (_type) {
+      TransactionType.expense => 'expense',
+      TransactionType.income => 'income',
+      TransactionType.transfer => 'transfer',
+    });
+    final accountCount =
+        (ref.watch(accountsProvider).valueOrNull ?? const []).length;
 
-    // Jars arrive asynchronously, so seed the default pick on the first build
-    // that has them. Guarded so it never clobbers a manual choice.
+    // Accounts arrive asynchronously, so seed the default pick on the first
+    // build that has them. Guarded so it never clobbers a manual choice.
     final defaultAccount = ref.watch(defaultAccountProvider);
     if (!_accountInitialized && defaultAccount != null) {
       _selectedAccount = defaultAccount.name;
@@ -246,17 +316,21 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   Insets.xl, Insets.lg, Insets.xl, Insets.xl),
               child: Column(
                 children: [
+                  // Labels only: three icon+label segments overflow at 360dp
+                  // in the wordier locales.
                   SegmentedButton<TransactionType>(
                     segments: [
                       ButtonSegment(
                         value: TransactionType.expense,
                         label: Text(l.expense),
-                        icon: const Icon(Icons.remove_circle_outline),
                       ),
                       ButtonSegment(
                         value: TransactionType.income,
                         label: Text(l.income),
-                        icon: const Icon(Icons.add_circle_outline),
+                      ),
+                      ButtonSegment(
+                        value: TransactionType.transfer,
+                        label: Text(l.transfer),
                       ),
                     ],
                     selected: {_type},
@@ -330,30 +404,59 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                   ),
                   const SizedBox(height: Insets.lg),
-                  Text(l.category,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: Insets.sm),
-                  categoriesAsync.when(
-                    data: (cats) => CategoryPicker(
-                      categories: cats,
-                      selected: _selectedCategory,
+                  // A transfer has no category — it swaps the picker for the
+                  // two ends of the move.
+                  if (_isTransfer) ...[
+                    if (accountCount < 2)
+                      Text(l.needTwoAccountsForTransfer,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline))
+                    else ...[
+                      AccountPicker(
+                        label: l.fromAccount,
+                        selected: _selectedAccount,
+                        exclude: _toAccount,
+                        allowUnassigned: false,
+                        onSelect: (name) => setState(() {
+                          _selectedAccount = name;
+                          _accountInitialized = true;
+                        }),
+                      ),
+                      const SizedBox(height: Insets.lg),
+                      AccountPicker(
+                        label: l.toAccount,
+                        selected: _toAccount,
+                        exclude: _selectedAccount,
+                        allowUnassigned: false,
+                        onSelect: (name) => setState(() => _toAccount = name),
+                      ),
+                    ],
+                  ] else ...[
+                    Text(l.category,
+                        style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: Insets.sm),
+                    categoriesAsync.when(
+                      data: (cats) => CategoryPicker(
+                        categories: cats,
+                        selected: _selectedCategory,
+                        onSelect: (name) => setState(() {
+                          _selectedCategory = name;
+                          _autoSuggested = false;
+                        }),
+                      ),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (e, _) => Text('${l.loadFailed}: $e'),
+                    ),
+                    const SizedBox(height: Insets.lg),
+                    AccountPicker(
+                      selected: _selectedAccount,
                       onSelect: (name) => setState(() {
-                        _selectedCategory = name;
-                        _autoSuggested = false;
+                        _selectedAccount = name;
+                        _accountInitialized = true;
                       }),
                     ),
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Text('${l.loadFailed}: $e'),
-                  ),
-                  const SizedBox(height: Insets.lg),
-                  AccountPicker(
-                    selected: _selectedAccount,
-                    onSelect: (name) => setState(() {
-                      _selectedAccount = name;
-                      _accountInitialized = true;
-                    }),
-                  ),
+                  ],
                 ],
               ),
             ),

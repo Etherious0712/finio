@@ -55,9 +55,10 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     double income = 0;
     double expense = 0;
     for (final row in rows) {
+      // Transfers move money between accounts; they are neither.
       if (row.type == 'income') {
         income += row.amount;
-      } else {
+      } else if (row.type == 'expense') {
         expense += row.amount;
       }
     }

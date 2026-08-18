@@ -463,19 +463,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordTooShort => 'Password must be at least 6 characters';
 
   @override
-  String get savingsAccounts => 'Savings Accounts';
+  String get accounts => 'Accounts';
 
   @override
-  String get savingsAccount => 'Savings Account';
+  String get accountLabel => 'Account';
 
   @override
-  String get addSavingsAccount => 'Add Savings Account';
+  String get addAccount => 'Add Account';
 
   @override
-  String get editSavingsAccount => 'Edit Savings Account';
+  String get editAccount => 'Edit Account';
 
   @override
-  String get savingsAccountName => 'Account Name';
+  String get accountName => 'Account Name';
 
   @override
   String get setAsDefaultAccount => 'Set as default';
@@ -484,5 +484,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unassignedAccount => 'Unassigned';
 
   @override
-  String get noAccountYet => 'No savings accounts yet';
+  String get noAccountYet => 'No accounts yet';
+
+  @override
+  String get accountType => 'Account Type';
+
+  @override
+  String get acctCash => 'Cash';
+
+  @override
+  String get acctBank => 'Bank';
+
+  @override
+  String get acctCreditCard => 'Credit Card';
+
+  @override
+  String get acctEWallet => 'E-Wallet';
+
+  @override
+  String get acctSavings => 'Savings';
+
+  @override
+  String get openingBalance => 'Opening Balance';
+
+  @override
+  String get amountOwed => 'Amount Owed';
+
+  @override
+  String get duplicateAccountName => 'An account with this name already exists';
+
+  @override
+  String get transfer => 'Transfer';
+
+  @override
+  String get catTransfer => 'Transfer';
+
+  @override
+  String get fromAccount => 'From Account';
+
+  @override
+  String get toAccount => 'To Account';
+
+  @override
+  String get needTwoAccountsForTransfer =>
+      'Create at least two accounts to transfer between them';
+
+  @override
+  String get sameAccountTransfer => 'Pick two different accounts';
 }

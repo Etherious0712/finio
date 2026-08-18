@@ -129,12 +129,19 @@ class TransactionListScreen extends ConsumerWidget {
             ? DateFormat.yMMMM(locale)
                 .format(DateTime(tx.date.year, tx.date.month))
             : '${tx.date.year}';
-        // Net for the whole period (income − expense).
+        // Net for the whole period (income − expense). A transfer nets to zero
+        // within any period, so it contributes nothing.
         final periodTxs = txs.where((t) => (monthly
             ? '${t.date.year}-${t.date.month}'
             : '${t.date.year}') == key);
         final net = periodTxs.fold<double>(
-            0, (s, t) => s + (t.type == 'income' ? t.amount : -t.amount));
+            0,
+            (s, t) => s +
+                switch (t.type) {
+                  'income' => t.amount,
+                  'expense' => -t.amount,
+                  _ => 0.0,
+                });
         items.add(_Header(label, total: net, isNet: true));
         lastKey = key;
       }

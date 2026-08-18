@@ -467,19 +467,19 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Passwort muss mindestens 6 Zeichen lang sein';
 
   @override
-  String get savingsAccounts => 'Sparkonten';
+  String get accounts => 'Konten';
 
   @override
-  String get savingsAccount => 'Sparkonto';
+  String get accountLabel => 'Konto';
 
   @override
-  String get addSavingsAccount => 'Sparkonto hinzufügen';
+  String get addAccount => 'Konto hinzufügen';
 
   @override
-  String get editSavingsAccount => 'Sparkonto bearbeiten';
+  String get editAccount => 'Konto bearbeiten';
 
   @override
-  String get savingsAccountName => 'Kontoname';
+  String get accountName => 'Kontoname';
 
   @override
   String get setAsDefaultAccount => 'Als Standard festlegen';
@@ -488,5 +488,52 @@ class AppLocalizationsDe extends AppLocalizations {
   String get unassignedAccount => 'Nicht zugeordnet';
 
   @override
-  String get noAccountYet => 'Noch keine Sparkonten';
+  String get noAccountYet => 'Noch keine Konten';
+
+  @override
+  String get accountType => 'Kontotyp';
+
+  @override
+  String get acctCash => 'Bargeld';
+
+  @override
+  String get acctBank => 'Bank';
+
+  @override
+  String get acctCreditCard => 'Kreditkarte';
+
+  @override
+  String get acctEWallet => 'E-Wallet';
+
+  @override
+  String get acctSavings => 'Sparkonto';
+
+  @override
+  String get openingBalance => 'Anfangssaldo';
+
+  @override
+  String get amountOwed => 'Offener Betrag';
+
+  @override
+  String get duplicateAccountName =>
+      'Ein Konto mit diesem Namen existiert bereits';
+
+  @override
+  String get transfer => 'Umbuchung';
+
+  @override
+  String get catTransfer => 'Umbuchung';
+
+  @override
+  String get fromAccount => 'Von Konto';
+
+  @override
+  String get toAccount => 'Auf Konto';
+
+  @override
+  String get needTwoAccountsForTransfer =>
+      'Lege mindestens zwei Konten an, um umzubuchen';
+
+  @override
+  String get sameAccountTransfer => 'Wähle zwei verschiedene Konten';
 }

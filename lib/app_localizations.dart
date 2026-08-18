@@ -1004,35 +1004,35 @@ abstract class AppLocalizations {
   /// **'Password must be at least 6 characters'**
   String get passwordTooShort;
 
-  /// No description provided for @savingsAccounts.
+  /// No description provided for @accounts.
   ///
   /// In en, this message translates to:
-  /// **'Savings Accounts'**
-  String get savingsAccounts;
+  /// **'Accounts'**
+  String get accounts;
 
-  /// No description provided for @savingsAccount.
+  /// No description provided for @accountLabel.
   ///
   /// In en, this message translates to:
-  /// **'Savings Account'**
-  String get savingsAccount;
+  /// **'Account'**
+  String get accountLabel;
 
-  /// No description provided for @addSavingsAccount.
+  /// No description provided for @addAccount.
   ///
   /// In en, this message translates to:
-  /// **'Add Savings Account'**
-  String get addSavingsAccount;
+  /// **'Add Account'**
+  String get addAccount;
 
-  /// No description provided for @editSavingsAccount.
+  /// No description provided for @editAccount.
   ///
   /// In en, this message translates to:
-  /// **'Edit Savings Account'**
-  String get editSavingsAccount;
+  /// **'Edit Account'**
+  String get editAccount;
 
-  /// No description provided for @savingsAccountName.
+  /// No description provided for @accountName.
   ///
   /// In en, this message translates to:
   /// **'Account Name'**
-  String get savingsAccountName;
+  String get accountName;
 
   /// No description provided for @setAsDefaultAccount.
   ///
@@ -1049,8 +1049,98 @@ abstract class AppLocalizations {
   /// No description provided for @noAccountYet.
   ///
   /// In en, this message translates to:
-  /// **'No savings accounts yet'**
+  /// **'No accounts yet'**
   String get noAccountYet;
+
+  /// No description provided for @accountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get accountType;
+
+  /// No description provided for @acctCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get acctCash;
+
+  /// No description provided for @acctBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get acctBank;
+
+  /// No description provided for @acctCreditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get acctCreditCard;
+
+  /// No description provided for @acctEWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'E-Wallet'**
+  String get acctEWallet;
+
+  /// No description provided for @acctSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get acctSavings;
+
+  /// No description provided for @openingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Balance'**
+  String get openingBalance;
+
+  /// No description provided for @amountOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Owed'**
+  String get amountOwed;
+
+  /// No description provided for @duplicateAccountName.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this name already exists'**
+  String get duplicateAccountName;
+
+  /// No description provided for @transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transfer;
+
+  /// No description provided for @catTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get catTransfer;
+
+  /// No description provided for @fromAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'From Account'**
+  String get fromAccount;
+
+  /// No description provided for @toAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'To Account'**
+  String get toAccount;
+
+  /// No description provided for @needTwoAccountsForTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Create at least two accounts to transfer between them'**
+  String get needTwoAccountsForTransfer;
+
+  /// No description provided for @sameAccountTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick two different accounts'**
+  String get sameAccountTransfer;
 }
 
 class _AppLocalizationsDelegate

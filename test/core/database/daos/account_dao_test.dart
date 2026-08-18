@@ -70,6 +70,30 @@ void main() {
     expect(txs.where((t) => t.account == 'TNG eWallet').length, 1);
   });
 
+  test('renameAccount also re-points transfers arriving at the account',
+      () async {
+    await addJar('Cash');
+    final id = await addJar('Maybank');
+    await db.transactionDao.insertTransaction(
+      TransactionsCompanion.insert(
+        title: 'top up',
+        amount: 200,
+        type: 'transfer',
+        category: 'catTransfer',
+        date: DateTime(2024, 1, 1),
+        account: const Value('Cash'),
+        toAccount: const Value('Maybank'),
+      ),
+    );
+
+    await db.accountDao
+        .renameAccount(id: id, oldName: 'Maybank', newName: 'MB');
+
+    final tx = (await db.transactionDao.searchTransactions('')).single;
+    expect(tx.account, 'Cash');
+    expect(tx.toAccount, 'MB');
+  });
+
   test('renamed transactions are re-flagged for sync', () async {
     final id = await addJar('Maybank');
     await addTx(type: 'expense', amount: 10, account: 'Maybank');

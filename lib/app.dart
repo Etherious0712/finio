@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'app_localizations.dart';
 
+import 'core/ai/rule_classifier.dart' show TransactionType;
 import 'core/database/app_database.dart';
 import 'core/notifications/budget_notifier.dart';
 import 'core/sync/sync_service.dart';
@@ -39,8 +40,13 @@ final _router = GoRouter(
       routes: [
         GoRoute(
           path: 'transactions/add',
-          builder: (context, state) =>
-              AddTransactionScreen(existing: state.extra as Transaction?),
+          builder: (context, state) => AddTransactionScreen(
+            existing: state.extra as Transaction?,
+            // ?type=transfer opens straight into transfer mode (the FAB).
+            initialType: state.uri.queryParameters['type'] == 'transfer'
+                ? TransactionType.transfer
+                : null,
+          ),
         ),
         GoRoute(
           path: 'search',

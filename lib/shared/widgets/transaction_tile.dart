@@ -40,14 +40,19 @@ class TransactionTile extends StatelessWidget {
     final finio = context.finio;
     final scheme = Theme.of(context).colorScheme;
     final isIncome = tx.type == 'income';
+    final isTransfer = tx.type == 'transfer';
     final amountColor = finio.forType(tx.type);
     final catColor =
         category != null ? parseCategoryColor(category!.color) : amountColor;
     final iconName = category?.icon ?? 'more_horiz';
 
-    final subtitle = showDate
-        ? '${localizeCategory(l, tx.category)} · ${DateFormat.MMMd().format(tx.date)}'
+    // A transfer has no category to show — the two ends are the useful part.
+    final lead = isTransfer
+        ? '${tx.account ?? l.unassignedAccount} → '
+            '${tx.toAccount ?? l.unassignedAccount}'
         : localizeCategory(l, tx.category);
+    final subtitle =
+        showDate ? '$lead · ${DateFormat.MMMd().format(tx.date)}' : lead;
 
     return Dismissible(
       key: ValueKey(tx.id),
@@ -72,13 +77,19 @@ class TransactionTile extends StatelessWidget {
       child: ListTile(
         onTap: onEdit,
         leading: CircleAvatar(
-          backgroundColor: catColor.withValues(alpha: 0.15),
-          child: Icon(categoryIconData(iconName), size: 20, color: catColor),
+          backgroundColor:
+              (isTransfer ? amountColor : catColor).withValues(alpha: 0.15),
+          child: isTransfer
+              ? Icon(Icons.swap_horiz, size: 20, color: amountColor)
+              : Icon(categoryIconData(iconName), size: 20, color: catColor),
         ),
         title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(subtitle),
         trailing: Text(
-          '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
+          // No +/- on a transfer: nothing was earned or spent.
+          isTransfer
+              ? formatAmount(tx.amount, symbol)
+              : '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
           style: Theme.of(context)
               .textTheme
               .titleSmall

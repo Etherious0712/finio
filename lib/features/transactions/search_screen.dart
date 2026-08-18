@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:finio/core/database/app_database.dart';
+import '../../core/theme/app_colors.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
@@ -131,26 +132,37 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         final tx = _results![i];
         final cat = categoryMap['${tx.type}:${tx.category}'];
         final isIncome = tx.type == 'income';
-        final catColor = cat != null
-            ? parseCategoryColor(cat.color)
-            : (isIncome ? Colors.green : Colors.red);
+        final isTransfer = tx.type == 'transfer';
+        final typeColor = context.finio.forType(tx.type);
+        final catColor =
+            cat != null ? parseCategoryColor(cat.color) : typeColor;
         final iconName = cat?.icon ?? 'more_horiz';
+        final lead = isTransfer
+            ? '${tx.account ?? l.unassignedAccount} → '
+                '${tx.toAccount ?? l.unassignedAccount}'
+            : localizeCategory(l, tx.category);
 
         return ListTile(
           onTap: () => _showDetail(tx, symbol),
           leading: CircleAvatar(
-            backgroundColor: catColor.withValues(alpha: 0.15),
-            child:
-                Icon(categoryIconData(iconName), size: 20, color: catColor),
+            backgroundColor:
+                (isTransfer ? typeColor : catColor).withValues(alpha: 0.15),
+            child: Icon(
+              isTransfer ? Icons.swap_horiz : categoryIconData(iconName),
+              size: 20,
+              color: isTransfer ? typeColor : catColor,
+            ),
           ),
           title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: Text(
-            '${localizeCategory(l, tx.category)}  ·  ${DateFormat('yyyy/M/d').format(tx.date)}',
+            '$lead  ·  ${DateFormat('yyyy/M/d').format(tx.date)}',
           ),
           trailing: Text(
-            '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
+            isTransfer
+                ? formatAmount(tx.amount, symbol)
+                : '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
             style: TextStyle(
-              color: isIncome ? Colors.green : Colors.red,
+              color: typeColor,
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),
@@ -170,7 +182,8 @@ class _DetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final isIncome = tx.type == 'income';
-    final typeColor = isIncome ? Colors.green : Colors.red;
+    final isTransfer = tx.type == 'transfer';
+    final typeColor = context.finio.forType(tx.type);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -187,7 +200,9 @@ class _DetailSheet extends StatelessWidget {
             ),
           ),
           Text(
-            '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
+            isTransfer
+                ? formatAmount(tx.amount, symbol)
+                : '${isIncome ? '+' : '-'}${formatAmount(tx.amount, symbol)}',
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
@@ -195,8 +210,20 @@ class _DetailSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _Row(label: l.typeLabel, value: isIncome ? l.income : l.expense),
-          _Row(label: l.category, value: localizeCategory(l, tx.category)),
+          _Row(
+            label: l.typeLabel,
+            value: isTransfer
+                ? l.transfer
+                : (isIncome ? l.income : l.expense),
+          ),
+          if (isTransfer)
+            _Row(
+              label: l.accountLabel,
+              value: '${tx.account ?? l.unassignedAccount} → '
+                  '${tx.toAccount ?? l.unassignedAccount}',
+            )
+          else
+            _Row(label: l.category, value: localizeCategory(l, tx.category)),
           if (tx.title.isNotEmpty) _Row(label: l.note, value: tx.title),
           _Row(label: l.date, value: DateFormat('yyyy年M月d日').format(tx.date)),
           _Row(

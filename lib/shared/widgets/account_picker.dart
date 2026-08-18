@@ -6,37 +6,51 @@ import '../../core/theme/app_spacing.dart';
 import '../providers/account_providers.dart';
 import '../utils/category_icon.dart';
 
-/// Horizontal row of savings-jar chips, shared by the add/edit screen and the
-/// quick-add sheet. Renders nothing until the user has created a jar, so the
-/// entry screens stay unchanged for anyone not using the feature.
+/// Horizontal row of account chips, shared by the add/edit screen and the
+/// quick-add sheet. Renders nothing until the user has created an account, so
+/// the entry screens stay unchanged for anyone not using the feature.
 class AccountPicker extends ConsumerWidget {
   const AccountPicker({
     super.key,
     required this.selected,
     required this.onSelect,
+    this.label,
+    this.exclude,
+    this.allowUnassigned = true,
   });
 
-  /// Selected jar name, or null for unassigned.
+  /// Selected account name, or null for unassigned.
   final String? selected;
   final ValueChanged<String?> onSelect;
+
+  /// Heading above the row. Defaults to the generic "Account".
+  final String? label;
+
+  /// Account to hide — the other end of a transfer, so you can't pick both.
+  final String? exclude;
+
+  /// Whether to offer the "unassigned" chip. A transfer needs both ends.
+  final bool allowUnassigned;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final accounts = ref.watch(accountsProvider).valueOrNull ?? const [];
+    final all = ref.watch(accountsProvider).valueOrNull ?? const [];
+    final accounts = all.where((a) => a.name != exclude).toList();
     if (accounts.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.savingsAccount, style: Theme.of(context).textTheme.titleMedium),
+        Text(label ?? l.accountLabel,
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Insets.sm),
         SizedBox(
           height: 40,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             // +1 for the "unassigned" escape hatch.
-            itemCount: accounts.length + 1,
+            itemCount: accounts.length + (allowUnassigned ? 1 : 0),
             separatorBuilder: (_, _) => const SizedBox(width: Insets.sm),
             itemBuilder: (_, i) {
               if (i == accounts.length) {

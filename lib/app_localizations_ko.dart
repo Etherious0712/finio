@@ -460,19 +460,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get passwordTooShort => '비밀번호는 6자 이상이어야 합니다';
 
   @override
-  String get savingsAccounts => '저축 계좌';
+  String get accounts => '계좌';
 
   @override
-  String get savingsAccount => '저축 계좌';
+  String get accountLabel => '계좌';
 
   @override
-  String get addSavingsAccount => '저축 계좌 추가';
+  String get addAccount => '계좌 추가';
 
   @override
-  String get editSavingsAccount => '저축 계좌 편집';
+  String get editAccount => '계좌 편집';
 
   @override
-  String get savingsAccountName => '계좌 이름';
+  String get accountName => '계좌 이름';
 
   @override
   String get setAsDefaultAccount => '기본으로 설정';
@@ -481,5 +481,50 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unassignedAccount => '미지정';
 
   @override
-  String get noAccountYet => '저축 계좌가 없습니다';
+  String get noAccountYet => '계좌가 없습니다';
+
+  @override
+  String get accountType => '계좌 종류';
+
+  @override
+  String get acctCash => '현금';
+
+  @override
+  String get acctBank => '은행 계좌';
+
+  @override
+  String get acctCreditCard => '신용카드';
+
+  @override
+  String get acctEWallet => '전자지갑';
+
+  @override
+  String get acctSavings => '저축';
+
+  @override
+  String get openingBalance => '기초 잔액';
+
+  @override
+  String get amountOwed => '미결제 금액';
+
+  @override
+  String get duplicateAccountName => '같은 이름의 계좌가 이미 있습니다';
+
+  @override
+  String get transfer => '이체';
+
+  @override
+  String get catTransfer => '이체';
+
+  @override
+  String get fromAccount => '출금 계좌';
+
+  @override
+  String get toAccount => '입금 계좌';
+
+  @override
+  String get needTwoAccountsForTransfer => '이체하려면 계좌가 두 개 이상 필요합니다';
+
+  @override
+  String get sameAccountTransfer => '서로 다른 계좌를 선택하세요';
 }

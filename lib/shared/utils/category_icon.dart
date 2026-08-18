@@ -96,6 +96,7 @@ const kPickableIcons = <String, IconData>{
   'account_balance': Icons.account_balance,
   'credit_card': Icons.credit_card,
   'payments': Icons.payments,
+  'account_balance_wallet': Icons.account_balance_wallet,
   'currency_exchange': Icons.currency_exchange,
   'attach_money': Icons.attach_money,
   'money_off': Icons.money_off,

@@ -460,19 +460,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get passwordTooShort => '密码不能少于 6 位';
 
   @override
-  String get savingsAccounts => '储蓄账户';
+  String get accounts => '账户';
 
   @override
-  String get savingsAccount => '储蓄账户';
+  String get accountLabel => '账户';
 
   @override
-  String get addSavingsAccount => '添加储蓄账户';
+  String get addAccount => '添加账户';
 
   @override
-  String get editSavingsAccount => '编辑储蓄账户';
+  String get editAccount => '编辑账户';
 
   @override
-  String get savingsAccountName => '账户名称';
+  String get accountName => '账户名称';
 
   @override
   String get setAsDefaultAccount => '设为默认';
@@ -481,5 +481,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unassignedAccount => '未分配';
 
   @override
-  String get noAccountYet => '暂无储蓄账户';
+  String get noAccountYet => '暂无账户';
+
+  @override
+  String get accountType => '账户类型';
+
+  @override
+  String get acctCash => '现金';
+
+  @override
+  String get acctBank => '银行卡';
+
+  @override
+  String get acctCreditCard => '信用卡';
+
+  @override
+  String get acctEWallet => '电子钱包';
+
+  @override
+  String get acctSavings => '储蓄';
+
+  @override
+  String get openingBalance => '期初余额';
+
+  @override
+  String get amountOwed => '欠款金额';
+
+  @override
+  String get duplicateAccountName => '已存在同名账户';
+
+  @override
+  String get transfer => '转账';
+
+  @override
+  String get catTransfer => '转账';
+
+  @override
+  String get fromAccount => '转出账户';
+
+  @override
+  String get toAccount => '转入账户';
+
+  @override
+  String get needTwoAccountsForTransfer => '至少需要两个账户才能转账';
+
+  @override
+  String get sameAccountTransfer => '请选择两个不同的账户';
 }

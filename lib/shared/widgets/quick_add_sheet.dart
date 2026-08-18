@@ -14,6 +14,7 @@ import '../providers/currency_provider.dart';
 import '../providers/database_provider.dart';
 import '../utils/category_icon.dart';
 import '../utils/category_localizer.dart';
+import '../utils/currency_formatter.dart';
 import 'account_picker.dart';
 import 'amount_keypad.dart';
 
@@ -200,7 +201,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             const SizedBox(height: Insets.lg),
             // Amount display
             Text(
-              '$symbol ${_amount.isEmpty ? '0' : _amount}',
+              '$symbol ${formatAmountInput(_amount)}',
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme

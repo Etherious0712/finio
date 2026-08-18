@@ -466,19 +466,19 @@ class AppLocalizationsMs extends AppLocalizations {
       'Kata laluan mestilah sekurang-kurangnya 6 aksara';
 
   @override
-  String get savingsAccounts => 'Akaun Simpanan';
+  String get accounts => 'Akaun';
 
   @override
-  String get savingsAccount => 'Akaun Simpanan';
+  String get accountLabel => 'Akaun';
 
   @override
-  String get addSavingsAccount => 'Tambah Akaun Simpanan';
+  String get addAccount => 'Tambah Akaun';
 
   @override
-  String get editSavingsAccount => 'Edit Akaun Simpanan';
+  String get editAccount => 'Edit Akaun';
 
   @override
-  String get savingsAccountName => 'Nama Akaun';
+  String get accountName => 'Nama Akaun';
 
   @override
   String get setAsDefaultAccount => 'Tetapkan sebagai lalai';
@@ -487,5 +487,51 @@ class AppLocalizationsMs extends AppLocalizations {
   String get unassignedAccount => 'Tidak ditetapkan';
 
   @override
-  String get noAccountYet => 'Belum ada akaun simpanan';
+  String get noAccountYet => 'Belum ada akaun';
+
+  @override
+  String get accountType => 'Jenis Akaun';
+
+  @override
+  String get acctCash => 'Tunai';
+
+  @override
+  String get acctBank => 'Bank';
+
+  @override
+  String get acctCreditCard => 'Kad Kredit';
+
+  @override
+  String get acctEWallet => 'E-Dompet';
+
+  @override
+  String get acctSavings => 'Simpanan';
+
+  @override
+  String get openingBalance => 'Baki Permulaan';
+
+  @override
+  String get amountOwed => 'Jumlah Terhutang';
+
+  @override
+  String get duplicateAccountName => 'Akaun dengan nama ini sudah wujud';
+
+  @override
+  String get transfer => 'Pindahan';
+
+  @override
+  String get catTransfer => 'Pindahan';
+
+  @override
+  String get fromAccount => 'Dari Akaun';
+
+  @override
+  String get toAccount => 'Ke Akaun';
+
+  @override
+  String get needTwoAccountsForTransfer =>
+      'Cipta sekurang-kurangnya dua akaun untuk membuat pindahan';
+
+  @override
+  String get sameAccountTransfer => 'Pilih dua akaun yang berbeza';
 }

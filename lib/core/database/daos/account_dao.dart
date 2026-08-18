@@ -27,7 +27,7 @@ class AccountDao extends DatabaseAccessor<AppDatabase> with _$AccountDaoMixin {
 
   Future<int> deleteAllAccounts() => delete(accounts).go();
 
-  /// Makes [id] the only default jar.
+  /// Makes [id] the only default account.
   Future<void> setDefault(int id) => transaction(() async {
         await update(accounts)
             .write(const AccountsCompanion(isDefault: Value(false)));
@@ -35,11 +35,12 @@ class AccountDao extends DatabaseAccessor<AppDatabase> with _$AccountDaoMixin {
             .write(const AccountsCompanion(isDefault: Value(true)));
       });
 
-  /// Renames a jar and re-points every transaction filed under the old name.
+  /// Renames an account and re-points every transaction filed under the old
+  /// name — both the ones it holds and the transfers pointing at it.
   ///
-  /// Transactions reference jars by name (see [Transactions.account]), so the
-  /// cascade lives here — doing it in the caller would leave records orphaned
-  /// whenever a new call site forgets.
+  /// Transactions reference accounts by name (see [Transactions.account]), so
+  /// the cascade lives here — doing it in the caller would leave records
+  /// orphaned whenever a new call site forgets.
   Future<void> renameAccount({
     required int id,
     required String oldName,
@@ -49,16 +50,23 @@ class AccountDao extends DatabaseAccessor<AppDatabase> with _$AccountDaoMixin {
         await (update(accounts)..where((a) => a.id.equals(id)))
             .write(AccountsCompanion(name: Value(newName)));
         if (oldName == newName) return;
+        final now = DateTime.now();
         await (update(transactions)..where((t) => t.account.equals(oldName)))
             .write(TransactionsCompanion(
           account: Value(newName),
           isSynced: const Value(false),
-          updatedAt: Value(DateTime.now()),
+          updatedAt: Value(now),
+        ));
+        await (update(transactions)..where((t) => t.toAccount.equals(oldName)))
+            .write(TransactionsCompanion(
+          toAccount: Value(newName),
+          isSynced: const Value(false),
+          updatedAt: Value(now),
         ));
       });
 
-  /// Finds a jar by name, creating it when absent. Used when pulling cloud
-  /// records whose jar doesn't exist on this device yet.
+  /// Finds an account by name, creating it when absent. Used when pulling
+  /// cloud records whose account doesn't exist on this device yet.
   Future<Account> findOrCreateByName(
     String name, {
     String icon = 'savings',

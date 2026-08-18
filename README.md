@@ -98,6 +98,24 @@ flutter test
 Cloud features need Supabase credentials in `lib/core/config/supabase_config.dart`.
 Without them the app runs fully offline — sync simply does nothing.
 
+The remote schema is not managed from this repo. Transfers (schema v8) need one
+extra column on the `transactions` table:
+
+```sql
+alter table public.transactions add column if not exists to_account text;
+```
+
+If `transactions.type` has a CHECK constraint or is an enum, widen it too, or
+transfers are rejected on push:
+
+```sql
+alter table public.transactions drop constraint if exists transactions_type_check;
+alter table public.transactions add constraint transactions_type_check
+  check (type in ('income','expense','transfer'));
+```
+
+Until that runs, transfers fail to push while every other record still syncs.
+
 ## Localization
 
 All user-facing strings live in `lib/l10n/app_<locale>.arb`, with English

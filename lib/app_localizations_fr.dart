@@ -466,19 +466,19 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mot de passe doit contenir au moins 6 caractères';
 
   @override
-  String get savingsAccounts => 'Comptes d\'épargne';
+  String get accounts => 'Comptes';
 
   @override
-  String get savingsAccount => 'Compte d\'épargne';
+  String get accountLabel => 'Compte';
 
   @override
-  String get addSavingsAccount => 'Ajouter un compte d\'épargne';
+  String get addAccount => 'Ajouter un compte';
 
   @override
-  String get editSavingsAccount => 'Modifier le compte d\'épargne';
+  String get editAccount => 'Modifier le compte';
 
   @override
-  String get savingsAccountName => 'Nom du compte';
+  String get accountName => 'Nom du compte';
 
   @override
   String get setAsDefaultAccount => 'Définir par défaut';
@@ -487,5 +487,51 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unassignedAccount => 'Non attribué';
 
   @override
-  String get noAccountYet => 'Aucun compte d\'épargne';
+  String get noAccountYet => 'Aucun compte';
+
+  @override
+  String get accountType => 'Type de compte';
+
+  @override
+  String get acctCash => 'Espèces';
+
+  @override
+  String get acctBank => 'Banque';
+
+  @override
+  String get acctCreditCard => 'Carte de crédit';
+
+  @override
+  String get acctEWallet => 'Portefeuille électronique';
+
+  @override
+  String get acctSavings => 'Épargne';
+
+  @override
+  String get openingBalance => 'Solde initial';
+
+  @override
+  String get amountOwed => 'Montant dû';
+
+  @override
+  String get duplicateAccountName => 'Un compte portant ce nom existe déjà';
+
+  @override
+  String get transfer => 'Virement';
+
+  @override
+  String get catTransfer => 'Virement';
+
+  @override
+  String get fromAccount => 'Compte source';
+
+  @override
+  String get toAccount => 'Compte destinataire';
+
+  @override
+  String get needTwoAccountsForTransfer =>
+      'Créez au moins deux comptes pour faire un virement';
+
+  @override
+  String get sameAccountTransfer => 'Choisissez deux comptes différents';
 }

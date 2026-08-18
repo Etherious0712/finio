@@ -7,6 +7,7 @@ import 'package:finio/app_localizations.dart';
 import '../../core/sync/sync_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../shared/providers/account_providers.dart';
 import '../../shared/providers/budget_providers.dart';
 import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';

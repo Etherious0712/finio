@@ -14,21 +14,26 @@ class CategoryStat {
   });
 }
 
-/// Running net balance of one savings jar. Not a [CategoryStat]: a balance can
-/// be negative, which makes a percentage-of-total meaningless.
+/// Running net balance of one account. Not a [CategoryStat]: a balance can be
+/// negative, which makes a percentage-of-total meaningless.
 class AccountBalance {
-  /// Jar name, or empty for the "unassigned" bucket.
+  /// Account name, or empty for the "unassigned" bucket.
   final String name;
   final String icon;
   final String color;
 
-  /// All-time income − expense for this jar. May be negative.
+  /// Account type key, or empty for the "unassigned" bucket.
+  final String type;
+
+  /// Opening balance plus all-time income − expense ± transfers. May be
+  /// negative — a credit card usually is.
   final double balance;
 
   const AccountBalance({
     required this.name,
     required this.icon,
     required this.color,
+    required this.type,
     required this.balance,
   });
 

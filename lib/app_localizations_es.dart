@@ -467,19 +467,19 @@ class AppLocalizationsEs extends AppLocalizations {
       'La contraseña debe tener al menos 6 caracteres';
 
   @override
-  String get savingsAccounts => 'Cuentas de ahorro';
+  String get accounts => 'Cuentas';
 
   @override
-  String get savingsAccount => 'Cuenta de ahorro';
+  String get accountLabel => 'Cuenta';
 
   @override
-  String get addSavingsAccount => 'Agregar cuenta de ahorro';
+  String get addAccount => 'Agregar cuenta';
 
   @override
-  String get editSavingsAccount => 'Editar cuenta de ahorro';
+  String get editAccount => 'Editar cuenta';
 
   @override
-  String get savingsAccountName => 'Nombre de la cuenta';
+  String get accountName => 'Nombre de la cuenta';
 
   @override
   String get setAsDefaultAccount => 'Establecer como predeterminada';
@@ -488,5 +488,51 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unassignedAccount => 'Sin asignar';
 
   @override
-  String get noAccountYet => 'Aún no hay cuentas de ahorro';
+  String get noAccountYet => 'Aún no hay cuentas';
+
+  @override
+  String get accountType => 'Tipo de cuenta';
+
+  @override
+  String get acctCash => 'Efectivo';
+
+  @override
+  String get acctBank => 'Banco';
+
+  @override
+  String get acctCreditCard => 'Tarjeta de crédito';
+
+  @override
+  String get acctEWallet => 'Billetera electrónica';
+
+  @override
+  String get acctSavings => 'Ahorros';
+
+  @override
+  String get openingBalance => 'Saldo inicial';
+
+  @override
+  String get amountOwed => 'Importe adeudado';
+
+  @override
+  String get duplicateAccountName => 'Ya existe una cuenta con este nombre';
+
+  @override
+  String get transfer => 'Transferencia';
+
+  @override
+  String get catTransfer => 'Transferencia';
+
+  @override
+  String get fromAccount => 'Cuenta de origen';
+
+  @override
+  String get toAccount => 'Cuenta de destino';
+
+  @override
+  String get needTwoAccountsForTransfer =>
+      'Crea al menos dos cuentas para transferir entre ellas';
+
+  @override
+  String get sameAccountTransfer => 'Elige dos cuentas diferentes';
 }

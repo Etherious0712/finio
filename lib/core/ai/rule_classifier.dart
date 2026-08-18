@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum TransactionType { income, expense }
+enum TransactionType { income, expense, transfer }
 
 class RuleClassifier {
   static const _prefsKey = 'classifier_corrections';

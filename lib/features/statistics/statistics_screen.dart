@@ -170,7 +170,7 @@ class _AccountSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.savingsAccounts,
+        Text(l.accounts,
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Insets.xs),
         for (final b in balances)

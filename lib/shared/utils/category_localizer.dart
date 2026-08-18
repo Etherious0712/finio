@@ -15,6 +15,9 @@ String localizeCategory(AppLocalizations l, String name) {
     'catFreelance' => l.catFreelance,
     'catInvestment' => l.catInvestment,
     'catOtherIncome' => l.catOtherIncome,
+    // Reserved key for transfers. Deliberately absent from the categories
+    // table, so it never shows up in the picker or in budgets.
+    'catTransfer' => l.catTransfer,
     _ => name,
   };
 }

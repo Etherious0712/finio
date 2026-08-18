@@ -15,9 +15,9 @@ import 'package:finio/features/transactions/add_transaction_screen.dart';
 import 'package:finio/shared/providers/database_provider.dart';
 import 'package:finio/shared/widgets/quick_add_sheet.dart';
 
-/// Drives the savings-jar feature through the real screens against a real
-/// in-memory database — the jar picker, the sheet, and the insert path are the
-/// production widgets, not stand-ins.
+/// Drives the account feature through the real screens against a real
+/// in-memory database — the account picker, the sheet, and the insert path are
+/// the production widgets, not stand-ins.
 void main() {
   late AppDatabase db;
 
@@ -85,7 +85,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Empty state before any jar exists.
-    expect(find.text('No savings accounts yet'), findsOneWidget);
+    expect(find.text('No accounts yet'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -101,6 +101,54 @@ void main() {
     expect(jars.map((a) => a.name), ['Maybank']);
     expect(jars.single.isDefault, isTrue);
     expect(find.text('Maybank'), findsOneWidget);
+
+    await settle(tester);
+  });
+
+  testWidgets('a credit card stores what is owed as a negative balance',
+      (tester) async {
+    await usePhoneScreen(tester);
+    await tester.pumpWidget(host(const AccountManagementScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Account Name'), 'Visa');
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Credit Card'));
+    await tester.pumpAndSettle();
+    // The label flips to "Amount Owed" so the user never types the minus.
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Amount Owed'), '500');
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    final card = (await db.accountDao.getAllAccounts()).single;
+    expect(card.name, 'Visa');
+    expect(card.type, 'creditCard');
+    expect(card.openingBalance, -500);
+    expect(find.text(r'-$500.00'), findsOneWidget);
+
+    await settle(tester);
+  });
+
+  testWidgets('a duplicate account name is rejected', (tester) async {
+    await usePhoneScreen(tester);
+    await seedJar('Cash');
+    await tester.pumpWidget(host(const AccountManagementScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Account Name'), 'Cash');
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect((await db.accountDao.getAllAccounts()).length, 1);
+    expect(find.text('An account with this name already exists'),
+        findsOneWidget);
 
     await settle(tester);
   });
@@ -191,6 +239,66 @@ void main() {
     await settle(tester);
   });
 
+  testWidgets('a transfer stores both ends and no category', (tester) async {
+    await usePhoneScreen(tester);
+    await seedJar('Cash', isDefault: true);
+    await seedJar('Maybank');
+
+    await tester.pumpWidget(host(const AddTransactionScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Transfer'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, '200');
+    await tester.pumpAndSettle();
+
+    // From/To rows sit below the note and date cards.
+    await tester.drag(find.byType(ListView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    expect(find.text('From Account'), findsOneWidget);
+    expect(find.text('To Account'), findsOneWidget);
+
+    // Cash is preselected as the default, so only the destination needs a tap.
+    await tester.tap(find.text('Maybank').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    final tx = (await db.transactionDao.searchTransactions('')).single;
+    expect(tx.type, 'transfer');
+    expect(tx.account, 'Cash');
+    expect(tx.toAccount, 'Maybank');
+    expect(tx.category, 'catTransfer');
+    expect(tx.amount, 200);
+
+    await settle(tester);
+  });
+
+  testWidgets('a transfer needs two different accounts', (tester) async {
+    await usePhoneScreen(tester);
+    await seedJar('Cash', isDefault: true);
+
+    await tester.pumpWidget(host(
+        const AddTransactionScreen(initialType: TransactionType.transfer)));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    expect(
+        find.text('Create at least two accounts to transfer between them'),
+        findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).first, '200');
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(await db.transactionDao.searchTransactions(''), isEmpty);
+
+    await settle(tester);
+  });
+
   testWidgets('editing a record keeps its existing jar', (tester) async {
     await seedJar('Maybank', isDefault: true);
     await seedJar('TNG eWallet');
@@ -240,16 +348,15 @@ void main() {
     await tester.pumpWidget(host(const StatisticsScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Savings Accounts'), findsOneWidget);
+    expect(find.text('Accounts'), findsOneWidget);
     expect(find.text('Maybank'), findsOneWidget);
     expect(find.text('TNG eWallet'), findsOneWidget);
     expect(find.text('Unassigned'), findsOneWidget);
 
-    // formatAmount prefixes the symbol, so negatives read "$-80.00" — same as
-    // the dashboard's negative total balance today.
+    // The minus sits outside the symbol — see formatAmount.
     expect(find.text('\$750.00'), findsOneWidget);
-    expect(find.text('\$-80.00'), findsOneWidget);
-    expect(find.text('\$-20.00'), findsOneWidget);
+    expect(find.text('-\$80.00'), findsOneWidget);
+    expect(find.text('-\$20.00'), findsOneWidget);
     // Total must reconcile with the dashboard's all-time balance: 750-80-20.
     expect(find.text('\$650.00'), findsOneWidget);
 
