@@ -33,8 +33,10 @@ void main() {
   });
 
   test('deleteAllBudgets removes every budget row', () async {
-    await db.budgetDao.upsertBudget(category: null, amount: 500.0);
-    await db.budgetDao.upsertBudget(category: 'catFood', amount: 100.0);
+    await db.budgetDao.insertBudget(
+        BudgetsCompanion.insert(amount: 500.0, month: 0, year: 0));
+    await db.budgetDao.insertBudget(BudgetsCompanion.insert(
+        category: const Value('catFood'), amount: 100.0, month: 0, year: 0));
     await db.budgetDao.deleteAllBudgets();
     final remaining = await db.budgetDao.getBudgets();
     expect(remaining, isEmpty);

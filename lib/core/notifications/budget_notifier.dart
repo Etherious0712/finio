@@ -14,24 +14,21 @@ class BudgetNotifier {
     await _plugin.initialize(settings);
   }
 
+  /// Strings come from the caller: this runs where a BuildContext is live, so
+  /// the alert follows the app language instead of being hardcoded.
   static Future<void> checkAndNotify({
     required double expense,
     required double? budget,
+    required String title,
+    required String nearBody,
+    required String overBody,
   }) async {
     if (budget == null || budget <= 0) return;
     final ratio = expense / budget;
     if (ratio >= 1.0) {
-      await _show(
-        id: 2,
-        title: 'Finio 预算提醒',
-        body: '本月支出已超出预算！',
-      );
+      await _show(id: 2, title: title, body: overBody);
     } else if (ratio >= 0.8) {
-      await _show(
-        id: 1,
-        title: 'Finio 预算提醒',
-        body: '本月支出已达预算的 80%，请注意控制开支',
-      );
+      await _show(id: 1, title: title, body: nearBody);
     }
   }
 
@@ -42,8 +39,10 @@ class BudgetNotifier {
   }) async {
     const android = AndroidNotificationDetails(
       'budget_alert',
-      '预算提醒',
-      channelDescription: 'Finio 预算超支提醒',
+      // Channel name/description surface in Android system settings, which the
+      // app can't localize from here — English is the least-bad default.
+      'Budget alerts',
+      channelDescription: 'Finio budget threshold alerts',
       importance: Importance.high,
       priority: Priority.high,
     );

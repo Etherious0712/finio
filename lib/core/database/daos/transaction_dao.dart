@@ -42,6 +42,11 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     return _sumByType(start, end);
   }
 
+  /// Income/expense totals over an arbitrary window, for budget periods
+  /// that aren't a calendar month.
+  Future<Map<String, double>> getTotalsBetween(DateTime start, DateTime end) =>
+      _sumByType(start, end);
+
   Future<Map<String, double>> _sumByType(DateTime start, DateTime end) async {
     final rows = await (select(transactions)
           ..where(

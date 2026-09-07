@@ -20,6 +20,8 @@ class BalanceHero extends StatelessWidget {
     required this.todayExpense,
     required this.symbol,
     required this.currencyCode,
+    required this.hidden,
+    required this.onHiddenChanged,
   });
 
   /// All-time net balance shown as the headline.
@@ -31,12 +33,18 @@ class BalanceHero extends StatelessWidget {
   final String symbol;
   final String currencyCode;
 
+  /// Masks every number on the card behind dots.
+  final bool hidden;
+  final ValueChanged<bool> onHiddenChanged;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final finio = context.finio;
-    final isNegative = totalBalance < 0;
+    // While hidden the gradient must not leak the sign the numbers don't show.
+    final isNegative = !hidden && totalBalance < 0;
     final fmt = NumberFormat('#,##0.00');
+    String mask(String s) => hidden ? '••••' : s;
     final gradient = isNegative ? finio.negativeHero : finio.positiveHero;
     final onHero = finio.onHero;
 
@@ -67,13 +75,35 @@ class BalanceHero extends StatelessWidget {
               children: [
                 Text(l.totalBalance,
                     style: TextStyle(color: onHero.withValues(alpha: 0.7), fontSize: 13)),
-                Text(currencyCode,
-                    style: TextStyle(color: onHero.withValues(alpha: 0.7), fontSize: 12)),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(currencyCode,
+                        style: TextStyle(
+                            color: onHero.withValues(alpha: 0.7), fontSize: 12)),
+                    IconButton(
+                      onPressed: () => onHiddenChanged(!hidden),
+                      // Doubles as the screen-reader label.
+                      tooltip: hidden ? l.showAmounts : l.hideAmounts,
+                      icon: Icon(
+                        hidden
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 18,
+                        color: onHero.withValues(alpha: 0.7),
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints:
+                          const BoxConstraints(minWidth: 40, minHeight: 40),
+                    ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: Insets.xs),
             Text(
-              formatAmount(totalBalance, symbol),
+              mask(formatAmount(totalBalance, symbol)),
               style: TextStyle(
                 color: onHero,
                 fontSize: 36,
@@ -95,7 +125,7 @@ class BalanceHero extends StatelessWidget {
                 Expanded(
                   child: _Stat(
                     label: l.income,
-                    value: fmt.format(monthlyIncome),
+                    value: mask(fmt.format(monthlyIncome)),
                     icon: Icons.arrow_downward_rounded,
                     onHero: onHero,
                   ),
@@ -105,7 +135,7 @@ class BalanceHero extends StatelessWidget {
                 Expanded(
                   child: _Stat(
                     label: l.expense,
-                    value: fmt.format(monthlyExpense),
+                    value: mask(fmt.format(monthlyExpense)),
                     icon: Icons.arrow_upward_rounded,
                     onHero: onHero,
                   ),
@@ -122,12 +152,12 @@ class BalanceHero extends StatelessWidget {
                     style: TextStyle(
                         color: onHero.withValues(alpha: 0.7), fontSize: 12)),
                 const Spacer(),
-                Text('+${fmt.format(todayIncome)}',
+                Text(mask('+${fmt.format(todayIncome)}'),
                     style: TextStyle(
                             color: onHero, fontSize: 13, fontWeight: FontWeight.w600)
                         .tabular),
                 const SizedBox(width: Insets.lg),
-                Text('-${fmt.format(todayExpense)}',
+                Text(mask('-${fmt.format(todayExpense)}'),
                     style: TextStyle(
                             color: onHero.withValues(alpha: 0.85),
                             fontSize: 13,

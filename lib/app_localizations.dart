@@ -362,48 +362,6 @@ abstract class AppLocalizations {
   /// **'Budget'**
   String get budget;
 
-  /// No description provided for @monthlyBudget.
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly Budget'**
-  String get monthlyBudget;
-
-  /// No description provided for @categoryBudget.
-  ///
-  /// In en, this message translates to:
-  /// **'Category Budget'**
-  String get categoryBudget;
-
-  /// No description provided for @categoryBudgetLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'{category} Budget'**
-  String categoryBudgetLabel(String category);
-
-  /// No description provided for @notSet.
-  ///
-  /// In en, this message translates to:
-  /// **'Not set'**
-  String get notSet;
-
-  /// No description provided for @overBudget.
-  ///
-  /// In en, this message translates to:
-  /// **'Over budget!'**
-  String get overBudget;
-
-  /// No description provided for @nearBudget.
-  ///
-  /// In en, this message translates to:
-  /// **'Near budget limit'**
-  String get nearBudget;
-
-  /// No description provided for @budgetInputHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter amount (clear to remove budget)'**
-  String get budgetInputHint;
-
   /// No description provided for @appearance.
   ///
   /// In en, this message translates to:
@@ -806,11 +764,11 @@ abstract class AppLocalizations {
   /// **'Other Income'**
   String get catOtherIncome;
 
-  /// No description provided for @account.
+  /// No description provided for @profile.
   ///
   /// In en, this message translates to:
-  /// **'Account'**
-  String get account;
+  /// **'Profile'**
+  String get profile;
 
   /// No description provided for @email.
   ///
@@ -878,11 +836,11 @@ abstract class AppLocalizations {
   /// **'Sign in to sync across devices'**
   String get loginForSync;
 
-  /// No description provided for @accountAndData.
+  /// No description provided for @privacyAndData.
   ///
   /// In en, this message translates to:
-  /// **'Account & Data'**
-  String get accountAndData;
+  /// **'Privacy & Data'**
+  String get privacyAndData;
 
   /// No description provided for @resetSettings.
   ///
@@ -1007,31 +965,31 @@ abstract class AppLocalizations {
   /// No description provided for @accounts.
   ///
   /// In en, this message translates to:
-  /// **'Accounts'**
+  /// **'Wallets'**
   String get accounts;
 
   /// No description provided for @accountLabel.
   ///
   /// In en, this message translates to:
-  /// **'Account'**
+  /// **'Wallet'**
   String get accountLabel;
 
   /// No description provided for @addAccount.
   ///
   /// In en, this message translates to:
-  /// **'Add Account'**
+  /// **'Add Wallet'**
   String get addAccount;
 
   /// No description provided for @editAccount.
   ///
   /// In en, this message translates to:
-  /// **'Edit Account'**
+  /// **'Edit Wallet'**
   String get editAccount;
 
   /// No description provided for @accountName.
   ///
   /// In en, this message translates to:
-  /// **'Account Name'**
+  /// **'Wallet Name'**
   String get accountName;
 
   /// No description provided for @setAsDefaultAccount.
@@ -1049,13 +1007,13 @@ abstract class AppLocalizations {
   /// No description provided for @noAccountYet.
   ///
   /// In en, this message translates to:
-  /// **'No accounts yet'**
+  /// **'No wallets yet'**
   String get noAccountYet;
 
   /// No description provided for @accountType.
   ///
   /// In en, this message translates to:
-  /// **'Account Type'**
+  /// **'Wallet Type'**
   String get accountType;
 
   /// No description provided for @acctCash.
@@ -1103,7 +1061,7 @@ abstract class AppLocalizations {
   /// No description provided for @duplicateAccountName.
   ///
   /// In en, this message translates to:
-  /// **'An account with this name already exists'**
+  /// **'A wallet with this name already exists'**
   String get duplicateAccountName;
 
   /// No description provided for @transfer.
@@ -1121,19 +1079,19 @@ abstract class AppLocalizations {
   /// No description provided for @fromAccount.
   ///
   /// In en, this message translates to:
-  /// **'From Account'**
+  /// **'From Wallet'**
   String get fromAccount;
 
   /// No description provided for @toAccount.
   ///
   /// In en, this message translates to:
-  /// **'To Account'**
+  /// **'To Wallet'**
   String get toAccount;
 
   /// No description provided for @needTwoAccountsForTransfer.
   ///
   /// In en, this message translates to:
-  /// **'Create at least two accounts to transfer between them'**
+  /// **'Create at least two wallets to transfer between them'**
   String get needTwoAccountsForTransfer;
 
   /// No description provided for @sameAccountTransfer.
@@ -1141,6 +1099,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick two different accounts'**
   String get sameAccountTransfer;
+
+  /// No description provided for @hideAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get hideAmounts;
+
+  /// No description provided for @showAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get showAmounts;
+
+  /// No description provided for @overallBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Budget'**
+  String get overallBudget;
+
+  /// No description provided for @addBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Budget'**
+  String get addBudget;
+
+  /// No description provided for @editBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Budget'**
+  String get editBudget;
+
+  /// No description provided for @deleteBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Budget'**
+  String get deleteBudget;
+
+  /// No description provided for @noBudgetYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets yet'**
+  String get noBudgetYet;
+
+  /// No description provided for @budgetTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to'**
+  String get budgetTarget;
+
+  /// No description provided for @budgetPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get budgetPeriod;
+
+  /// No description provided for @periodWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get periodWeekly;
+
+  /// No description provided for @periodMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get periodMonthly;
+
+  /// No description provided for @periodYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get periodYearly;
+
+  /// No description provided for @monthOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'Override one month'**
+  String get monthOverride;
+
+  /// No description provided for @overrideMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get overrideMonth;
+
+  /// No description provided for @overrideAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Override amount'**
+  String get overrideAmount;
+
+  /// No description provided for @budgetAlertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finio budget alert'**
+  String get budgetAlertTitle;
+
+  /// No description provided for @budgetAlertNear.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used 80% of your budget.'**
+  String get budgetAlertNear;
+
+  /// No description provided for @budgetAlertOver.
+  ///
+  /// In en, this message translates to:
+  /// **'You are over budget.'**
+  String get budgetAlertOver;
 }
 
 class _AppLocalizationsDelegate

@@ -134,7 +134,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
     await db.transactionDao.insertTransaction(
       TransactionsCompanion.insert(
-        title: note.isNotEmpty ? note : main,
+        title: note, // empty = no title; the tile shows the category instead
         amount: amount,
         type: typeStr,
         category: categoryToStore,

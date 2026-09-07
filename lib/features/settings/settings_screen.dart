@@ -56,7 +56,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(
-              l.account,
+              l.profile,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -116,29 +116,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.manage_accounts),
-            title: Text(l.accountAndData),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/account-data'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text(l.language),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/language'),
-          ),
+          // Fixed English-alphabetical order, deliberately identical in
+          // every locale so the list never shuffles with the language.
           ListTile(
             leading: const Icon(Icons.palette_outlined),
             title: Text(l.appearance),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/appearance'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.attach_money),
-            title: Text(l.currency),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/currency'),
           ),
           ListTile(
             leading: const Icon(Icons.category_outlined),
@@ -147,7 +131,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: () => context.push('/categories'),
           ),
           ListTile(
-            leading: const Icon(Icons.savings_outlined),
+            leading: const Icon(Icons.attach_money),
+            title: Text(l.currency),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/currency'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l.language),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/language'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.manage_accounts),
+            title: Text(l.privacyAndData),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/account-data'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_balance_wallet_outlined),
             title: Text(l.accounts),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/accounts'),

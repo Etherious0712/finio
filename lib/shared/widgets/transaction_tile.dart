@@ -47,12 +47,15 @@ class TransactionTile extends StatelessWidget {
     final iconName = category?.icon ?? 'more_horiz';
 
     // A transfer has no category to show — the two ends are the useful part.
+    // With no note the category is already the title, so don't print it twice.
     final lead = isTransfer
         ? '${tx.account ?? l.unassignedAccount} → '
             '${tx.toAccount ?? l.unassignedAccount}'
-        : localizeCategory(l, tx.category);
-    final subtitle =
-        showDate ? '$lead · ${DateFormat.MMMd().format(tx.date)}' : lead;
+        : (tx.title.isEmpty ? '' : localizeCategory(l, tx.category));
+    final date = DateFormat.MMMd().format(tx.date);
+    final subtitle = showDate
+        ? (lead.isEmpty ? date : '$lead · $date')
+        : lead;
 
     return Dismissible(
       key: ValueKey(tx.id),
@@ -83,8 +86,10 @@ class TransactionTile extends StatelessWidget {
               ? Icon(Icons.swap_horiz, size: 20, color: amountColor)
               : Icon(categoryIconData(iconName), size: 20, color: catColor),
         ),
-        title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text(subtitle),
+        title: Text(transactionTitle(l, tx),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+        // Collapse to a single line rather than leaving a blank second row.
+        subtitle: subtitle.isEmpty ? null : Text(subtitle),
         trailing: Text(
           // No +/- on a transfer: nothing was earned or spent.
           isTransfer

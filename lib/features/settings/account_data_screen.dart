@@ -6,6 +6,7 @@ import 'package:finio/app_localizations.dart';
 import 'package:finio/shared/providers/currency_provider.dart';
 import 'package:finio/shared/providers/database_provider.dart';
 import 'package:finio/shared/providers/locale_provider.dart';
+import 'package:finio/shared/providers/privacy_provider.dart';
 import 'package:finio/shared/providers/theme_provider.dart';
 
 class AccountDataScreen extends ConsumerStatefulWidget {
@@ -55,6 +56,7 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
     ref.read(localeProvider.notifier).setLocale(null);
     ref.read(themeProvider.notifier).setTheme(AppThemeMode.system);
     ref.read(currencyProvider.notifier).setCode('USD');
+    ref.read(hideAmountsProvider.notifier).setHidden(false);
     await ref.read(appDatabaseProvider).budgetDao.deleteAllBudgets();
 
     if (mounted) {
@@ -129,6 +131,7 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
       ref.read(localeProvider.notifier).setLocale(null);
       ref.read(themeProvider.notifier).setTheme(AppThemeMode.system);
       ref.read(currencyProvider.notifier).setCode('USD');
+      ref.read(hideAmountsProvider.notifier).setHidden(false);
     }
 
     await supabase.auth.signOut();
@@ -148,14 +151,14 @@ class _AccountDataScreenState extends ConsumerState<AccountDataScreen> {
     final isLoggedIn = user != null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.accountAndData), centerTitle: true),
+      appBar: AppBar(title: Text(l.privacyAndData), centerTitle: true),
       body: ListView(
         children: [
           if (isLoggedIn) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: Text(
-                l.account,
+                l.profile,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),

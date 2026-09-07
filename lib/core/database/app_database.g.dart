@@ -1362,6 +1362,16 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _periodMeta = const VerificationMeta('period');
+  @override
+  late final GeneratedColumn<String> period = GeneratedColumn<String>(
+    'period',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('month'),
+  );
   static const VerificationMeta _monthMeta = const VerificationMeta('month');
   @override
   late final GeneratedColumn<int> month = GeneratedColumn<int>(
@@ -1380,6 +1390,17 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _overrideAmountMeta = const VerificationMeta(
+    'overrideAmount',
+  );
+  @override
+  late final GeneratedColumn<double> overrideAmount = GeneratedColumn<double>(
+    'override_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1397,8 +1418,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     id,
     category,
     amount,
+    period,
     month,
     year,
+    overrideAmount,
     createdAt,
   ];
   @override
@@ -1430,6 +1453,12 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     } else if (isInserting) {
       context.missing(_amountMeta);
     }
+    if (data.containsKey('period')) {
+      context.handle(
+        _periodMeta,
+        period.isAcceptableOrUnknown(data['period']!, _periodMeta),
+      );
+    }
     if (data.containsKey('month')) {
       context.handle(
         _monthMeta,
@@ -1445,6 +1474,15 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
       );
     } else if (isInserting) {
       context.missing(_yearMeta);
+    }
+    if (data.containsKey('override_amount')) {
+      context.handle(
+        _overrideAmountMeta,
+        overrideAmount.isAcceptableOrUnknown(
+          data['override_amount']!,
+          _overrideAmountMeta,
+        ),
+      );
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -1473,6 +1511,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         DriftSqlType.double,
         data['${effectivePrefix}amount'],
       )!,
+      period: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}period'],
+      )!,
       month: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}month'],
@@ -1481,6 +1523,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         DriftSqlType.int,
         data['${effectivePrefix}year'],
       )!,
+      overrideAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}override_amount'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1498,15 +1544,19 @@ class Budget extends DataClass implements Insertable<Budget> {
   final int id;
   final String? category;
   final double amount;
+  final String period;
   final int month;
   final int year;
+  final double? overrideAmount;
   final DateTime createdAt;
   const Budget({
     required this.id,
     this.category,
     required this.amount,
+    required this.period,
     required this.month,
     required this.year,
+    this.overrideAmount,
     required this.createdAt,
   });
   @override
@@ -1517,8 +1567,12 @@ class Budget extends DataClass implements Insertable<Budget> {
       map['category'] = Variable<String>(category);
     }
     map['amount'] = Variable<double>(amount);
+    map['period'] = Variable<String>(period);
     map['month'] = Variable<int>(month);
     map['year'] = Variable<int>(year);
+    if (!nullToAbsent || overrideAmount != null) {
+      map['override_amount'] = Variable<double>(overrideAmount);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -1530,8 +1584,12 @@ class Budget extends DataClass implements Insertable<Budget> {
           ? const Value.absent()
           : Value(category),
       amount: Value(amount),
+      period: Value(period),
       month: Value(month),
       year: Value(year),
+      overrideAmount: overrideAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(overrideAmount),
       createdAt: Value(createdAt),
     );
   }
@@ -1545,8 +1603,10 @@ class Budget extends DataClass implements Insertable<Budget> {
       id: serializer.fromJson<int>(json['id']),
       category: serializer.fromJson<String?>(json['category']),
       amount: serializer.fromJson<double>(json['amount']),
+      period: serializer.fromJson<String>(json['period']),
       month: serializer.fromJson<int>(json['month']),
       year: serializer.fromJson<int>(json['year']),
+      overrideAmount: serializer.fromJson<double?>(json['overrideAmount']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -1557,8 +1617,10 @@ class Budget extends DataClass implements Insertable<Budget> {
       'id': serializer.toJson<int>(id),
       'category': serializer.toJson<String?>(category),
       'amount': serializer.toJson<double>(amount),
+      'period': serializer.toJson<String>(period),
       'month': serializer.toJson<int>(month),
       'year': serializer.toJson<int>(year),
+      'overrideAmount': serializer.toJson<double?>(overrideAmount),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -1567,15 +1629,21 @@ class Budget extends DataClass implements Insertable<Budget> {
     int? id,
     Value<String?> category = const Value.absent(),
     double? amount,
+    String? period,
     int? month,
     int? year,
+    Value<double?> overrideAmount = const Value.absent(),
     DateTime? createdAt,
   }) => Budget(
     id: id ?? this.id,
     category: category.present ? category.value : this.category,
     amount: amount ?? this.amount,
+    period: period ?? this.period,
     month: month ?? this.month,
     year: year ?? this.year,
+    overrideAmount: overrideAmount.present
+        ? overrideAmount.value
+        : this.overrideAmount,
     createdAt: createdAt ?? this.createdAt,
   );
   Budget copyWithCompanion(BudgetsCompanion data) {
@@ -1583,8 +1651,12 @@ class Budget extends DataClass implements Insertable<Budget> {
       id: data.id.present ? data.id.value : this.id,
       category: data.category.present ? data.category.value : this.category,
       amount: data.amount.present ? data.amount.value : this.amount,
+      period: data.period.present ? data.period.value : this.period,
       month: data.month.present ? data.month.value : this.month,
       year: data.year.present ? data.year.value : this.year,
+      overrideAmount: data.overrideAmount.present
+          ? data.overrideAmount.value
+          : this.overrideAmount,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1595,15 +1667,26 @@ class Budget extends DataClass implements Insertable<Budget> {
           ..write('id: $id, ')
           ..write('category: $category, ')
           ..write('amount: $amount, ')
+          ..write('period: $period, ')
           ..write('month: $month, ')
           ..write('year: $year, ')
+          ..write('overrideAmount: $overrideAmount, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, category, amount, month, year, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    category,
+    amount,
+    period,
+    month,
+    year,
+    overrideAmount,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1611,8 +1694,10 @@ class Budget extends DataClass implements Insertable<Budget> {
           other.id == this.id &&
           other.category == this.category &&
           other.amount == this.amount &&
+          other.period == this.period &&
           other.month == this.month &&
           other.year == this.year &&
+          other.overrideAmount == this.overrideAmount &&
           other.createdAt == this.createdAt);
 }
 
@@ -1620,23 +1705,29 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   final Value<int> id;
   final Value<String?> category;
   final Value<double> amount;
+  final Value<String> period;
   final Value<int> month;
   final Value<int> year;
+  final Value<double?> overrideAmount;
   final Value<DateTime> createdAt;
   const BudgetsCompanion({
     this.id = const Value.absent(),
     this.category = const Value.absent(),
     this.amount = const Value.absent(),
+    this.period = const Value.absent(),
     this.month = const Value.absent(),
     this.year = const Value.absent(),
+    this.overrideAmount = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   BudgetsCompanion.insert({
     this.id = const Value.absent(),
     this.category = const Value.absent(),
     required double amount,
+    this.period = const Value.absent(),
     required int month,
     required int year,
+    this.overrideAmount = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : amount = Value(amount),
        month = Value(month),
@@ -1645,16 +1736,20 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Expression<int>? id,
     Expression<String>? category,
     Expression<double>? amount,
+    Expression<String>? period,
     Expression<int>? month,
     Expression<int>? year,
+    Expression<double>? overrideAmount,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (category != null) 'category': category,
       if (amount != null) 'amount': amount,
+      if (period != null) 'period': period,
       if (month != null) 'month': month,
       if (year != null) 'year': year,
+      if (overrideAmount != null) 'override_amount': overrideAmount,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1663,16 +1758,20 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Value<int>? id,
     Value<String?>? category,
     Value<double>? amount,
+    Value<String>? period,
     Value<int>? month,
     Value<int>? year,
+    Value<double?>? overrideAmount,
     Value<DateTime>? createdAt,
   }) {
     return BudgetsCompanion(
       id: id ?? this.id,
       category: category ?? this.category,
       amount: amount ?? this.amount,
+      period: period ?? this.period,
       month: month ?? this.month,
       year: year ?? this.year,
+      overrideAmount: overrideAmount ?? this.overrideAmount,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1689,11 +1788,17 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     if (amount.present) {
       map['amount'] = Variable<double>(amount.value);
     }
+    if (period.present) {
+      map['period'] = Variable<String>(period.value);
+    }
     if (month.present) {
       map['month'] = Variable<int>(month.value);
     }
     if (year.present) {
       map['year'] = Variable<int>(year.value);
+    }
+    if (overrideAmount.present) {
+      map['override_amount'] = Variable<double>(overrideAmount.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -1707,8 +1812,10 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
           ..write('id: $id, ')
           ..write('category: $category, ')
           ..write('amount: $amount, ')
+          ..write('period: $period, ')
           ..write('month: $month, ')
           ..write('year: $year, ')
+          ..write('overrideAmount: $overrideAmount, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -2811,8 +2918,10 @@ typedef $$BudgetsTableCreateCompanionBuilder =
       Value<int> id,
       Value<String?> category,
       required double amount,
+      Value<String> period,
       required int month,
       required int year,
+      Value<double?> overrideAmount,
       Value<DateTime> createdAt,
     });
 typedef $$BudgetsTableUpdateCompanionBuilder =
@@ -2820,8 +2929,10 @@ typedef $$BudgetsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String?> category,
       Value<double> amount,
+      Value<String> period,
       Value<int> month,
       Value<int> year,
+      Value<double?> overrideAmount,
       Value<DateTime> createdAt,
     });
 
@@ -2849,6 +2960,11 @@ class $$BudgetsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get month => $composableBuilder(
     column: $table.month,
     builder: (column) => ColumnFilters(column),
@@ -2856,6 +2972,11 @@ class $$BudgetsTableFilterComposer
 
   ColumnFilters<int> get year => $composableBuilder(
     column: $table.year,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get overrideAmount => $composableBuilder(
+    column: $table.overrideAmount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2889,6 +3010,11 @@ class $$BudgetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get month => $composableBuilder(
     column: $table.month,
     builder: (column) => ColumnOrderings(column),
@@ -2896,6 +3022,11 @@ class $$BudgetsTableOrderingComposer
 
   ColumnOrderings<int> get year => $composableBuilder(
     column: $table.year,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get overrideAmount => $composableBuilder(
+    column: $table.overrideAmount,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2923,11 +3054,19 @@ class $$BudgetsTableAnnotationComposer
   GeneratedColumn<double> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
 
+  GeneratedColumn<String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
+
   GeneratedColumn<int> get month =>
       $composableBuilder(column: $table.month, builder: (column) => column);
 
   GeneratedColumn<int> get year =>
       $composableBuilder(column: $table.year, builder: (column) => column);
+
+  GeneratedColumn<double> get overrideAmount => $composableBuilder(
+    column: $table.overrideAmount,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2964,15 +3103,19 @@ class $$BudgetsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String?> category = const Value.absent(),
                 Value<double> amount = const Value.absent(),
+                Value<String> period = const Value.absent(),
                 Value<int> month = const Value.absent(),
                 Value<int> year = const Value.absent(),
+                Value<double?> overrideAmount = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => BudgetsCompanion(
                 id: id,
                 category: category,
                 amount: amount,
+                period: period,
                 month: month,
                 year: year,
+                overrideAmount: overrideAmount,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -2980,15 +3123,19 @@ class $$BudgetsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String?> category = const Value.absent(),
                 required double amount,
+                Value<String> period = const Value.absent(),
                 required int month,
                 required int year,
+                Value<double?> overrideAmount = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => BudgetsCompanion.insert(
                 id: id,
                 category: category,
                 amount: amount,
+                period: period,
                 month: month,
                 year: year,
+                overrideAmount: overrideAmount,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

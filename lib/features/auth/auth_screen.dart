@@ -143,7 +143,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.account)),
+      appBar: AppBar(title: Text(l10n.profile)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

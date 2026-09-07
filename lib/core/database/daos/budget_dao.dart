@@ -8,68 +8,27 @@ part 'budget_dao.g.dart';
 class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   BudgetDao(super.db);
 
-  // Streams (reactive UI)
-
-  Stream<Budget?> watchOverallBudget() =>
-      (select(budgets)
-            ..where((b) =>
-                b.category.isNull() & b.month.equals(0) & b.year.equals(0)))
-          .watchSingleOrNull();
-
-  Stream<List<Budget>> watchCategoryBudgets() =>
-      (select(budgets)
-            ..where((b) =>
-                b.category.isNotNull() &
-                b.month.equals(0) &
-                b.year.equals(0)))
-          .watch();
-
-  // One-shot reads
+  /// Every budget the user created — the overall one (null category) first.
+  Stream<List<Budget>> watchBudgets() => (select(budgets)
+        ..orderBy([
+          (b) => OrderingTerm(expression: b.category.isNull(), mode: OrderingMode.desc),
+          (b) => OrderingTerm(expression: b.category),
+        ]))
+      .watch();
 
   Future<List<Budget>> getBudgets() => select(budgets).get();
 
-  Future<Budget?> getOverallBudget() =>
-      (select(budgets)
-            ..where((b) =>
-                b.category.isNull() & b.month.equals(0) & b.year.equals(0)))
-          .getSingleOrNull();
+  /// The overall budget, for the startup alert. Uses `get().firstOrNull` rather
+  /// than `getSingleOrNull` so a stray duplicate can't throw before any UI has
+  /// rendered — the picker is what keeps the category unique.
+  Future<Budget?> getOverallBudget() async =>
+      (await (select(budgets)..where((b) => b.category.isNull())).get())
+          .firstOrNull;
 
-  Future<List<Budget>> getCategoryBudgets() =>
-      (select(budgets)
-            ..where((b) =>
-                b.category.isNotNull() &
-                b.month.equals(0) &
-                b.year.equals(0)))
-          .get();
+  Future<int> insertBudget(BudgetsCompanion entry) =>
+      into(budgets).insert(entry);
 
-  // Upsert: insert if not exists, update amount if exists (month=0, year=0 = monthly repeat)
-  Future<void> upsertBudget({String? category, required double amount}) async {
-    final existing = category == null
-        ? await (select(budgets)
-              ..where((b) =>
-                  b.category.isNull() &
-                  b.month.equals(0) &
-                  b.year.equals(0)))
-            .getSingleOrNull()
-        : await (select(budgets)
-              ..where((b) =>
-                  b.category.equals(category) &
-                  b.month.equals(0) &
-                  b.year.equals(0)))
-            .getSingleOrNull();
-
-    if (existing != null) {
-      await (update(budgets)..where((b) => b.id.equals(existing.id)))
-          .write(BudgetsCompanion(amount: Value(amount)));
-    } else {
-      await into(budgets).insert(BudgetsCompanion.insert(
-        category: Value<String?>(category),
-        amount: amount,
-        month: 0,
-        year: 0,
-      ));
-    }
-  }
+  Future<bool> updateBudget(Budget entry) => update(budgets).replace(entry);
 
   Future<int> deleteBudget(int id) =>
       (delete(budgets)..where((b) => b.id.equals(id))).go();

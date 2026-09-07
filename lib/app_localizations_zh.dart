@@ -135,29 +135,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budget => '预算';
 
   @override
-  String get monthlyBudget => '月度总预算';
-
-  @override
-  String get categoryBudget => '分类预算';
-
-  @override
-  String categoryBudgetLabel(String category) {
-    return '$category 预算';
-  }
-
-  @override
-  String get notSet => '未设置';
-
-  @override
-  String get overBudget => '❌ 已超支';
-
-  @override
-  String get nearBudget => '⚠️ 即将超支';
-
-  @override
-  String get budgetInputHint => '输入金额（清空则删除预算）';
-
-  @override
   String get appearance => '外观设置';
 
   @override
@@ -361,7 +338,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get catOtherIncome => '其他收入';
 
   @override
-  String get account => '账户';
+  String get profile => '个人资料';
 
   @override
   String get email => '电子邮箱';
@@ -397,7 +374,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loginForSync => '登录以在设备间同步数据';
 
   @override
-  String get accountAndData => '账号与数据';
+  String get privacyAndData => '隐私与数据';
 
   @override
   String get resetSettings => '重置设置';
@@ -460,19 +437,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get passwordTooShort => '密码不能少于 6 位';
 
   @override
-  String get accounts => '账户';
+  String get accounts => '钱包';
 
   @override
-  String get accountLabel => '账户';
+  String get accountLabel => '钱包';
 
   @override
-  String get addAccount => '添加账户';
+  String get addAccount => '添加钱包';
 
   @override
-  String get editAccount => '编辑账户';
+  String get editAccount => '编辑钱包';
 
   @override
-  String get accountName => '账户名称';
+  String get accountName => '钱包名称';
 
   @override
   String get setAsDefaultAccount => '设为默认';
@@ -481,10 +458,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unassignedAccount => '未分配';
 
   @override
-  String get noAccountYet => '暂无账户';
+  String get noAccountYet => '暂无钱包';
 
   @override
-  String get accountType => '账户类型';
+  String get accountType => '钱包类型';
 
   @override
   String get acctCash => '现金';
@@ -508,7 +485,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get amountOwed => '欠款金额';
 
   @override
-  String get duplicateAccountName => '已存在同名账户';
+  String get duplicateAccountName => '已存在同名钱包';
 
   @override
   String get transfer => '转账';
@@ -517,14 +494,68 @@ class AppLocalizationsZh extends AppLocalizations {
   String get catTransfer => '转账';
 
   @override
-  String get fromAccount => '转出账户';
+  String get fromAccount => '转出钱包';
 
   @override
-  String get toAccount => '转入账户';
+  String get toAccount => '转入钱包';
 
   @override
-  String get needTwoAccountsForTransfer => '至少需要两个账户才能转账';
+  String get needTwoAccountsForTransfer => '至少需要两个钱包才能转账';
 
   @override
   String get sameAccountTransfer => '请选择两个不同的账户';
+
+  @override
+  String get hideAmounts => '隐藏金额';
+
+  @override
+  String get showAmounts => '显示金额';
+
+  @override
+  String get overallBudget => '总预算';
+
+  @override
+  String get addBudget => '添加预算';
+
+  @override
+  String get editBudget => '编辑预算';
+
+  @override
+  String get deleteBudget => '删除预算';
+
+  @override
+  String get noBudgetYet => '暂无预算';
+
+  @override
+  String get budgetTarget => '适用于';
+
+  @override
+  String get budgetPeriod => '周期';
+
+  @override
+  String get periodWeekly => '每周';
+
+  @override
+  String get periodMonthly => '每月';
+
+  @override
+  String get periodYearly => '每年';
+
+  @override
+  String get monthOverride => '单月特例';
+
+  @override
+  String get overrideMonth => '月份';
+
+  @override
+  String get overrideAmount => '特例金额';
+
+  @override
+  String get budgetAlertTitle => 'Finio 预算提醒';
+
+  @override
+  String get budgetAlertNear => '已用掉预算的 80%。';
+
+  @override
+  String get budgetAlertOver => '已经超出预算。';
 }

@@ -135,29 +135,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budget => 'Budget';
 
   @override
-  String get monthlyBudget => 'Monthly Budget';
-
-  @override
-  String get categoryBudget => 'Category Budget';
-
-  @override
-  String categoryBudgetLabel(String category) {
-    return '$category Budget';
-  }
-
-  @override
-  String get notSet => 'Not set';
-
-  @override
-  String get overBudget => 'Over budget!';
-
-  @override
-  String get nearBudget => 'Near budget limit';
-
-  @override
-  String get budgetInputHint => 'Enter amount (clear to remove budget)';
-
-  @override
   String get appearance => 'Appearance';
 
   @override
@@ -362,7 +339,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catOtherIncome => 'Other Income';
 
   @override
-  String get account => 'Account';
+  String get profile => 'Profile';
 
   @override
   String get email => 'Email';
@@ -399,7 +376,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginForSync => 'Sign in to sync across devices';
 
   @override
-  String get accountAndData => 'Account & Data';
+  String get privacyAndData => 'Privacy & Data';
 
   @override
   String get resetSettings => 'Reset Settings';
@@ -463,19 +440,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordTooShort => 'Password must be at least 6 characters';
 
   @override
-  String get accounts => 'Accounts';
+  String get accounts => 'Wallets';
 
   @override
-  String get accountLabel => 'Account';
+  String get accountLabel => 'Wallet';
 
   @override
-  String get addAccount => 'Add Account';
+  String get addAccount => 'Add Wallet';
 
   @override
-  String get editAccount => 'Edit Account';
+  String get editAccount => 'Edit Wallet';
 
   @override
-  String get accountName => 'Account Name';
+  String get accountName => 'Wallet Name';
 
   @override
   String get setAsDefaultAccount => 'Set as default';
@@ -484,10 +461,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unassignedAccount => 'Unassigned';
 
   @override
-  String get noAccountYet => 'No accounts yet';
+  String get noAccountYet => 'No wallets yet';
 
   @override
-  String get accountType => 'Account Type';
+  String get accountType => 'Wallet Type';
 
   @override
   String get acctCash => 'Cash';
@@ -511,7 +488,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get amountOwed => 'Amount Owed';
 
   @override
-  String get duplicateAccountName => 'An account with this name already exists';
+  String get duplicateAccountName => 'A wallet with this name already exists';
 
   @override
   String get transfer => 'Transfer';
@@ -520,15 +497,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catTransfer => 'Transfer';
 
   @override
-  String get fromAccount => 'From Account';
+  String get fromAccount => 'From Wallet';
 
   @override
-  String get toAccount => 'To Account';
+  String get toAccount => 'To Wallet';
 
   @override
   String get needTwoAccountsForTransfer =>
-      'Create at least two accounts to transfer between them';
+      'Create at least two wallets to transfer between them';
 
   @override
   String get sameAccountTransfer => 'Pick two different accounts';
+
+  @override
+  String get hideAmounts => 'Hide amounts';
+
+  @override
+  String get showAmounts => 'Show amounts';
+
+  @override
+  String get overallBudget => 'Overall Budget';
+
+  @override
+  String get addBudget => 'Add Budget';
+
+  @override
+  String get editBudget => 'Edit Budget';
+
+  @override
+  String get deleteBudget => 'Delete Budget';
+
+  @override
+  String get noBudgetYet => 'No budgets yet';
+
+  @override
+  String get budgetTarget => 'Applies to';
+
+  @override
+  String get budgetPeriod => 'Period';
+
+  @override
+  String get periodWeekly => 'Weekly';
+
+  @override
+  String get periodMonthly => 'Monthly';
+
+  @override
+  String get periodYearly => 'Yearly';
+
+  @override
+  String get monthOverride => 'Override one month';
+
+  @override
+  String get overrideMonth => 'Month';
+
+  @override
+  String get overrideAmount => 'Override amount';
+
+  @override
+  String get budgetAlertTitle => 'Finio budget alert';
+
+  @override
+  String get budgetAlertNear => 'You have used 80% of your budget.';
+
+  @override
+  String get budgetAlertOver => 'You are over budget.';
 }

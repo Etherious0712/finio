@@ -135,29 +135,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budget => '예산';
 
   @override
-  String get monthlyBudget => '월간 예산';
-
-  @override
-  String get categoryBudget => '분류 예산';
-
-  @override
-  String categoryBudgetLabel(String category) {
-    return '$category 예산';
-  }
-
-  @override
-  String get notSet => '미설정';
-
-  @override
-  String get overBudget => '❌ 예산 초과!';
-
-  @override
-  String get nearBudget => '⚠️ 예산 한도 근접';
-
-  @override
-  String get budgetInputHint => '금액 입력 (비우면 예산 삭제)';
-
-  @override
   String get appearance => '외관';
 
   @override
@@ -361,7 +338,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get catOtherIncome => '기타 수입';
 
   @override
-  String get account => '계정';
+  String get profile => '프로필';
 
   @override
   String get email => '이메일';
@@ -397,7 +374,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginForSync => '기기 간 동기화를 위해 로그인하세요';
 
   @override
-  String get accountAndData => '계정 및 데이터';
+  String get privacyAndData => '개인정보 및 데이터';
 
   @override
   String get resetSettings => '설정 초기화';
@@ -460,19 +437,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get passwordTooShort => '비밀번호는 6자 이상이어야 합니다';
 
   @override
-  String get accounts => '계좌';
+  String get accounts => '지갑';
 
   @override
-  String get accountLabel => '계좌';
+  String get accountLabel => '지갑';
 
   @override
-  String get addAccount => '계좌 추가';
+  String get addAccount => '지갑 추가';
 
   @override
-  String get editAccount => '계좌 편집';
+  String get editAccount => '지갑 편집';
 
   @override
-  String get accountName => '계좌 이름';
+  String get accountName => '지갑 이름';
 
   @override
   String get setAsDefaultAccount => '기본으로 설정';
@@ -481,10 +458,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unassignedAccount => '미지정';
 
   @override
-  String get noAccountYet => '계좌가 없습니다';
+  String get noAccountYet => '지갑이 없습니다';
 
   @override
-  String get accountType => '계좌 종류';
+  String get accountType => '지갑 종류';
 
   @override
   String get acctCash => '현금';
@@ -508,7 +485,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get amountOwed => '미결제 금액';
 
   @override
-  String get duplicateAccountName => '같은 이름의 계좌가 이미 있습니다';
+  String get duplicateAccountName => '같은 이름의 지갑이 이미 있습니다';
 
   @override
   String get transfer => '이체';
@@ -517,14 +494,68 @@ class AppLocalizationsKo extends AppLocalizations {
   String get catTransfer => '이체';
 
   @override
-  String get fromAccount => '출금 계좌';
+  String get fromAccount => '출금 지갑';
 
   @override
-  String get toAccount => '입금 계좌';
+  String get toAccount => '입금 지갑';
 
   @override
-  String get needTwoAccountsForTransfer => '이체하려면 계좌가 두 개 이상 필요합니다';
+  String get needTwoAccountsForTransfer => '이체하려면 지갑이 두 개 이상 필요합니다';
 
   @override
   String get sameAccountTransfer => '서로 다른 계좌를 선택하세요';
+
+  @override
+  String get hideAmounts => '금액 숨기기';
+
+  @override
+  String get showAmounts => '금액 표시';
+
+  @override
+  String get overallBudget => '전체 예산';
+
+  @override
+  String get addBudget => '예산 추가';
+
+  @override
+  String get editBudget => '예산 편집';
+
+  @override
+  String get deleteBudget => '예산 삭제';
+
+  @override
+  String get noBudgetYet => '예산이 없습니다';
+
+  @override
+  String get budgetTarget => '적용 대상';
+
+  @override
+  String get budgetPeriod => '기간';
+
+  @override
+  String get periodWeekly => '매주';
+
+  @override
+  String get periodMonthly => '매월';
+
+  @override
+  String get periodYearly => '매년';
+
+  @override
+  String get monthOverride => '한 달만 다르게';
+
+  @override
+  String get overrideMonth => '월';
+
+  @override
+  String get overrideAmount => '변경 금액';
+
+  @override
+  String get budgetAlertTitle => 'Finio 예산 알림';
+
+  @override
+  String get budgetAlertNear => '예산의 80%를 사용했습니다.';
+
+  @override
+  String get budgetAlertOver => '예산을 초과했습니다.';
 }

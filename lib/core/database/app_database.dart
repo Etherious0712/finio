@@ -63,9 +63,14 @@ class Categories extends Table {
 class Budgets extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get category => text().nullable()(); // null = overall budget
-  RealColumn get amount => real()();
-  IntColumn get month => integer()(); // 1-12, 0 = monthly repeat
-  IntColumn get year => integer()(); // 0 = monthly repeat
+  RealColumn get amount => real()(); // the recurring amount
+  // 'week' | 'month' | 'year' — the window [amount] covers.
+  TextColumn get period => text().withDefault(const Constant('month'))();
+  // Single-month override: [overrideAmount] replaces [amount] for exactly this
+  // month/year. 0/0 + null = no override. Only meaningful when period='month'.
+  IntColumn get month => integer()(); // 1-12, 0 = no override
+  IntColumn get year => integer()(); // 0 = no override
+  RealColumn get overrideAmount => real().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -77,7 +82,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -152,6 +157,28 @@ class AppDatabase extends _$AppDatabase {
               '(SELECT MIN(id) FROM accounts GROUP BY name)',
             );
             await _uniqueAccountNameIndex();
+          }
+          if (from < 9) {
+            // Budget periods + single-month overrides. SQLite backfills from the
+            // DEFAULT, so every existing budget stays a recurring monthly one.
+            if (from >= 2) {
+              // Only a table that already existed needs the columns: the
+              // createTable above builds `budgets` from today's definition.
+              await customStatement(
+                "ALTER TABLE budgets ADD COLUMN period TEXT NOT NULL DEFAULT 'month'",
+              );
+              await customStatement(
+                'ALTER TABLE budgets ADD COLUMN override_amount REAL',
+              );
+            }
+            // A record saved with no note used to store the category KEY as its
+            // title, so lists showed a literal 'catOtherIncome'. Clear those and
+            // re-flag them so the next sync fixes the cloud copy too; the title
+            // now falls back to the localized category at render time.
+            await customStatement(
+              "UPDATE transactions SET title = '', is_synced = 0 "
+              "WHERE title = category",
+            );
           }
         },
       );

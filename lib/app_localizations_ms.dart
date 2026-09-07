@@ -135,30 +135,6 @@ class AppLocalizationsMs extends AppLocalizations {
   String get budget => 'Belanjawan';
 
   @override
-  String get monthlyBudget => 'Belanjawan Bulanan';
-
-  @override
-  String get categoryBudget => 'Belanjawan Kategori';
-
-  @override
-  String categoryBudgetLabel(String category) {
-    return 'Belanjawan $category';
-  }
-
-  @override
-  String get notSet => 'Belum ditetapkan';
-
-  @override
-  String get overBudget => '❌ Melebihi belanjawan!';
-
-  @override
-  String get nearBudget => '⚠️ Hampir melebihi had';
-
-  @override
-  String get budgetInputHint =>
-      'Masukkan jumlah (kosongkan untuk hapus belanjawan)';
-
-  @override
   String get appearance => 'Penampilan';
 
   @override
@@ -363,7 +339,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get catOtherIncome => 'Pendapatan Lain';
 
   @override
-  String get account => 'Akaun';
+  String get profile => 'Profil';
 
   @override
   String get email => 'E-mel';
@@ -400,7 +376,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get loginForSync => 'Log masuk untuk menyegerakkan merentas peranti';
 
   @override
-  String get accountAndData => 'Akaun & Data';
+  String get privacyAndData => 'Privasi & Data';
 
   @override
   String get resetSettings => 'Set Semula Tetapan';
@@ -466,19 +442,19 @@ class AppLocalizationsMs extends AppLocalizations {
       'Kata laluan mestilah sekurang-kurangnya 6 aksara';
 
   @override
-  String get accounts => 'Akaun';
+  String get accounts => 'Dompet';
 
   @override
-  String get accountLabel => 'Akaun';
+  String get accountLabel => 'Dompet';
 
   @override
-  String get addAccount => 'Tambah Akaun';
+  String get addAccount => 'Tambah Dompet';
 
   @override
-  String get editAccount => 'Edit Akaun';
+  String get editAccount => 'Edit Dompet';
 
   @override
-  String get accountName => 'Nama Akaun';
+  String get accountName => 'Nama Dompet';
 
   @override
   String get setAsDefaultAccount => 'Tetapkan sebagai lalai';
@@ -487,10 +463,10 @@ class AppLocalizationsMs extends AppLocalizations {
   String get unassignedAccount => 'Tidak ditetapkan';
 
   @override
-  String get noAccountYet => 'Belum ada akaun';
+  String get noAccountYet => 'Belum ada dompet';
 
   @override
-  String get accountType => 'Jenis Akaun';
+  String get accountType => 'Jenis Dompet';
 
   @override
   String get acctCash => 'Tunai';
@@ -514,7 +490,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get amountOwed => 'Jumlah Terhutang';
 
   @override
-  String get duplicateAccountName => 'Akaun dengan nama ini sudah wujud';
+  String get duplicateAccountName => 'Dompet dengan nama ini sudah wujud';
 
   @override
   String get transfer => 'Pindahan';
@@ -523,15 +499,69 @@ class AppLocalizationsMs extends AppLocalizations {
   String get catTransfer => 'Pindahan';
 
   @override
-  String get fromAccount => 'Dari Akaun';
+  String get fromAccount => 'Dari Dompet';
 
   @override
-  String get toAccount => 'Ke Akaun';
+  String get toAccount => 'Ke Dompet';
 
   @override
   String get needTwoAccountsForTransfer =>
-      'Cipta sekurang-kurangnya dua akaun untuk membuat pindahan';
+      'Cipta sekurang-kurangnya dua dompet untuk membuat pindahan';
 
   @override
   String get sameAccountTransfer => 'Pilih dua akaun yang berbeza';
+
+  @override
+  String get hideAmounts => 'Sembunyikan jumlah';
+
+  @override
+  String get showAmounts => 'Tunjukkan jumlah';
+
+  @override
+  String get overallBudget => 'Belanjawan Keseluruhan';
+
+  @override
+  String get addBudget => 'Tambah Belanjawan';
+
+  @override
+  String get editBudget => 'Edit Belanjawan';
+
+  @override
+  String get deleteBudget => 'Padam Belanjawan';
+
+  @override
+  String get noBudgetYet => 'Belum ada belanjawan';
+
+  @override
+  String get budgetTarget => 'Untuk';
+
+  @override
+  String get budgetPeriod => 'Tempoh';
+
+  @override
+  String get periodWeekly => 'Mingguan';
+
+  @override
+  String get periodMonthly => 'Bulanan';
+
+  @override
+  String get periodYearly => 'Tahunan';
+
+  @override
+  String get monthOverride => 'Ubah untuk satu bulan';
+
+  @override
+  String get overrideMonth => 'Bulan';
+
+  @override
+  String get overrideAmount => 'Jumlah ubahan';
+
+  @override
+  String get budgetAlertTitle => 'Amaran belanjawan Finio';
+
+  @override
+  String get budgetAlertNear => 'Anda telah guna 80% daripada belanjawan.';
+
+  @override
+  String get budgetAlertOver => 'Anda telah melebihi belanjawan.';
 }

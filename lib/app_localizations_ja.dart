@@ -135,29 +135,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get budget => '予算';
 
   @override
-  String get monthlyBudget => '月次予算';
-
-  @override
-  String get categoryBudget => 'カテゴリ予算';
-
-  @override
-  String categoryBudgetLabel(String category) {
-    return '$category 予算';
-  }
-
-  @override
-  String get notSet => '未設定';
-
-  @override
-  String get overBudget => '❌ 予算超過！';
-
-  @override
-  String get nearBudget => '⚠️ 予算上限に近い';
-
-  @override
-  String get budgetInputHint => '金額を入力（空白で予算削除）';
-
-  @override
   String get appearance => '外観';
 
   @override
@@ -361,7 +338,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get catOtherIncome => 'その他収入';
 
   @override
-  String get account => 'アカウント';
+  String get profile => 'プロフィール';
 
   @override
   String get email => 'メールアドレス';
@@ -397,7 +374,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginForSync => 'デバイス間で同期するにはログインしてください';
 
   @override
-  String get accountAndData => 'アカウントとデータ';
+  String get privacyAndData => 'プライバシーとデータ';
 
   @override
   String get resetSettings => '設定をリセット';
@@ -460,19 +437,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get passwordTooShort => 'パスワードは6文字以上必要です';
 
   @override
-  String get accounts => '口座';
+  String get accounts => 'ウォレット';
 
   @override
-  String get accountLabel => '口座';
+  String get accountLabel => 'ウォレット';
 
   @override
-  String get addAccount => '口座を追加';
+  String get addAccount => 'ウォレットを追加';
 
   @override
-  String get editAccount => '口座を編集';
+  String get editAccount => 'ウォレットを編集';
 
   @override
-  String get accountName => '口座名';
+  String get accountName => 'ウォレット名';
 
   @override
   String get setAsDefaultAccount => 'デフォルトに設定';
@@ -481,10 +458,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get unassignedAccount => '未割り当て';
 
   @override
-  String get noAccountYet => '口座がありません';
+  String get noAccountYet => 'ウォレットがありません';
 
   @override
-  String get accountType => '口座の種類';
+  String get accountType => 'ウォレットの種類';
 
   @override
   String get acctCash => '現金';
@@ -508,7 +485,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get amountOwed => '未払い残高';
 
   @override
-  String get duplicateAccountName => '同じ名前の口座がすでにあります';
+  String get duplicateAccountName => '同じ名前のウォレットがすでにあります';
 
   @override
   String get transfer => '振替';
@@ -523,8 +500,62 @@ class AppLocalizationsJa extends AppLocalizations {
   String get toAccount => '振替先';
 
   @override
-  String get needTwoAccountsForTransfer => '振替するには口座が2つ以上必要です';
+  String get needTwoAccountsForTransfer => '振替するにはウォレットが2つ以上必要です';
 
   @override
   String get sameAccountTransfer => '異なる口座を選んでください';
+
+  @override
+  String get hideAmounts => '金額を隠す';
+
+  @override
+  String get showAmounts => '金額を表示';
+
+  @override
+  String get overallBudget => '全体予算';
+
+  @override
+  String get addBudget => '予算を追加';
+
+  @override
+  String get editBudget => '予算を編集';
+
+  @override
+  String get deleteBudget => '予算を削除';
+
+  @override
+  String get noBudgetYet => '予算がありません';
+
+  @override
+  String get budgetTarget => '対象';
+
+  @override
+  String get budgetPeriod => '期間';
+
+  @override
+  String get periodWeekly => '毎週';
+
+  @override
+  String get periodMonthly => '毎月';
+
+  @override
+  String get periodYearly => '毎年';
+
+  @override
+  String get monthOverride => '特定の月だけ変更';
+
+  @override
+  String get overrideMonth => '月';
+
+  @override
+  String get overrideAmount => '変更後の金額';
+
+  @override
+  String get budgetAlertTitle => 'Finio 予算アラート';
+
+  @override
+  String get budgetAlertNear => '予算の80%を使いました。';
+
+  @override
+  String get budgetAlertOver => '予算を超えました。';
 }

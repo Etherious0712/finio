@@ -107,6 +107,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildBody(BuildContext context, String symbol, Map<String, Category> categoryMap) {
     final l = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
 
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
@@ -137,10 +138,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         final catColor =
             cat != null ? parseCategoryColor(cat.color) : typeColor;
         final iconName = cat?.icon ?? 'more_horiz';
+        // With no note the category is already the title — don't repeat it.
         final lead = isTransfer
             ? '${tx.account ?? l.unassignedAccount} → '
                 '${tx.toAccount ?? l.unassignedAccount}'
-            : localizeCategory(l, tx.category);
+            : (tx.title.isEmpty ? '' : localizeCategory(l, tx.category));
 
         return ListTile(
           onTap: () => _showDetail(tx, symbol),
@@ -153,10 +155,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               color: isTransfer ? typeColor : catColor,
             ),
           ),
-          title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(
-            '$lead  ·  ${DateFormat('yyyy/M/d').format(tx.date)}',
-          ),
+          title: Text(transactionTitle(l, tx),
+              maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(lead.isEmpty
+              ? DateFormat.yMd(locale).format(tx.date)
+              : '$lead  ·  ${DateFormat.yMd(locale).format(tx.date)}'),
           trailing: Text(
             isTransfer
                 ? formatAmount(tx.amount, symbol)
@@ -181,6 +184,7 @@ class _DetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
     final isIncome = tx.type == 'income';
     final isTransfer = tx.type == 'transfer';
     final typeColor = context.finio.forType(tx.type);
@@ -224,8 +228,9 @@ class _DetailSheet extends StatelessWidget {
             )
           else
             _Row(label: l.category, value: localizeCategory(l, tx.category)),
-          if (tx.title.isNotEmpty) _Row(label: l.note, value: tx.title),
-          _Row(label: l.date, value: DateFormat('yyyy年M月d日').format(tx.date)),
+          if (tx.note?.isNotEmpty ?? false)
+            _Row(label: l.note, value: tx.note!),
+          _Row(label: l.date, value: DateFormat.yMMMMd(locale).format(tx.date)),
           _Row(
             label: l.recordTime,
             value: DateFormat('yyyy/M/d HH:mm').format(tx.createdAt),

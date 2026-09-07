@@ -13,6 +13,7 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/navigation_provider.dart';
+import '../../shared/providers/privacy_provider.dart';
 import '../../shared/providers/statistics_providers.dart';
 import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_localizer.dart';
@@ -53,6 +54,9 @@ class DashboardScreen extends ConsumerWidget {
               todayExpense: ref.watch(todayExpenseProvider),
               symbol: symbol,
               currencyCode: currencyCode,
+              hidden: ref.watch(hideAmountsProvider),
+              onHiddenChanged: (v) =>
+                  ref.read(hideAmountsProvider.notifier).setHidden(v),
             ),
             const _InsightsRow(),
             const _BudgetRings(),
@@ -205,29 +209,20 @@ class _BudgetRings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final overall = ref.watch(overallBudgetProvider).valueOrNull;
-    final catBudgets = ref.watch(categoryBudgetsProvider).valueOrNull ?? [];
-    final monthlyExpense = ref.watch(monthlyExpenseProvider);
-    final stats = ref.watch(categoryStatsProvider('expense'));
+    final statuses = ref.watch(budgetStatusesProvider);
 
-    if (overall == null && catBudgets.isEmpty) return const SizedBox.shrink();
+    if (statuses.isEmpty) return const SizedBox.shrink();
 
+    // ponytail: the period isn't shown on a 76px ring — the Budget tab spells
+    // it out.
     final items = <Widget>[
-      if (overall != null)
+      for (final s in statuses)
         _RingItem(
-          label: l.monthlyBudget,
-          spent: monthlyExpense,
-          budget: overall.amount,
-        ),
-      for (final b in catBudgets)
-        _RingItem(
-          label: localizeCategory(l, b.category ?? l.unknownCategory),
-          spent: stats
-                  .where((s) => s.category == b.category)
-                  .firstOrNull
-                  ?.amount ??
-              0,
-          budget: b.amount,
+          label: s.budget.category == null
+              ? l.overallBudget
+              : localizeCategory(l, s.budget.category!),
+          spent: s.spent,
+          budget: s.limit,
         ),
     ];
 

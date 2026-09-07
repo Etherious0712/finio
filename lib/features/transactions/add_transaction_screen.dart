@@ -190,7 +190,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           _classifier.classifyWithLearning(title: noteText, type: _type);
       final auto = _autoSuggested || _selectedCategory == null;
 
-      final title = noteText.isNotEmpty ? noteText : main;
+      // No note typed = no title. Falling back to the category KEY here is
+      // what put literal 'catOtherIncome' on the dashboard; the list shows
+      // the localized category instead via transactionTitle().
+      final title = noteText;
       final amount = double.parse(_amountController.text);
 
       // Auto path: file under a sub named from the matched keyword, or the note

@@ -85,13 +85,13 @@ void main() {
     await tester.pumpAndSettle();
 
     // Empty state before any jar exists.
-    expect(find.text('No accounts yet'), findsOneWidget);
+    expect(find.text('No wallets yet'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
     await tester.enterText(
-        find.widgetWithText(TextField, 'Account Name'), 'Maybank');
+        find.widgetWithText(TextField, 'Wallet Name'), 'Maybank');
     await tester.tap(find.byType(SwitchListTile)); // set as default
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
@@ -115,7 +115,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
-        find.widgetWithText(TextField, 'Account Name'), 'Visa');
+        find.widgetWithText(TextField, 'Wallet Name'), 'Visa');
     await tester.tap(find.widgetWithText(ChoiceChip, 'Credit Card'));
     await tester.pumpAndSettle();
     // The label flips to "Amount Owed" so the user never types the minus.
@@ -142,12 +142,12 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
     await tester.enterText(
-        find.widgetWithText(TextField, 'Account Name'), 'Cash');
+        find.widgetWithText(TextField, 'Wallet Name'), 'Cash');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
 
     expect((await db.accountDao.getAllAccounts()).length, 1);
-    expect(find.text('An account with this name already exists'),
+    expect(find.text('A wallet with this name already exists'),
         findsOneWidget);
 
     await settle(tester);
@@ -181,6 +181,8 @@ void main() {
     final txs = await db.transactionDao.searchTransactions('');
     expect(txs.length, 1);
     expect(txs.single.amount, 25);
+    // No note typed = no title; the list falls back to the localized category.
+    expect(txs.single.title, '');
     // Default jar applied without the user touching the picker.
     expect(txs.single.account, 'TNG eWallet');
 
@@ -256,8 +258,8 @@ void main() {
     // From/To rows sit below the note and date cards.
     await tester.drag(find.byType(ListView).first, const Offset(0, -400));
     await tester.pumpAndSettle();
-    expect(find.text('From Account'), findsOneWidget);
-    expect(find.text('To Account'), findsOneWidget);
+    expect(find.text('From Wallet'), findsOneWidget);
+    expect(find.text('To Wallet'), findsOneWidget);
 
     // Cash is preselected as the default, so only the destination needs a tap.
     await tester.tap(find.text('Maybank').last);
@@ -286,7 +288,7 @@ void main() {
     await tester.drag(find.byType(ListView).first, const Offset(0, -400));
     await tester.pumpAndSettle();
     expect(
-        find.text('Create at least two accounts to transfer between them'),
+        find.text('Create at least two wallets to transfer between them'),
         findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).first, '200');
@@ -348,7 +350,7 @@ void main() {
     await tester.pumpWidget(host(const StatisticsScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Accounts'), findsOneWidget);
+    expect(find.text('Wallets'), findsOneWidget);
     expect(find.text('Maybank'), findsOneWidget);
     expect(find.text('TNG eWallet'), findsOneWidget);
     expect(find.text('Unassigned'), findsOneWidget);
@@ -381,7 +383,7 @@ void main() {
     await tester.tap(find.text('Maybank'));
     await tester.pumpAndSettle();
     await tester.enterText(
-        find.widgetWithText(TextField, 'Account Name'), 'Maybank Savings');
+        find.widgetWithText(TextField, 'Wallet Name'), 'Maybank Savings');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
 

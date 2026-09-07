@@ -135,29 +135,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get budget => 'Budget';
 
   @override
-  String get monthlyBudget => 'Budget mensuel';
-
-  @override
-  String get categoryBudget => 'Budget par catégorie';
-
-  @override
-  String categoryBudgetLabel(String category) {
-    return 'Budget $category';
-  }
-
-  @override
-  String get notSet => 'Non défini';
-
-  @override
-  String get overBudget => '❌ Dépassement!';
-
-  @override
-  String get nearBudget => '⚠️ Proche de la limite';
-
-  @override
-  String get budgetInputHint => 'Entrez le montant (vide pour supprimer)';
-
-  @override
   String get appearance => 'Apparence';
 
   @override
@@ -362,7 +339,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get catOtherIncome => 'Autre revenu';
 
   @override
-  String get account => 'Compte';
+  String get profile => 'Profil';
 
   @override
   String get email => 'E-mail';
@@ -400,7 +377,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Connectez-vous pour synchroniser entre les appareils';
 
   @override
-  String get accountAndData => 'Compte et données';
+  String get privacyAndData => 'Confidentialité et données';
 
   @override
   String get resetSettings => 'Réinitialiser les paramètres';
@@ -466,19 +443,19 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mot de passe doit contenir au moins 6 caractères';
 
   @override
-  String get accounts => 'Comptes';
+  String get accounts => 'Portefeuilles';
 
   @override
-  String get accountLabel => 'Compte';
+  String get accountLabel => 'Portefeuille';
 
   @override
-  String get addAccount => 'Ajouter un compte';
+  String get addAccount => 'Ajouter un portefeuille';
 
   @override
-  String get editAccount => 'Modifier le compte';
+  String get editAccount => 'Modifier le portefeuille';
 
   @override
-  String get accountName => 'Nom du compte';
+  String get accountName => 'Nom du portefeuille';
 
   @override
   String get setAsDefaultAccount => 'Définir par défaut';
@@ -487,10 +464,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unassignedAccount => 'Non attribué';
 
   @override
-  String get noAccountYet => 'Aucun compte';
+  String get noAccountYet => 'Aucun portefeuille';
 
   @override
-  String get accountType => 'Type de compte';
+  String get accountType => 'Type de portefeuille';
 
   @override
   String get acctCash => 'Espèces';
@@ -514,7 +491,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get amountOwed => 'Montant dû';
 
   @override
-  String get duplicateAccountName => 'Un compte portant ce nom existe déjà';
+  String get duplicateAccountName =>
+      'Un portefeuille portant ce nom existe déjà';
 
   @override
   String get transfer => 'Virement';
@@ -523,15 +501,69 @@ class AppLocalizationsFr extends AppLocalizations {
   String get catTransfer => 'Virement';
 
   @override
-  String get fromAccount => 'Compte source';
+  String get fromAccount => 'Portefeuille source';
 
   @override
-  String get toAccount => 'Compte destinataire';
+  String get toAccount => 'Portefeuille destinataire';
 
   @override
   String get needTwoAccountsForTransfer =>
-      'Créez au moins deux comptes pour faire un virement';
+      'Créez au moins deux portefeuilles pour faire un virement';
 
   @override
   String get sameAccountTransfer => 'Choisissez deux comptes différents';
+
+  @override
+  String get hideAmounts => 'Masquer les montants';
+
+  @override
+  String get showAmounts => 'Afficher les montants';
+
+  @override
+  String get overallBudget => 'Budget global';
+
+  @override
+  String get addBudget => 'Ajouter un budget';
+
+  @override
+  String get editBudget => 'Modifier le budget';
+
+  @override
+  String get deleteBudget => 'Supprimer le budget';
+
+  @override
+  String get noBudgetYet => 'Aucun budget';
+
+  @override
+  String get budgetTarget => 'S-applique à';
+
+  @override
+  String get budgetPeriod => 'Période';
+
+  @override
+  String get periodWeekly => 'Hebdomadaire';
+
+  @override
+  String get periodMonthly => 'Mensuel';
+
+  @override
+  String get periodYearly => 'Annuel';
+
+  @override
+  String get monthOverride => 'Exception pour un mois';
+
+  @override
+  String get overrideMonth => 'Mois';
+
+  @override
+  String get overrideAmount => 'Montant de-exception';
+
+  @override
+  String get budgetAlertTitle => 'Alerte budget Finio';
+
+  @override
+  String get budgetAlertNear => 'Vous avez utilisé 80% de votre budget.';
+
+  @override
+  String get budgetAlertOver => 'Vous avez dépassé votre budget.';
 }

@@ -29,7 +29,7 @@ import 'shared/providers/database_provider.dart';
 import 'shared/providers/locale_provider.dart';
 import 'shared/providers/navigation_provider.dart';
 import 'shared/providers/theme_provider.dart';
-import 'shared/providers/transaction_providers.dart';
+import 'shared/utils/budget_period.dart';
 import 'shared/widgets/speed_dial_fab.dart';
 
 final _router = GoRouter(
@@ -147,14 +147,20 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   Future<void> _checkBudgetOnStartup() async {
     if (!mounted) return;
+    final l = AppLocalizations.of(context)!;
     final db = ref.read(appDatabaseProvider);
-    final month = ref.read(selectedMonthProvider);
     final budget = await db.budgetDao.getOverallBudget();
-    final totals =
-        await db.transactionDao.getMonthlyTotals(month.year, month.month);
+    if (budget == null) return;
+    // The budget's own window, so a weekly or yearly one isn't compared
+    // against a calendar month, and a month override is honoured.
+    final (start, end) = budgetWindow(budget.period, DateTime.now());
+    final totals = await db.transactionDao.getTotalsBetween(start, end);
     await BudgetNotifier.checkAndNotify(
       expense: totals['expense'] ?? 0.0,
-      budget: budget?.amount,
+      budget: effectiveBudget(budget, start),
+      title: l.budgetAlertTitle,
+      nearBody: l.budgetAlertNear,
+      overBody: l.budgetAlertOver,
     );
   }
 
