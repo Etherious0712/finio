@@ -25,8 +25,10 @@ custom design system and ships in 8 languages.
   **By Year**, each with its own period selector and net totals.
 - **Statistics** — interactive pie + 6-month bar charts, category drill-down,
   and a month-over-month delta.
-- **Budgets** — overall and per-category monthly budgets with circular progress
-  and local notifications at 80% / 100%.
+- **Budgets** — overall or per-category budgets you create yourself, on a
+  weekly, monthly or yearly period, with a one-month override for the months
+  that don't fit the pattern. Circular progress plus local notifications at
+  80% / 100%.
 - **Categories** — add/edit custom categories (icon + color), with per-category
   usage counts.
 - **Auto-categorization** — a local keyword rule engine that learns from your
@@ -48,6 +50,8 @@ custom design system and ships in 8 languages.
 | Cloud (optional) | Supabase (Auth + Postgres) |
 | Localization | Flutter `gen-l10n` from ARB files (8 locales) |
 | Local AI | Keyword rule classifier (TFLite planned) |
+
+Why this stack: [ADR 0001 — Flutter and Dart](docs/adr/0001-flutter-and-dart.md).
 
 ## Project structure
 
