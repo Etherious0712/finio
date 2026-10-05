@@ -14,13 +14,21 @@ custom design system and ships in 8 languages.
 
 ## Features
 
-- **Fast entry** — quick-add bottom sheet with a custom numeric keypad,
+- **Fast entry** — quick-add bottom sheet on the phone's own number pad,
   one-tap category chips, and an automatic category suggestion from the note.
+  Amounts are typed cash-register style (`1234` → `12.34`), so every amount has
+  exactly two decimals.
 - **Gesture-first UX** — swipe between tabs, swipe a transaction to edit or
   delete, swipe the month header to change month.
 - **Dashboard** — all-time **Total Balance** headline, this-month income/expense,
-  a spending-trend sparkline, a category donut, and animated budget rings. The
-  graphs tap through to Statistics.
+  a category donut, and animated budget rings. The donut taps through to
+  Statistics.
+- **Credit cards** — a card has a credit limit and shows what it owes (as a
+  positive amount) and the credit still available. Paying it is a transfer from
+  another wallet via the card's **Pay** button; paying past zero shows as an
+  overpayment. Money back on a card is a **refund**: it files under an expense
+  category and offsets that category's spending and budget instead of counting
+  as income.
 - **Records** — browse transactions grouped **By Date**, **By Month**, or
   **By Year**, each with its own period selector and net totals.
 - **Statistics** — interactive pie + 6-month bar charts, category drill-down,
@@ -110,15 +118,16 @@ alter table public.transactions add column if not exists to_account text;
 ```
 
 If `transactions.type` has a CHECK constraint or is an enum, widen it too, or
-transfers are rejected on push:
+transfers and credit-card refunds are rejected on push:
 
 ```sql
 alter table public.transactions drop constraint if exists transactions_type_check;
 alter table public.transactions add constraint transactions_type_check
-  check (type in ('income','expense','transfer'));
+  check (type in ('income','expense','transfer','refund'));
 ```
 
-Until that runs, transfers fail to push while every other record still syncs.
+Until that runs, transfers and refunds fail to push while every other record
+still syncs.
 
 ## Localization
 

@@ -67,7 +67,8 @@ class FinioColors extends ThemeExtension<FinioColors> {
 
   /// Returns the color for a transaction `type` string.
   Color forType(String type) => switch (type) {
-        'income' => income,
+        // A refund is money coming back, so it reads like income.
+        'income' || 'refund' => income,
         'transfer' => transfer,
         _ => expense,
       };

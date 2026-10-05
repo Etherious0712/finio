@@ -131,18 +131,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       itemCount: _results!.length,
       itemBuilder: (ctx, i) {
         final tx = _results![i];
-        final cat = categoryMap['${tx.type}:${tx.category}'];
-        final isIncome = tx.type == 'income';
+        final cat = categoryMap[categoryKeyOf(tx)];
+        final isRefund = tx.type == 'refund';
+        final isIncome = tx.type == 'income' || isRefund;
         final isTransfer = tx.type == 'transfer';
         final typeColor = context.finio.forType(tx.type);
         final catColor =
             cat != null ? parseCategoryColor(cat.color) : typeColor;
         final iconName = cat?.icon ?? 'more_horiz';
         // With no note the category is already the title — don't repeat it.
+        final category =
+            tx.title.isEmpty ? '' : localizeCategory(l, tx.category);
         final lead = isTransfer
             ? '${tx.account ?? l.unassignedAccount} → '
                 '${tx.toAccount ?? l.unassignedAccount}'
-            : (tx.title.isEmpty ? '' : localizeCategory(l, tx.category));
+            : (isRefund
+                ? [l.refund, if (category.isNotEmpty) category].join(' · ')
+                : category);
 
         return ListTile(
           onTap: () => _showDetail(tx, symbol),
@@ -185,7 +190,7 @@ class _DetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
-    final isIncome = tx.type == 'income';
+    final isIncome = tx.type == 'income' || tx.type == 'refund';
     final isTransfer = tx.type == 'transfer';
     final typeColor = context.finio.forType(tx.type);
 
@@ -216,9 +221,12 @@ class _DetailSheet extends StatelessWidget {
           const SizedBox(height: 20),
           _Row(
             label: l.typeLabel,
-            value: isTransfer
-                ? l.transfer
-                : (isIncome ? l.income : l.expense),
+            value: switch (tx.type) {
+              'transfer' => l.transfer,
+              'refund' => l.refund,
+              'income' => l.income,
+              _ => l.expense,
+            },
           ),
           if (isTransfer)
             _Row(

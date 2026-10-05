@@ -9,9 +9,6 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
-  String get spendingTrend => '지출 추세';
-
-  @override
   String get totalBalance => '총 잔액';
 
   @override
@@ -558,4 +555,45 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get budgetAlertOver => '예산을 초과했습니다.';
+
+  @override
+  String get refund => '환불';
+
+  @override
+  String get creditLimit => '신용 한도';
+
+  @override
+  String get creditLimitRequired => '카드 신용 한도를 입력하세요';
+
+  @override
+  String availableCredit(String available, String limit) {
+    return '사용 가능 $available / 한도 $limit';
+  }
+
+  @override
+  String get noCreditLimit => '한도 미설정';
+
+  @override
+  String owedAmount(String amount) {
+    return '미결제 $amount';
+  }
+
+  @override
+  String overpaidAmount(String amount) {
+    return '초과 납부 $amount';
+  }
+
+  @override
+  String get repay => '상환';
+
+  @override
+  String get cardPayment => '카드 대금 상환';
+
+  @override
+  String get overLimitTitle => '한도 초과';
+
+  @override
+  String overLimitMsg(String available) {
+    return '이 지출은 카드의 사용 가능 한도($available)를 초과합니다. 그래도 저장할까요?';
+  }
 }

@@ -60,11 +60,14 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     double income = 0;
     double expense = 0;
     for (final row in rows) {
-      // Transfers move money between accounts; they are neither.
+      // Transfers move money between accounts; they are neither. A refund
+      // takes back spending rather than counting as income.
       if (row.type == 'income') {
         income += row.amount;
       } else if (row.type == 'expense') {
         expense += row.amount;
+      } else if (row.type == 'refund') {
+        expense -= row.amount;
       }
     }
     return {'income': income, 'expense': expense};

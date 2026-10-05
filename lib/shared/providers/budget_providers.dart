@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:finio/core/database/app_database.dart';
 import '../utils/budget_period.dart';
+import '../utils/category_localizer.dart';
 import 'category_providers.dart';
 import 'database_provider.dart';
 import 'transaction_providers.dart';
@@ -47,14 +48,15 @@ final budgetStatusesProvider = Provider<List<BudgetStatus>>((ref) {
     final limit = effectiveBudget(b, start);
     var spent = 0.0;
     for (final t in txs) {
-      if (t.type != 'expense') continue; // transfers are neither
+      final spend = spendOf(t); // refunds give budget back; transfers are 0
+      if (spend == 0) continue;
       if (t.date.isBefore(start) || !t.date.isBefore(end)) continue;
       // Sub-category spend counts toward its parent, same as categoryStats.
       if (b.category != null &&
           (mainKey['expense:${t.category}'] ?? t.category) != b.category) {
         continue;
       }
-      spent += t.amount;
+      spent += spend;
     }
     out.add(BudgetStatus(
       budget: b,

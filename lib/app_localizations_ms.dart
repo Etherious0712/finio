@@ -9,9 +9,6 @@ class AppLocalizationsMs extends AppLocalizations {
   AppLocalizationsMs([String locale = 'ms']) : super(locale);
 
   @override
-  String get spendingTrend => 'Trend Perbelanjaan';
-
-  @override
   String get totalBalance => 'Baki Keseluruhan';
 
   @override
@@ -564,4 +561,45 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get budgetAlertOver => 'Anda telah melebihi belanjawan.';
+
+  @override
+  String get refund => 'Bayaran Balik';
+
+  @override
+  String get creditLimit => 'Had Kredit';
+
+  @override
+  String get creditLimitRequired => 'Masukkan had kredit kad';
+
+  @override
+  String availableCredit(String available, String limit) {
+    return 'Tersedia $available / Had $limit';
+  }
+
+  @override
+  String get noCreditLimit => 'Had kredit belum ditetapkan';
+
+  @override
+  String owedAmount(String amount) {
+    return 'Hutang $amount';
+  }
+
+  @override
+  String overpaidAmount(String amount) {
+    return 'Lebihan bayaran $amount';
+  }
+
+  @override
+  String get repay => 'Bayar';
+
+  @override
+  String get cardPayment => 'Bayaran Kad';
+
+  @override
+  String get overLimitTitle => 'Melebihi had kredit';
+
+  @override
+  String overLimitMsg(String available) {
+    return 'Perbelanjaan ini melebihi kredit tersedia kad ($available). Simpan juga?';
+  }
 }

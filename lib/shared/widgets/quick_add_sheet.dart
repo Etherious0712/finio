@@ -14,12 +14,13 @@ import '../providers/currency_provider.dart';
 import '../providers/database_provider.dart';
 import '../utils/category_icon.dart';
 import '../utils/category_localizer.dart';
-import '../utils/currency_formatter.dart';
+import '../utils/cents_input_formatter.dart';
 import 'account_picker.dart';
-import 'amount_keypad.dart';
+import 'credit_line.dart';
 
-/// Fast transaction entry as a bottom sheet: type → amount (custom keypad) →
-/// category (one-tap chips, auto-suggested from the note). The "2-tap" path.
+/// Fast transaction entry as a bottom sheet: type → amount (system number pad,
+/// cash-register style) → category (one-tap chips, auto-suggested from the
+/// note). The "2-tap" path.
 class QuickAddSheet extends ConsumerStatefulWidget {
   const QuickAddSheet({super.key, required this.initialType});
 
@@ -40,9 +41,9 @@ class QuickAddSheet extends ConsumerStatefulWidget {
 
 class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   late TransactionType _type = widget.initialType;
+  final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   final _classifier = RuleClassifier();
-  String _amount = '';
   String? _category;
   String? _account;
   // See add_transaction_screen: one-shot default-jar seeding.
@@ -60,14 +61,27 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
   @override
   void dispose() {
+    _amountController.dispose();
     _noteController.dispose();
     super.dispose();
   }
 
+  bool _isCard(String? name) =>
+      ref.read(accountBalanceProvider(name))?.isCreditCard ?? false;
+
+  /// Income on a credit card is a refund — see add_transaction_screen.
+  bool get _isRefund =>
+      _type == TransactionType.income && _isCard(_account);
+
+  /// Which side's categories (and classifier rules) apply.
+  TransactionType get _categoryType =>
+      _isRefund ? TransactionType.expense : _type;
+
   void _onNoteChanged() {
     final note = _noteController.text;
     if (note.isEmpty) return;
-    final suggested = _classifier.classifyWithLearning(title: note, type: _type);
+    final suggested =
+        _classifier.classifyWithLearning(title: note, type: _categoryType);
     if (suggested != _category) {
       setState(() {
         _category = suggested;
@@ -84,30 +98,41 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
   Future<void> _save() async {
     final l = AppLocalizations.of(context)!;
-    final amount = double.tryParse(_amount) ?? 0;
+    final amount = parseCentsInput(_amountController.text) ?? 0;
     if (amount <= 0) {
       _toast(l.pleaseEnterPositiveAmount);
+      return;
+    }
+    final isExpense = _type == TransactionType.expense;
+    if (isExpense &&
+        !await confirmWithinLimit(
+          context,
+          card: ref.read(accountBalanceProvider(_account)),
+          amount: amount,
+          symbol: ref.read(currencySymbolProvider),
+        )) {
       return;
     }
 
     setState(() => _saving = true);
     final note = _noteController.text.trim();
     final db = ref.read(appDatabaseProvider);
-    final typeStr = _type == TransactionType.expense ? 'expense' : 'income';
+    final typeStr = isExpense ? 'expense' : (_isRefund ? 'refund' : 'income');
+    final categoryType = _categoryType;
 
     // A note alone always resolves to a main (Other when nothing matches).
     final main = _category ??
-        _classifier.classifyWithLearning(title: note, type: _type);
+        _classifier.classifyWithLearning(title: note, type: categoryType);
     final auto = _autoSuggested || _category == null;
 
     // Auto path: sub named from the matched keyword, or the note itself.
     var categoryToStore = main;
     if (auto && note.isNotEmpty) {
       final subName =
-          RuleClassifier.matchedKeyword(title: note, type: _type) ??
+          RuleClassifier.matchedKeyword(title: note, type: categoryType) ??
               _cleanSub(note);
       if (subName.isNotEmpty) {
-        final mains = ref.read(_type == TransactionType.expense
+        final mains = ref.read(categoryType == TransactionType.expense
                     ? expenseCategoriesProvider
                     : incomeCategoriesProvider)
                 .valueOrNull ??
@@ -123,7 +148,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           final sub = await db.categoryDao.findOrCreateSub(
             parentId: mainCat.id,
             name: subName,
-            type: typeStr,
+            type: categoryType == TransactionType.expense ? 'expense' : 'income',
             icon: mainCat.icon,
             color: mainCat.color,
           );
@@ -156,17 +181,25 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final symbol = ref.watch(currencySymbolProvider);
     final isExpense = _type == TransactionType.expense;
     final typeColor = finio.forType(isExpense ? 'expense' : 'income');
-    final categories = (isExpense
-            ? ref.watch(expenseCategoriesProvider)
-            : ref.watch(incomeCategoriesProvider))
-        .valueOrNull ??
-        const <Category>[];
+    final amountStyle = Theme.of(context)
+        .textTheme
+        .displayMedium
+        ?.copyWith(color: typeColor, fontWeight: FontWeight.w700)
+        .tabular;
 
     final defaultAccount = ref.watch(defaultAccountProvider);
     if (!_accountInitialized && defaultAccount != null) {
       _account = defaultAccount.name;
       _accountInitialized = true;
     }
+    // Watched so the refund relabel follows the account list as it loads.
+    final accountBalance = ref.watch(accountBalanceProvider(_account));
+    final incomeIsRefund = _isCard(_account);
+    final categories = (_categoryType == TransactionType.expense
+            ? ref.watch(expenseCategoriesProvider)
+            : ref.watch(incomeCategoriesProvider))
+        .valueOrNull ??
+        const <Category>[];
 
     return Padding(
       padding: EdgeInsets.only(
@@ -188,7 +221,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   ButtonSegment(
                       value: TransactionType.expense, label: Text(l.expense)),
                   ButtonSegment(
-                      value: TransactionType.income, label: Text(l.income)),
+                      value: TransactionType.income,
+                      label: Text(incomeIsRefund ? l.refund : l.income)),
                 ],
                 selected: {_type},
                 onSelectionChanged: (s) => setState(() {
@@ -199,15 +233,24 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               ),
             ),
             const SizedBox(height: Insets.lg),
-            // Amount display
-            Text(
-              '$symbol ${formatAmountInput(_amount)}',
+            // Amount: the phone's own number pad, opened straight away.
+            TextField(
+              controller: _amountController,
+              autofocus: true,
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium
-                  ?.copyWith(color: typeColor, fontWeight: FontWeight.w700)
-                  .tabular,
+              keyboardType: TextInputType.number,
+              inputFormatters: const [CentsInputFormatter()],
+              style: amountStyle,
+              decoration: InputDecoration(
+                filled: false,
+                prefixText: '$symbol ',
+                prefixStyle: amountStyle,
+                hintText: '0.00',
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
             const SizedBox(height: Insets.sm),
             // Optional note (drives auto-categorization)
@@ -248,17 +291,24 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             const SizedBox(height: Insets.sm),
             AccountPicker(
               selected: _account,
-              onSelect: (name) => setState(() {
-                _account = name;
-                _accountInitialized = true;
-              }),
+              onSelect: (name) {
+                final wasRefund = _isRefund;
+                setState(() {
+                  _account = name;
+                  _accountInitialized = true;
+                  // Income ↔ refund swaps the category list underneath.
+                  if (_isRefund != wasRefund) {
+                    _category = null;
+                    _autoSuggested = false;
+                  }
+                });
+              },
             ),
-            const SizedBox(height: Insets.sm),
-            AmountKeypad(
-              value: _amount,
-              onChanged: (v) => setState(() => _amount = v),
-            ),
-            const SizedBox(height: Insets.sm),
+            if (accountBalance?.isCreditCard ?? false) ...[
+              const SizedBox(height: Insets.xs),
+              CreditLine(balance: accountBalance!, symbol: symbol),
+            ],
+            const SizedBox(height: Insets.md),
             FilledButton(
               onPressed: _saving ? null : _save,
               style: FilledButton.styleFrom(backgroundColor: typeColor),

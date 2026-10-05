@@ -46,6 +46,8 @@ final _router = GoRouter(
             initialType: state.uri.queryParameters['type'] == 'transfer'
                 ? TransactionType.transfer
                 : null,
+            // &to=<account> preselects the destination (a card's Pay button).
+            initialToAccount: state.uri.queryParameters['to'],
           ),
         ),
         GoRoute(

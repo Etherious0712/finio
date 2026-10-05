@@ -1,6 +1,5 @@
 {
   "@@locale": "de",
-  "spendingTrend": "Ausgabentrend",
   "totalBalance": "Gesamtsaldo",
   "editTransaction": "Eintrag bearbeiten",
   "groupByMonth": "Nach Monat",
@@ -182,5 +181,16 @@
   "overrideAmount": "Abweichender Betrag",
   "budgetAlertTitle": "Finio Budget-Warnung",
   "budgetAlertNear": "Du hast 80% deines Budgets verbraucht.",
-  "budgetAlertOver": "Du hast dein Budget überschritten."
+  "budgetAlertOver": "Du hast dein Budget überschritten.",
+  "refund": "Erstattung",
+  "creditLimit": "Kreditlimit",
+  "creditLimitRequired": "Gib das Kreditlimit der Karte ein",
+  "availableCredit": "Verfügbar {available} / Limit {limit}",
+  "noCreditLimit": "Kein Kreditlimit festgelegt",
+  "owedAmount": "Offen {amount}",
+  "overpaidAmount": "Überzahlt {amount}",
+  "repay": "Zahlen",
+  "cardPayment": "Kartenzahlung",
+  "overLimitTitle": "Kreditlimit überschritten",
+  "overLimitMsg": "Diese Ausgabe übersteigt den verfügbaren Kreditrahmen der Karte ({available}). Trotzdem speichern?"
 }

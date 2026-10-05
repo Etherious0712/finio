@@ -18,6 +18,7 @@ import '../../shared/providers/transaction_providers.dart';
 import '../../shared/utils/category_icon.dart';
 import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
+import '../../shared/widgets/credit_line.dart';
 import '../../shared/widgets/scope_bar.dart';
 import '../../shared/widgets/transaction_tile.dart';
 
@@ -167,6 +168,40 @@ class _AccountSection extends ConsumerWidget {
       );
     }
 
+    // A card says what it owes as a plain positive, with its credit below; the
+    // total still subtracts the debt.
+    Widget cardRow(AccountBalance b) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: Insets.sm),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(categoryIconData(b.icon),
+                    size: 16, color: parseCategoryColor(b.color)),
+              ),
+              const SizedBox(width: Insets.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(b.name, style: Theme.of(context).textTheme.bodyMedium),
+                    CreditLine(balance: b, symbol: symbol),
+                  ],
+                ),
+              ),
+              Text(
+                cardBalanceLabel(l, b, symbol),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600)
+                    .tabular,
+              ),
+            ],
+          ),
+        );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -174,14 +209,17 @@ class _AccountSection extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Insets.xs),
         for (final b in balances)
-          row(
-            b.isUnassigned ? l.unassignedAccount : b.name,
-            b.balance,
-            categoryIconData(b.icon),
-            b.isUnassigned
-                ? Theme.of(context).colorScheme.outline
-                : parseCategoryColor(b.color),
-          ),
+          if (b.isCreditCard)
+            cardRow(b)
+          else
+            row(
+              b.isUnassigned ? l.unassignedAccount : b.name,
+              b.balance,
+              categoryIconData(b.icon),
+              b.isUnassigned
+                  ? Theme.of(context).colorScheme.outline
+                  : parseCategoryColor(b.color),
+            ),
         const Divider(),
         row(l.totalBalance, total, Icons.account_balance_wallet,
             Theme.of(context).colorScheme.primary,
@@ -522,8 +560,9 @@ class _CategoryDrillSheet extends ConsumerWidget {
         ref.watch(subcategoryStatsProvider((type: type, main: category)));
     final txs = (ref.watch(scopedTransactionsProvider).valueOrNull ?? [])
         .where((t) =>
-            t.type == type &&
-            (mainKeyMap['${t.type}:${t.category}'] ?? t.category) == category)
+            // Refunds offset expense categories, so they're listed with them.
+            (t.type == type || (type == 'expense' && t.type == 'refund')) &&
+            (mainKeyMap[categoryKeyOf(t)] ?? t.category) == category)
         .toList();
     final categoryMap = {
       for (final c in ref.watch(allCategoriesProvider).valueOrNull ?? [])
@@ -582,7 +621,7 @@ class _CategoryDrillSheet extends ConsumerWidget {
           for (final tx in txs)
             TransactionTile(
               tx: tx,
-              category: categoryMap['${tx.type}:${tx.category}'],
+              category: categoryMap[categoryKeyOf(tx)],
               symbol: symbol,
               showDate: true,
               onEdit: () {

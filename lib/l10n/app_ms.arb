@@ -1,6 +1,5 @@
 {
   "@@locale": "ms",
-  "spendingTrend": "Trend Perbelanjaan",
   "totalBalance": "Baki Keseluruhan",
   "editTransaction": "Edit Rekod",
   "groupByMonth": "Ikut Bulan",
@@ -182,5 +181,16 @@
   "overrideAmount": "Jumlah ubahan",
   "budgetAlertTitle": "Amaran belanjawan Finio",
   "budgetAlertNear": "Anda telah guna 80% daripada belanjawan.",
-  "budgetAlertOver": "Anda telah melebihi belanjawan."
+  "budgetAlertOver": "Anda telah melebihi belanjawan.",
+  "refund": "Bayaran Balik",
+  "creditLimit": "Had Kredit",
+  "creditLimitRequired": "Masukkan had kredit kad",
+  "availableCredit": "Tersedia {available} / Had {limit}",
+  "noCreditLimit": "Had kredit belum ditetapkan",
+  "owedAmount": "Hutang {amount}",
+  "overpaidAmount": "Lebihan bayaran {amount}",
+  "repay": "Bayar",
+  "cardPayment": "Bayaran Kad",
+  "overLimitTitle": "Melebihi had kredit",
+  "overLimitMsg": "Perbelanjaan ini melebihi kredit tersedia kad ({available}). Simpan juga?"
 }
