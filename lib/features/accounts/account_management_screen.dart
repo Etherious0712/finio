@@ -1,19 +1,22 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:finio/app_localizations.dart';
 import 'package:finio/core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../shared/models/stats_models.dart';
 import '../../shared/providers/account_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/account_localizer.dart';
 import '../../shared/utils/category_icon.dart';
+import '../../shared/utils/cents_input_formatter.dart';
 import '../../shared/utils/currency_formatter.dart';
+import '../../shared/widgets/credit_line.dart';
 
 /// Manage accounts: the cash, banks, cards and e-wallets money sits in.
 class AccountManagementScreen extends ConsumerStatefulWidget {
@@ -92,11 +95,9 @@ class _AccountManagementScreenState
             itemBuilder: (_, i) {
               final a = accounts[i];
               final color = parseCategoryColor(a.color);
-              final balance = balances
-                  .where((b) => b.name == a.name)
-                  .firstOrNull
-                  ?.balance ??
-                  0;
+              final b = balances.where((b) => b.name == a.name).firstOrNull;
+              final balance = b?.balance ?? 0;
+              final isCard = b?.isCreditCard ?? false;
               return Dismissible(
                 key: ValueKey('account-${a.id}'),
                 direction: DismissDirection.endToStart,
@@ -110,31 +111,34 @@ class _AccountManagementScreenState
                   await _delete(a);
                   return false;
                 },
-                child: ListTile(
-                  onTap: () => _openSheet(existing: a),
-                  leading: CircleAvatar(
-                    backgroundColor: color.withValues(alpha: 0.15),
-                    child: Icon(categoryIconData(a.icon), color: color, size: 20),
-                  ),
-                  title: Text(a.name),
-                  subtitle: Text(
-                    [
-                      localizeAccountType(l, a.type),
-                      if (a.isDefault) l.defaultLabel,
-                    ].join(' · '),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  trailing: Text(
-                    formatAmount(balance, symbol),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          // A credit card sits in the red; say so.
-                          color: balance < 0
-                              ? context.finio.expense
-                              : context.finio.income,
+                child: isCard
+                    ? _CardTile(
+                        account: a,
+                        balance: b!,
+                        symbol: symbol,
+                        onTap: () => _openSheet(existing: a),
+                      )
+                    : ListTile(
+                        onTap: () => _openSheet(existing: a),
+                        leading: _AccountAvatar(icon: a.icon, color: color),
+                        title: Text(a.name),
+                        subtitle: Text(
+                          _typeLine(l, a),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
-                  ),
-                ),
+                        trailing: Text(
+                          formatAmount(balance, symbol),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: balance < 0
+                                    ? context.finio.expense
+                                    : context.finio.income,
+                              ),
+                        ),
+                      ),
               );
             },
           );
@@ -150,8 +154,105 @@ class _AccountManagementScreenState
   }
 }
 
-/// Add or edit an account: name, type, opening balance, icon, color, and
-/// whether it's the default pick.
+String _typeLine(AppLocalizations l, Account a) => [
+      localizeAccountType(l, a.type),
+      if (a.isDefault) l.defaultLabel,
+    ].join(' · ');
+
+class _AccountAvatar extends StatelessWidget {
+  const _AccountAvatar({required this.icon, required this.color});
+
+  final String icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => CircleAvatar(
+        backgroundColor: color.withValues(alpha: 0.15),
+        child: Icon(categoryIconData(icon), color: color, size: 20),
+      );
+}
+
+/// A credit card row: what's owed (a plain positive, not a red negative),
+/// available credit with a usage bar, and a Pay button that opens a transfer
+/// into the card.
+class _CardTile extends StatelessWidget {
+  const _CardTile({
+    required this.account,
+    required this.balance,
+    required this.symbol,
+    required this.onTap,
+  });
+
+  final Account account;
+  final AccountBalance balance;
+  final String symbol;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final limit = balance.creditLimit;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: Insets.lg, vertical: Insets.sm),
+        child: Row(
+          children: [
+            _AccountAvatar(
+                icon: account.icon, color: parseCategoryColor(account.color)),
+            const SizedBox(width: Insets.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(account.name,
+                            style: theme.textTheme.bodyLarge),
+                      ),
+                      Text(
+                        cardBalanceLabel(l, balance, symbol),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  Text(_typeLine(l, account), style: theme.textTheme.bodySmall),
+                  const SizedBox(height: Insets.xs),
+                  CreditLine(balance: balance, symbol: symbol),
+                  if (limit != null && limit > 0) ...[
+                    const SizedBox(height: Insets.xs),
+                    LinearProgressIndicator(
+                      value: (balance.owed / limit).clamp(0.0, 1.0),
+                      minHeight: 4,
+                      borderRadius: BorderRadius.circular(Radii.pill),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: Insets.sm),
+            FilledButton.tonal(
+              // The theme stretches filled buttons full-width; this one sits
+              // in a row.
+              style: FilledButton.styleFrom(minimumSize: const Size(64, 40)),
+              onPressed: () => context.push(
+                  '/transactions/add?type=transfer'
+                  '&to=${Uri.encodeQueryComponent(account.name)}'),
+              child: Text(l.repay),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Add or edit an account: name, type, opening balance, credit limit (cards),
+/// icon, color, and whether it's the default pick.
 class _AccountSheet extends ConsumerStatefulWidget {
   const _AccountSheet({this.existing});
 
@@ -164,6 +265,7 @@ class _AccountSheet extends ConsumerStatefulWidget {
 class _AccountSheetState extends ConsumerState<_AccountSheet> {
   late final TextEditingController _nameController;
   late final TextEditingController _openingController;
+  late final TextEditingController _limitController;
   late String _selectedIcon;
   late String _selectedColor;
   late String _selectedType;
@@ -183,8 +285,10 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
     _nameController = TextEditingController(text: a?.name ?? '');
     // Stored negative on a card (money owed); the field shows what's owed.
     final opening = a?.openingBalance ?? 0;
-    _openingController = TextEditingController(
-        text: opening == 0 ? '' : opening.abs().toStringAsFixed(2));
+    _openingController = TextEditingController(text: centsTextFor(opening));
+    final limit = a?.creditLimit;
+    _limitController =
+        TextEditingController(text: limit == null ? '' : centsTextFor(limit));
     _selectedType = a?.type ?? 'cash';
     // Default to the savings icon; the grid itself is the shared category icon
     // list, so finance icons sit further down it.
@@ -197,6 +301,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
   void dispose() {
     _nameController.dispose();
     _openingController.dispose();
+    _limitController.dispose();
     super.dispose();
   }
 
@@ -254,9 +359,19 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
       return;
     }
 
-    final typed = double.tryParse(_openingController.text.trim()) ?? 0;
+    final typed = parseCentsInput(_openingController.text) ?? 0;
     // A card's opening balance is debt, so it's stored negative.
-    final opening = _isCard ? -typed.abs() : typed;
+    final opening = _isCard ? -typed : typed;
+    // Required on a card — available credit means nothing without it. Cards
+    // from before limits existed are asked for one on their next edit.
+    final limit = _isCard ? parseCentsInput(_limitController.text) : null;
+    if (_isCard && (limit == null || limit <= 0)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.creditLimitRequired)));
+      }
+      return;
+    }
 
     setState(() => _saving = true);
     try {
@@ -274,6 +389,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
           color: _selectedColor,
           type: _selectedType,
           openingBalance: opening,
+          creditLimit: Value(limit),
         ));
         id = old.id;
       } else {
@@ -283,6 +399,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
           color: _selectedColor,
           type: Value(_selectedType),
           openingBalance: Value(opening),
+          creditLimit: Value(limit),
         ));
       }
       // setDefault clears the flag on every other account, so only call it when
@@ -363,13 +480,23 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
               ],
             ),
             const SizedBox(height: Insets.md),
+            if (_isCard) ...[
+              TextField(
+                controller: _limitController,
+                keyboardType: TextInputType.number,
+                inputFormatters: const [CentsInputFormatter()],
+                decoration: InputDecoration(
+                  labelText: l.creditLimit,
+                  prefixText: '$symbol ',
+                  hintText: '0.00',
+                ),
+              ),
+              const SizedBox(height: Insets.md),
+            ],
             TextField(
               controller: _openingController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-              ],
+              keyboardType: TextInputType.number,
+              inputFormatters: const [CentsInputFormatter()],
               decoration: InputDecoration(
                 labelText: _isCard ? l.amountOwed : l.openingBalance,
                 prefixText: '$symbol ',

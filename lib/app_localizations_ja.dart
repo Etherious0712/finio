@@ -9,9 +9,6 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get spendingTrend => '支出の推移';
-
-  @override
   String get totalBalance => '総残高';
 
   @override
@@ -558,4 +555,45 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get budgetAlertOver => '予算を超えました。';
+
+  @override
+  String get refund => '返金';
+
+  @override
+  String get creditLimit => '利用限度額';
+
+  @override
+  String get creditLimitRequired => 'カードの利用限度額を入力してください';
+
+  @override
+  String availableCredit(String available, String limit) {
+    return '利用可能 $available / 限度額 $limit';
+  }
+
+  @override
+  String get noCreditLimit => '限度額未設定';
+
+  @override
+  String owedAmount(String amount) {
+    return '未払い $amount';
+  }
+
+  @override
+  String overpaidAmount(String amount) {
+    return '過払い $amount';
+  }
+
+  @override
+  String get repay => '返済';
+
+  @override
+  String get cardPayment => 'カード返済';
+
+  @override
+  String get overLimitTitle => '限度額超過';
+
+  @override
+  String overLimitMsg(String available) {
+    return 'この支出はカードの利用可能額（$available）を超えています。保存しますか？';
+  }
 }

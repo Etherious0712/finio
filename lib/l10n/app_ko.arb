@@ -1,6 +1,5 @@
 {
   "@@locale": "ko",
-  "spendingTrend": "지출 추세",
   "totalBalance": "총 잔액",
   "editTransaction": "기록 편집",
   "groupByMonth": "월별",
@@ -182,5 +181,16 @@
   "overrideAmount": "변경 금액",
   "budgetAlertTitle": "Finio 예산 알림",
   "budgetAlertNear": "예산의 80%를 사용했습니다.",
-  "budgetAlertOver": "예산을 초과했습니다."
+  "budgetAlertOver": "예산을 초과했습니다.",
+  "refund": "환불",
+  "creditLimit": "신용 한도",
+  "creditLimitRequired": "카드 신용 한도를 입력하세요",
+  "availableCredit": "사용 가능 {available} / 한도 {limit}",
+  "noCreditLimit": "한도 미설정",
+  "owedAmount": "미결제 {amount}",
+  "overpaidAmount": "초과 납부 {amount}",
+  "repay": "상환",
+  "cardPayment": "카드 대금 상환",
+  "overLimitTitle": "한도 초과",
+  "overLimitMsg": "이 지출은 카드의 사용 가능 한도({available})를 초과합니다. 그래도 저장할까요?"
 }

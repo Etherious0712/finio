@@ -1,6 +1,5 @@
 {
   "@@locale": "ja",
-  "spendingTrend": "支出の推移",
   "totalBalance": "総残高",
   "editTransaction": "記録を編集",
   "groupByMonth": "月別",
@@ -182,5 +181,16 @@
   "overrideAmount": "変更後の金額",
   "budgetAlertTitle": "Finio 予算アラート",
   "budgetAlertNear": "予算の80%を使いました。",
-  "budgetAlertOver": "予算を超えました。"
+  "budgetAlertOver": "予算を超えました。",
+  "refund": "返金",
+  "creditLimit": "利用限度額",
+  "creditLimitRequired": "カードの利用限度額を入力してください",
+  "availableCredit": "利用可能 {available} / 限度額 {limit}",
+  "noCreditLimit": "限度額未設定",
+  "owedAmount": "未払い {amount}",
+  "overpaidAmount": "過払い {amount}",
+  "repay": "返済",
+  "cardPayment": "カード返済",
+  "overLimitTitle": "限度額超過",
+  "overLimitMsg": "この支出はカードの利用可能額（{available}）を超えています。保存しますか？"
 }

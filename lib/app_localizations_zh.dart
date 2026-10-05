@@ -9,9 +9,6 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get spendingTrend => '支出趋势';
-
-  @override
   String get totalBalance => '总余额';
 
   @override
@@ -558,4 +555,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get budgetAlertOver => '已经超出预算。';
+
+  @override
+  String get refund => '退款';
+
+  @override
+  String get creditLimit => '信用额度';
+
+  @override
+  String get creditLimitRequired => '请输入信用卡额度';
+
+  @override
+  String availableCredit(String available, String limit) {
+    return '可用 $available / 额度 $limit';
+  }
+
+  @override
+  String get noCreditLimit => '未设额度';
+
+  @override
+  String owedAmount(String amount) {
+    return '欠款 $amount';
+  }
+
+  @override
+  String overpaidAmount(String amount) {
+    return '溢缴款 $amount';
+  }
+
+  @override
+  String get repay => '还款';
+
+  @override
+  String get cardPayment => '信用卡还款';
+
+  @override
+  String get overLimitTitle => '超出可用额度';
+
+  @override
+  String overLimitMsg(String available) {
+    return '这笔消费超出信用卡可用额度（$available），仍要保存吗？';
+  }
 }

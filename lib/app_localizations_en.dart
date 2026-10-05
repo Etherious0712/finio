@@ -9,9 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get spendingTrend => 'Spending Trend';
-
-  @override
   String get totalBalance => 'Total Balance';
 
   @override
@@ -562,4 +559,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetAlertOver => 'You are over budget.';
+
+  @override
+  String get refund => 'Refund';
+
+  @override
+  String get creditLimit => 'Credit Limit';
+
+  @override
+  String get creditLimitRequired => 'Enter the card\'s credit limit';
+
+  @override
+  String availableCredit(String available, String limit) {
+    return 'Available $available / Limit $limit';
+  }
+
+  @override
+  String get noCreditLimit => 'No credit limit set';
+
+  @override
+  String owedAmount(String amount) {
+    return 'Owed $amount';
+  }
+
+  @override
+  String overpaidAmount(String amount) {
+    return 'Overpaid $amount';
+  }
+
+  @override
+  String get repay => 'Pay';
+
+  @override
+  String get cardPayment => 'Card Payment';
+
+  @override
+  String get overLimitTitle => 'Over credit limit';
+
+  @override
+  String overLimitMsg(String available) {
+    return 'This charge is more than the card\'s available credit ($available). Save anyway?';
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -13,6 +12,7 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/utils/category_localizer.dart';
+import '../../shared/utils/cents_input_formatter.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/budget_ring.dart';
 
@@ -205,10 +205,10 @@ class _BudgetEditorSheetState extends ConsumerState<_BudgetEditorSheet> {
     _category = b?.category;
     _period = b?.period ?? 'month';
     _amountController =
-        TextEditingController(text: b?.amount.toStringAsFixed(2) ?? '');
+        TextEditingController(text: b == null ? '' : centsTextFor(b.amount));
     _override = b?.overrideAmount != null;
     _overrideController = TextEditingController(
-        text: b?.overrideAmount?.toStringAsFixed(2) ?? '');
+        text: b?.overrideAmount == null ? '' : centsTextFor(b!.overrideAmount!));
     final now = DateTime.now();
     _overrideMonth = (b != null && b.month > 0)
         ? DateTime(b.year, b.month)
@@ -223,12 +223,12 @@ class _BudgetEditorSheetState extends ConsumerState<_BudgetEditorSheet> {
   }
 
   Future<void> _save() async {
-    final amount = double.tryParse(_amountController.text.trim()) ?? 0;
+    final amount = parseCentsInput(_amountController.text) ?? 0;
     if (amount <= 0) return;
     // An override only means something for a monthly window, so any other
     // period writes it away rather than leaving a stale one behind.
     final overrideAmount = _isMonthly && _override
-        ? double.tryParse(_overrideController.text.trim())
+        ? parseCentsInput(_overrideController.text)
         : null;
     final hasOverride = overrideAmount != null && overrideAmount > 0;
 
@@ -342,11 +342,8 @@ class _BudgetEditorSheetState extends ConsumerState<_BudgetEditorSheet> {
             const SizedBox(height: Insets.md),
             TextField(
               controller: _amountController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-              ],
+              keyboardType: TextInputType.number,
+              inputFormatters: const [CentsInputFormatter()],
               decoration: InputDecoration(
                 labelText: l.amount,
                 prefixText: '$symbol ',
@@ -377,12 +374,8 @@ class _BudgetEditorSheetState extends ConsumerState<_BudgetEditorSheet> {
                 const SizedBox(height: Insets.md),
                 TextField(
                   controller: _overrideController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d+\.?\d{0,2}')),
-                  ],
+                  keyboardType: TextInputType.number,
+                  inputFormatters: const [CentsInputFormatter()],
                   decoration: InputDecoration(
                     labelText: l.overrideAmount,
                     prefixText: '$symbol ',

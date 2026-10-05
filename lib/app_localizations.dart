@@ -110,12 +110,6 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// No description provided for @spendingTrend.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending Trend'**
-  String get spendingTrend;
-
   /// No description provided for @totalBalance.
   ///
   /// In en, this message translates to:
@@ -1207,6 +1201,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are over budget.'**
   String get budgetAlertOver;
+
+  /// No description provided for @refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get refund;
+
+  /// No description provided for @creditLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Limit'**
+  String get creditLimit;
+
+  /// No description provided for @creditLimitRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the card\'s credit limit'**
+  String get creditLimitRequired;
+
+  /// No description provided for @availableCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {available} / Limit {limit}'**
+  String availableCredit(String available, String limit);
+
+  /// No description provided for @noCreditLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'No credit limit set'**
+  String get noCreditLimit;
+
+  /// No description provided for @owedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed {amount}'**
+  String owedAmount(String amount);
+
+  /// No description provided for @overpaidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Overpaid {amount}'**
+  String overpaidAmount(String amount);
+
+  /// No description provided for @repay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get repay;
+
+  /// No description provided for @cardPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Payment'**
+  String get cardPayment;
+
+  /// No description provided for @overLimitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Over credit limit'**
+  String get overLimitTitle;
+
+  /// No description provided for @overLimitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This charge is more than the card\'s available credit ({available}). Save anyway?'**
+  String overLimitMsg(String available);
 }
 
 class _AppLocalizationsDelegate

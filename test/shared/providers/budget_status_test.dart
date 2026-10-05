@@ -43,11 +43,12 @@ void main() {
         overrideAmount: Value(override),
       ));
 
-  Future<void> addExpense(double amount, String category, DateTime date) =>
+  Future<void> addExpense(double amount, String category, DateTime date,
+          {String type = 'expense'}) =>
       db.transactionDao.insertTransaction(TransactionsCompanion.insert(
         title: '',
         amount: amount,
-        type: 'expense',
+        type: type,
         category: category,
         date: date,
       ));
@@ -132,5 +133,16 @@ void main() {
     await settle();
 
     expect(container.read(budgetStatusesProvider).single.spent, 100);
+  });
+
+  test('a refund gives budget back to its category', () async {
+    final now = DateTime.now();
+    await addBudget(category: 'catShopping');
+    await addExpense(300, 'catShopping', DateTime(now.year, now.month, 1));
+    await addExpense(50, 'catShopping', DateTime(now.year, now.month, 1),
+        type: 'refund');
+    await settle();
+
+    expect(container.read(budgetStatusesProvider).single.spent, 250);
   });
 }

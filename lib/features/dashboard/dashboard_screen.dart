@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import 'package:finio/app_localizations.dart';
 import '../../core/sync/sync_service.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../shared/providers/account_providers.dart';
 import '../../shared/providers/budget_providers.dart';
@@ -70,7 +68,7 @@ class DashboardScreen extends ConsumerWidget {
                     for (final tx in recent)
                       TransactionTile(
                         tx: tx,
-                        category: categoryMap['${tx.type}:${tx.category}'],
+                        category: categoryMap[categoryKeyOf(tx)],
                         symbol: symbol,
                         showDate: true,
                         onEdit: () =>
@@ -99,84 +97,35 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Spending trend + category donut as full-width cards. Each taps through to
-/// the Statistics tab for detail. Full width keeps the donut legend readable
-/// (no truncated category names).
+/// Category donut as a full-width card that taps through to the Statistics
+/// tab for detail. Full width keeps the legend readable (no truncated category
+/// names).
 class _InsightsRow extends ConsumerWidget {
   const _InsightsRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final txs = ref.watch(monthlyTransactionsProvider).valueOrNull ?? [];
     final stats = ref.watch(categoryStatsProvider('expense'));
-    final finio = context.finio;
-
-    // Per-day expense series for the selected month.
-    final byDay = <int, double>{};
-    for (final t in txs.where((t) => t.type == 'expense')) {
-      byDay[t.date.day] = (byDay[t.date.day] ?? 0) + t.amount;
-    }
-    final days = byDay.keys.toList()..sort();
-    final series = [for (final d in days) byDay[d]!];
-
-    if (stats.isEmpty && series.length < 2) return const SizedBox.shrink();
-
-    // First/last dates of the expense series, for the sparkline's end labels.
-    String? startLabel, endLabel;
-    if (series.length >= 2) {
-      final month = ref.watch(selectedMonthProvider);
-      final locale = Localizations.localeOf(context).toString();
-      startLabel = DateFormat.MMMd(locale)
-          .format(DateTime(month.year, month.month, days.first));
-      endLabel = DateFormat.MMMd(locale)
-          .format(DateTime(month.year, month.month, days.last));
-    }
-
-    void openStats() => ref.read(navIndexProvider.notifier).state = 2;
+    if (stats.isEmpty) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(Insets.lg, 0, Insets.lg, Insets.sm),
-      child: Column(
-        children: [
-          if (series.length >= 2)
-            _InsightCard(
-              onTap: openStats,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.spendingTrend,
-                      style: Theme.of(context).textTheme.labelSmall),
-                  const SizedBox(height: Insets.sm),
-                  MiniSparkline(
-                    values: series,
-                    color: finio.expense,
-                    startLabel: startLabel,
-                    endLabel: endLabel,
-                  ),
-                ],
+      child: _InsightCard(
+        onTap: () => ref.read(navIndexProvider.notifier).state = 2,
+        child: Row(
+          children: [
+            MiniDonut(stats: stats, size: 88),
+            const SizedBox(width: Insets.lg),
+            Expanded(
+              child: DonutLegend(
+                stats: stats,
+                labelOf: (k) => localizeCategory(l, k),
               ),
             ),
-          if (series.length >= 2 && stats.isNotEmpty)
-            const SizedBox(height: Insets.md),
-          if (stats.isNotEmpty)
-            _InsightCard(
-              onTap: openStats,
-              child: Row(
-                children: [
-                  MiniDonut(stats: stats, size: 88),
-                  const SizedBox(width: Insets.lg),
-                  Expanded(
-                    child: DonutLegend(
-                      stats: stats,
-                      labelOf: (k) => localizeCategory(l, k),
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right, size: 18),
-                ],
-              ),
-            ),
-        ],
+            const Icon(Icons.chevron_right, size: 18),
+          ],
+        ),
       ),
     );
   }

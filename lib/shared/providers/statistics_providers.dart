@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:finio/core/database/app_database.dart';
 import '../models/stats_models.dart';
+import '../utils/category_localizer.dart';
 import 'category_providers.dart';
 import 'database_provider.dart';
 import 'transaction_providers.dart';
@@ -18,9 +19,11 @@ final categoryStatsProvider =
   final catMap = {for (final c in cats) c.name: c};
 
   final totals = <String, double>{};
-  for (final tx in txs.where((t) => t.type == type)) {
-    final main = mainKeyMap['${tx.type}:${tx.category}'] ?? tx.category;
-    totals[main] = (totals[main] ?? 0) + tx.amount;
+  for (final tx in txs) {
+    final amount = _amountFor(tx, type);
+    if (amount == 0) continue;
+    final main = mainKeyMap[categoryKeyOf(tx)] ?? tx.category;
+    totals[main] = (totals[main] ?? 0) + amount;
   }
 
   return _toStats(totals, catMap);
@@ -36,19 +39,29 @@ final subcategoryStatsProvider = Provider.autoDispose
   final catMap = {for (final c in cats) c.name: c};
 
   final totals = <String, double>{};
-  for (final tx in txs.where((t) => t.type == args.type)) {
-    final main = mainKeyMap['${tx.type}:${tx.category}'] ?? tx.category;
+  for (final tx in txs) {
+    final amount = _amountFor(tx, args.type);
+    if (amount == 0) continue;
+    final main = mainKeyMap[categoryKeyOf(tx)] ?? tx.category;
     if (main != args.main) continue;
     // Leaf = the sub name (or the main itself for directly-filed transactions).
-    totals[tx.category] = (totals[tx.category] ?? 0) + tx.amount;
+    totals[tx.category] = (totals[tx.category] ?? 0) + amount;
   }
 
   return _toStats(totals, catMap);
 });
 
-/// Builds sorted [CategoryStat]s from category→amount totals.
+/// What [tx] contributes to a [type] breakdown: expenses net of refunds for
+/// 'expense', the plain amount for 'income'.
+double _amountFor(Transaction tx, String type) => type == 'expense'
+    ? spendOf(tx)
+    : (tx.type == type ? tx.amount : 0);
+
+/// Builds sorted [CategoryStat]s from category→amount totals. A category whose
+/// refunds cover its spending has nothing to slice, so it's left out.
 List<CategoryStat> _toStats(
     Map<String, double> totals, Map<String, Category> catMap) {
+  totals.removeWhere((_, v) => v <= 0);
   final grandTotal = totals.values.fold(0.0, (a, b) => a + b);
   if (grandTotal == 0) return [];
   return totals.entries.map((e) {

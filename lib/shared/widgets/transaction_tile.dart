@@ -39,7 +39,8 @@ class TransactionTile extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final finio = context.finio;
     final scheme = Theme.of(context).colorScheme;
-    final isIncome = tx.type == 'income';
+    final isRefund = tx.type == 'refund';
+    final isIncome = tx.type == 'income' || isRefund;
     final isTransfer = tx.type == 'transfer';
     final amountColor = finio.forType(tx.type);
     final catColor =
@@ -48,10 +49,14 @@ class TransactionTile extends StatelessWidget {
 
     // A transfer has no category to show — the two ends are the useful part.
     // With no note the category is already the title, so don't print it twice.
+    final catLabel = tx.title.isEmpty ? '' : localizeCategory(l, tx.category);
     final lead = isTransfer
         ? '${tx.account ?? l.unassignedAccount} → '
             '${tx.toAccount ?? l.unassignedAccount}'
-        : (tx.title.isEmpty ? '' : localizeCategory(l, tx.category));
+        // Tag refunds so a green row under an expense category isn't a puzzle.
+        : (isRefund
+            ? [l.refund, if (catLabel.isNotEmpty) catLabel].join(' · ')
+            : catLabel);
     final date = DateFormat.MMMd().format(tx.date);
     final subtitle = showDate
         ? (lead.isEmpty ? date : '$lead · $date')

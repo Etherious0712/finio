@@ -1,6 +1,5 @@
 {
   "@@locale": "zh",
-  "spendingTrend": "支出趋势",
   "totalBalance": "总余额",
   "editTransaction": "编辑记录",
   "groupByMonth": "按月份",
@@ -182,5 +181,16 @@
   "overrideAmount": "特例金额",
   "budgetAlertTitle": "Finio 预算提醒",
   "budgetAlertNear": "已用掉预算的 80%。",
-  "budgetAlertOver": "已经超出预算。"
+  "budgetAlertOver": "已经超出预算。",
+  "refund": "退款",
+  "creditLimit": "信用额度",
+  "creditLimitRequired": "请输入信用卡额度",
+  "availableCredit": "可用 {available} / 额度 {limit}",
+  "noCreditLimit": "未设额度",
+  "owedAmount": "欠款 {amount}",
+  "overpaidAmount": "溢缴款 {amount}",
+  "repay": "还款",
+  "cardPayment": "信用卡还款",
+  "overLimitTitle": "超出可用额度",
+  "overLimitMsg": "这笔消费超出信用卡可用额度（{available}），仍要保存吗？"
 }

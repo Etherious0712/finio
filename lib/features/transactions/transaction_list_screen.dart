@@ -12,6 +12,7 @@ import '../../shared/providers/category_providers.dart';
 import '../../shared/providers/currency_provider.dart';
 import '../../shared/providers/database_provider.dart';
 import '../../shared/providers/transaction_providers.dart';
+import '../../shared/utils/category_localizer.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/widgets/scope_bar.dart';
 import '../../shared/widgets/transaction_tile.dart';
@@ -66,7 +67,7 @@ class TransactionListScreen extends ConsumerWidget {
                     final tx = item as Transaction;
                     return TransactionTile(
                       tx: tx,
-                      category: categoryMap['${tx.type}:${tx.category}'],
+                      category: categoryMap[categoryKeyOf(tx)],
                       symbol: symbol,
                       onEdit: () => context.push('/transactions/add', extra: tx),
                       onDelete: () => ref
@@ -129,19 +130,14 @@ class TransactionListScreen extends ConsumerWidget {
             ? DateFormat.yMMMM(locale)
                 .format(DateTime(tx.date.year, tx.date.month))
             : '${tx.date.year}';
-        // Net for the whole period (income − expense). A transfer nets to zero
-        // within any period, so it contributes nothing.
+        // Net for the whole period (income − spending, refunds netted into
+        // spending). A transfer nets to zero within any period.
         final periodTxs = txs.where((t) => (monthly
             ? '${t.date.year}-${t.date.month}'
             : '${t.date.year}') == key);
         final net = periodTxs.fold<double>(
             0,
-            (s, t) => s +
-                switch (t.type) {
-                  'income' => t.amount,
-                  'expense' => -t.amount,
-                  _ => 0.0,
-                });
+            (s, t) => s + (t.type == 'income' ? t.amount : -spendOf(t)));
         items.add(_Header(label, total: net, isNet: true));
         lastKey = key;
       }

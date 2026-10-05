@@ -12,7 +12,10 @@ class Transactions extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text().withLength(max: 100)();
   RealColumn get amount => real()();
-  TextColumn get type => text()(); // 'income' | 'expense' | 'transfer'
+  // 'income' | 'expense' | 'transfer' | 'refund'. A refund is money a credit
+  // card gets back on a purchase: it carries an EXPENSE category and offsets
+  // that category's spending instead of counting as income.
+  TextColumn get type => text()();
   TextColumn get category => text()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get date => dateTime()();
@@ -47,6 +50,9 @@ class Accounts extends Table {
   TextColumn get type => text().withDefault(const Constant('savings'))();
   // Balance before tracking started. Negative on a credit card = money owed.
   RealColumn get openingBalance => real().withDefault(const Constant(0))();
+  // Credit cards only: the bank's limit. Available credit = limit − owed.
+  // null = not set (cards created before v10), which the UI asks to fill in.
+  RealColumn get creditLimit => real().nullable()();
 }
 
 class Categories extends Table {
@@ -82,7 +88,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   late final transactionDao = TransactionDao(this);
   late final categoryDao = CategoryDao(this);
@@ -179,6 +185,15 @@ class AppDatabase extends _$AppDatabase {
               "UPDATE transactions SET title = '', is_synced = 0 "
               "WHERE title = category",
             );
+          }
+          if (from < 10) {
+            // Credit limits. Existing cards stay NULL = not set.
+            if (from >= 7) {
+              // Same as v8: a table created above already has the column.
+              await customStatement(
+                'ALTER TABLE accounts ADD COLUMN credit_limit REAL',
+              );
+            }
           }
         },
       );

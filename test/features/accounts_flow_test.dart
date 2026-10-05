@@ -62,14 +62,10 @@ void main() {
     await tester.pump(Duration.zero);
   }
 
-  /// Taps digits on the real keypad, pumping between each so the parent's
-  /// rebuilt value is what the next tap appends to.
-  Future<void> typeAmount(WidgetTester tester, String digits) async {
-    for (final d in digits.split('')) {
-      await tester.tap(find.widgetWithText(InkWell, d));
-      await tester.pump();
-    }
-  }
+  /// Types digits into the sheet's amount field (the first one) the way the
+  /// phone's number pad does — cash-register style, so '2500' is 25.00.
+  Future<void> typeAmount(WidgetTester tester, String digits) =>
+      tester.enterText(find.byType(TextField).first, digits);
 
   Future<int> seedJar(String name, {bool isDefault = false}) async {
     final id = await db.accountDao.insertAccount(
@@ -105,7 +101,7 @@ void main() {
     await settle(tester);
   });
 
-  testWidgets('a credit card stores what is owed as a negative balance',
+  testWidgets('a credit card stores debt negative and shows it as owed',
       (tester) async {
     await usePhoneScreen(tester);
     await tester.pumpWidget(host(const AccountManagementScreen()));
@@ -120,7 +116,9 @@ void main() {
     await tester.pumpAndSettle();
     // The label flips to "Amount Owed" so the user never types the minus.
     await tester.enterText(
-        find.widgetWithText(TextField, 'Amount Owed'), '500');
+        find.widgetWithText(TextField, 'Amount Owed'), '50000');
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Credit Limit'), '200000');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
 
@@ -128,7 +126,10 @@ void main() {
     expect(card.name, 'Visa');
     expect(card.type, 'creditCard');
     expect(card.openingBalance, -500);
-    expect(find.text(r'-$500.00'), findsOneWidget);
+    expect(card.creditLimit, 2000);
+    // Owed reads as a plain positive, with the credit that's left under it.
+    expect(find.text(r'Owed $500.00'), findsOneWidget);
+    expect(find.text(r'Available $1,500.00 / Limit $2,000.00'), findsOneWidget);
 
     await settle(tester);
   });
@@ -172,8 +173,8 @@ void main() {
     expect(find.text('Maybank'), findsOneWidget);
     expect(find.text('Unassigned'), findsOneWidget);
 
-    // Type an amount on the real keypad, then save.
-    await typeAmount(tester, '25');
+    // Type an amount, then save.
+    await typeAmount(tester, '2500');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
@@ -203,7 +204,7 @@ void main() {
 
     await tester.tap(find.text('Maybank'));
     await tester.pumpAndSettle();
-    await typeAmount(tester, '7');
+    await typeAmount(tester, '700');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
@@ -229,7 +230,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Maybank'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextFormField).first, '40');
+    await tester.enterText(find.byType(TextFormField).first, '4000');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
@@ -252,7 +253,7 @@ void main() {
     await tester.tap(find.text('Transfer'));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextFormField).first, '200');
+    await tester.enterText(find.byType(TextFormField).first, '20000');
     await tester.pumpAndSettle();
 
     // From/To rows sit below the note and date cards.
@@ -291,7 +292,7 @@ void main() {
         find.text('Create at least two wallets to transfer between them'),
         findsOneWidget);
 
-    await tester.enterText(find.byType(TextFormField).first, '200');
+    await tester.enterText(find.byType(TextFormField).first, '20000');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
@@ -391,5 +392,192 @@ void main() {
     expect(txs.single.account, 'Maybank Savings');
 
     await settle(tester);
+  });
+
+  group('credit cards', () {
+    Future<void> seedCard(String name,
+        {double limit = 1000, bool isDefault = false}) async {
+      final id = await db.accountDao.insertAccount(AccountsCompanion.insert(
+        name: name,
+        icon: 'credit_card',
+        color: '#42A5F5',
+        type: const Value('creditCard'),
+        creditLimit: Value(limit),
+      ));
+      if (isDefault) await db.accountDao.setDefault(id);
+    }
+
+    testWidgets('a card cannot be saved without a credit limit',
+        (tester) async {
+      await usePhoneScreen(tester);
+      await tester.pumpWidget(host(const AccountManagementScreen()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Wallet Name'), 'Visa');
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Credit Card'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(await db.accountDao.getAllAccounts(), isEmpty);
+      expect(find.text("Enter the card's credit limit"), findsOneWidget);
+
+      await settle(tester);
+    });
+
+    testWidgets('income on a card is saved as a refund under an expense '
+        'category', (tester) async {
+      await usePhoneScreen(tester);
+      await seedCard('Visa', isDefault: true);
+
+      await tester.pumpWidget(host(const AddTransactionScreen()));
+      await tester.pumpAndSettle();
+
+      // The income segment reads "Refund" while a card is selected.
+      expect(find.text('Income'), findsNothing);
+      await tester.tap(find.text('Refund'));
+      await tester.pumpAndSettle();
+      // Expense categories, not income ones.
+      expect(find.text('Shopping'), findsOneWidget);
+      expect(find.text('Salary'), findsNothing);
+      await tester.tap(find.text('Shopping'));
+      await tester.enterText(find.byType(TextFormField).first, '2500');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      final tx = (await db.transactionDao.searchTransactions('')).single;
+      expect(tx.type, 'refund');
+      expect(tx.category, 'catShopping');
+      expect(tx.account, 'Visa');
+      expect(tx.amount, 25);
+
+      await settle(tester);
+    });
+
+    testWidgets('a charge over the available credit warns, then saves',
+        (tester) async {
+      await usePhoneScreen(tester);
+      await seedCard('Visa', limit: 100, isDefault: true);
+
+      await tester.pumpWidget(host(
+        const Material(
+            child: QuickAddSheet(initialType: TransactionType.expense)),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text(r'Available $100.00 / Limit $100.00'), findsOneWidget);
+
+      await typeAmount(tester, '15000');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Over credit limit'), findsOneWidget);
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      final tx = (await db.transactionDao.searchTransactions('')).single;
+      expect(tx.amount, 150);
+      expect(tx.account, 'Visa');
+
+      await settle(tester);
+    });
+
+    testWidgets('cancelling the over-limit warning saves nothing',
+        (tester) async {
+      await usePhoneScreen(tester);
+      await seedCard('Visa', limit: 100, isDefault: true);
+
+      await tester.pumpWidget(host(
+        const Material(
+            child: QuickAddSheet(initialType: TransactionType.expense)),
+      ));
+      await tester.pumpAndSettle();
+
+      await typeAmount(tester, '15000');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(await db.transactionDao.searchTransactions(''), isEmpty);
+
+      await settle(tester);
+    });
+
+    testWidgets('paying a card is a transfer filed as a card payment',
+        (tester) async {
+      await usePhoneScreen(tester);
+      await seedJar('Maybank', isDefault: true);
+      await seedCard('Visa');
+
+      // What the card's Pay button opens.
+      await tester.pumpWidget(host(const AddTransactionScreen(
+        initialType: TransactionType.transfer,
+        initialToAccount: 'Visa',
+      )));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField).first, '30000');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      final tx = (await db.transactionDao.searchTransactions('')).single;
+      expect(tx.type, 'transfer');
+      expect(tx.account, 'Maybank');
+      expect(tx.toAccount, 'Visa');
+      expect(tx.category, 'catCardPayment');
+      // No note = no title, so the list shows "Card Payment".
+      expect(tx.title, '');
+      expect(tx.amount, 300);
+
+      await settle(tester);
+    });
+
+    testWidgets("the card row's Pay button opens a transfer into the card",
+        (tester) async {
+      await usePhoneScreen(tester);
+      await seedCard('Visa');
+      String? opened;
+      await tester.pumpWidget(ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp.router(
+          theme: AppTheme.light,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          routerConfig: GoRouter(
+            initialLocation: '/accounts',
+            routes: [
+              GoRoute(
+                path: '/accounts',
+                builder: (_, _) => const AccountManagementScreen(),
+              ),
+              GoRoute(
+                path: '/transactions/add',
+                builder: (_, state) {
+                  opened = state.uri.toString();
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text(r'Owed $0.00'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Pay'));
+      await tester.pumpAndSettle();
+
+      expect(opened, '/transactions/add?type=transfer&to=Visa');
+
+      await settle(tester);
+    });
   });
 }

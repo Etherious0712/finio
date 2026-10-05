@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-  "spendingTrend": "Spending Trend",
   "totalBalance": "Total Balance",
   "editTransaction": "Edit Record",
   "groupByMonth": "By Month",
@@ -187,5 +186,28 @@
   "overrideAmount": "Override amount",
   "budgetAlertTitle": "Finio budget alert",
   "budgetAlertNear": "You have used 80% of your budget.",
-  "budgetAlertOver": "You are over budget."
+  "budgetAlertOver": "You are over budget.",
+  "refund": "Refund",
+  "creditLimit": "Credit Limit",
+  "creditLimitRequired": "Enter the card's credit limit",
+  "availableCredit": "Available {available} / Limit {limit}",
+  "@availableCredit": {
+    "placeholders": {"available": {"type": "String"}, "limit": {"type": "String"}}
+  },
+  "noCreditLimit": "No credit limit set",
+  "owedAmount": "Owed {amount}",
+  "@owedAmount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "overpaidAmount": "Overpaid {amount}",
+  "@overpaidAmount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "repay": "Pay",
+  "cardPayment": "Card Payment",
+  "overLimitTitle": "Over credit limit",
+  "overLimitMsg": "This charge is more than the card's available credit ({available}). Save anyway?",
+  "@overLimitMsg": {
+    "placeholders": {"available": {"type": "String"}}
+  }
 }

@@ -9,9 +9,6 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get spendingTrend => 'Ausgabentrend';
-
-  @override
   String get totalBalance => 'Gesamtsaldo';
 
   @override
@@ -567,4 +564,45 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get budgetAlertOver => 'Du hast dein Budget überschritten.';
+
+  @override
+  String get refund => 'Erstattung';
+
+  @override
+  String get creditLimit => 'Kreditlimit';
+
+  @override
+  String get creditLimitRequired => 'Gib das Kreditlimit der Karte ein';
+
+  @override
+  String availableCredit(String available, String limit) {
+    return 'Verfügbar $available / Limit $limit';
+  }
+
+  @override
+  String get noCreditLimit => 'Kein Kreditlimit festgelegt';
+
+  @override
+  String owedAmount(String amount) {
+    return 'Offen $amount';
+  }
+
+  @override
+  String overpaidAmount(String amount) {
+    return 'Überzahlt $amount';
+  }
+
+  @override
+  String get repay => 'Zahlen';
+
+  @override
+  String get cardPayment => 'Kartenzahlung';
+
+  @override
+  String get overLimitTitle => 'Kreditlimit überschritten';
+
+  @override
+  String overLimitMsg(String available) {
+    return 'Diese Ausgabe übersteigt den verfügbaren Kreditrahmen der Karte ($available). Trotzdem speichern?';
+  }
 }

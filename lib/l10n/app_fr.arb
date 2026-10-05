@@ -1,6 +1,5 @@
 {
   "@@locale": "fr",
-  "spendingTrend": "Tendance des dépenses",
   "totalBalance": "Solde total",
   "editTransaction": "Modifier l'entrée",
   "groupByMonth": "Par mois",
@@ -182,5 +181,16 @@
   "overrideAmount": "Montant de-exception",
   "budgetAlertTitle": "Alerte budget Finio",
   "budgetAlertNear": "Vous avez utilisé 80% de votre budget.",
-  "budgetAlertOver": "Vous avez dépassé votre budget."
+  "budgetAlertOver": "Vous avez dépassé votre budget.",
+  "refund": "Remboursement",
+  "creditLimit": "Plafond de crédit",
+  "creditLimitRequired": "Saisissez le plafond de la carte",
+  "availableCredit": "Disponible {available} / Plafond {limit}",
+  "noCreditLimit": "Aucun plafond défini",
+  "owedAmount": "Dû {amount}",
+  "overpaidAmount": "Trop-perçu {amount}",
+  "repay": "Payer",
+  "cardPayment": "Paiement de carte",
+  "overLimitTitle": "Plafond dépassé",
+  "overLimitMsg": "Cette dépense dépasse le crédit disponible de la carte ({available}). Enregistrer quand même ?"
 }

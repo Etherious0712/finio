@@ -53,7 +53,7 @@ void main() {
 
     await tester.tap(find.widgetWithText(ChoiceChip, 'Weekly'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '500');
+    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '50000');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
 
@@ -94,7 +94,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '300');
+    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '30000');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
     expect((await db.budgetDao.getBudgets()).length, 1);

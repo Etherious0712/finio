@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:finio/core/database/app_database.dart';
 import 'package:finio/shared/providers/database_provider.dart';
+import 'package:finio/shared/utils/category_localizer.dart';
 
 /// Currently selected month (defaults to this month). Drives month navigation.
 /// In [RecordScope.year] the `.year` component is the selected year; the month
@@ -68,12 +69,10 @@ final monthlyIncomeProvider = Provider.autoDispose<double>((ref) {
       .fold(0.0, (sum, t) => sum + t.amount);
 });
 
-/// This month's total expense.
+/// This month's total expense, net of refunds.
 final monthlyExpenseProvider = Provider.autoDispose<double>((ref) {
   final txs = ref.watch(monthlyTransactionsProvider).valueOrNull ?? [];
-  return txs
-      .where((t) => t.type == 'expense')
-      .fold(0.0, (sum, t) => sum + t.amount);
+  return txs.fold(0.0, (sum, t) => sum + spendOf(t));
 });
 
 /// Today's income (filtered from this month's stream).
@@ -89,15 +88,14 @@ final todayIncomeProvider = Provider.autoDispose<double>((ref) {
       .fold(0.0, (sum, t) => sum + t.amount);
 });
 
-/// Today's expense.
+/// Today's expense, net of refunds.
 final todayExpenseProvider = Provider.autoDispose<double>((ref) {
   final txs = ref.watch(monthlyTransactionsProvider).valueOrNull ?? [];
   final today = DateTime.now();
   return txs
       .where((t) =>
-          t.type == 'expense' &&
           t.date.year == today.year &&
           t.date.month == today.month &&
           t.date.day == today.day)
-      .fold(0.0, (sum, t) => sum + t.amount);
+      .fold(0.0, (sum, t) => sum + spendOf(t));
 });

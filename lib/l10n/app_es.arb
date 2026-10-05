@@ -1,6 +1,5 @@
 {
   "@@locale": "es",
-  "spendingTrend": "Tendencia de gastos",
   "totalBalance": "Saldo total",
   "editTransaction": "Editar registro",
   "groupByMonth": "Por mes",
@@ -182,5 +181,16 @@
   "overrideAmount": "Importe de la excepción",
   "budgetAlertTitle": "Alerta de presupuesto Finio",
   "budgetAlertNear": "Has usado el 80% de tu presupuesto.",
-  "budgetAlertOver": "Has superado tu presupuesto."
+  "budgetAlertOver": "Has superado tu presupuesto.",
+  "refund": "Reembolso",
+  "creditLimit": "Límite de crédito",
+  "creditLimitRequired": "Introduce el límite de crédito de la tarjeta",
+  "availableCredit": "Disponible {available} / Límite {limit}",
+  "noCreditLimit": "Sin límite de crédito",
+  "owedAmount": "Adeudado {amount}",
+  "overpaidAmount": "Pagado de más {amount}",
+  "repay": "Pagar",
+  "cardPayment": "Pago de tarjeta",
+  "overLimitTitle": "Límite de crédito superado",
+  "overLimitMsg": "Este cargo supera el crédito disponible de la tarjeta ({available}). ¿Guardar de todos modos?"
 }

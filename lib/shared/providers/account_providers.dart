@@ -19,8 +19,8 @@ final defaultAccountProvider = Provider<Account?>((ref) {
   return null;
 });
 
-/// Balance per account — opening balance, plus all-time income − expense, plus
-/// transfers in − transfers out. Highest first, with an "unassigned" bucket
+/// Balance per account — opening balance, plus all-time income + refunds −
+/// expense, plus transfers in − transfers out. Highest first, with an "unassigned" bucket
 /// appended when records exist outside any account.
 ///
 /// Deliberately **not** scoped by [recordScopeProvider]: "how much is in this
@@ -42,7 +42,7 @@ final accountBalancesProvider = Provider<List<AccountBalance>>((ref) {
   for (final t in txs) {
     final from = bucket(t.account);
     switch (t.type) {
-      case 'income':
+      case 'income' || 'refund':
         totals[from] = (totals[from] ?? 0) + t.amount;
       case 'transfer':
         final to = bucket(t.toAccount);
@@ -64,6 +64,7 @@ final accountBalancesProvider = Provider<List<AccountBalance>>((ref) {
       color: a?.color ?? '#B0B0B0',
       type: a?.type ?? '',
       balance: entry.value,
+      creditLimit: a?.creditLimit,
     ));
   }
   result.sort((a, b) => b.balance.compareTo(a.balance));
@@ -79,6 +80,17 @@ final accountBalancesProvider = Provider<List<AccountBalance>>((ref) {
     ));
   }
   return result;
+});
+
+/// The balance of the account named [name]; null for unassigned or a name with
+/// no account row. Entry screens read a card's available credit from it.
+final accountBalanceProvider =
+    Provider.family<AccountBalance?, String?>((ref, name) {
+  if (name == null) return null;
+  for (final b in ref.watch(accountBalancesProvider)) {
+    if (b.name == name) return b;
+  }
+  return null;
 });
 
 /// All-time net worth: every account's balance, opening balances included and
